@@ -1,0 +1,150 @@
+# Additionnal optimizations
+#https://alan-turing-institute.github.io/hub23-deploy/advanced/optimising-jupyterhub.html#labelling-nodes-for-core-purpose
+#https://github.com/alan-turing-institute/hub23-deploy/blob/main/deploy/prod.yaml#L56
+
+# add additionnal buttons https://binderhub.readthedocs.io/en/latest/cors.html#adjusting-binderhub-config-to-enable-cors
+
+jupyterhub:
+  ingress:
+    enabled: true
+    hosts:
+      - binder.conp.cloud
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      kubernetes.io/tls-acme: "true"
+      cert-manager.io/issuer: letsencrypt-production
+    tls:
+      - secretName: binder-conp-cloud-tls
+        hosts:
+          - binder.conp.cloud
+  #https://discourse.jupyter.org/t/pre-building-images-on-binderhub/4325/4
+  prePuller:
+    continuous:
+      enabled: true
+  hub:
+    baseUrl: /jupyter/
+    image:
+      name: binder-registry.conp.cloud/hub-image
+      tag: v1.16
+    fsGid: 999
+    extraVolumes:
+    - name: shared-data
+      hostPath:
+        path: /DATA
+    - name: docker-storage
+      hostPath:
+        path: /var/run/docker.sock
+    extraVolumeMounts:
+    - name: shared-data
+      mountPath: /srv/jupyterhub/data  # where hub can reach the shared data
+    - name: docker-storage
+      mountPath: /var/run/docker.sock
+    extraConfig:
+      myExtraConfig: |
+        import os
+        import shutil
+        import tempfile 
+        import subprocess
+        import docker
+        import urllib
+        from repo2data.repo2data import Repo2Data
+  
+        async def my_pre_spawn_hook(spawner):
+          repo_url = spawner.user_options.get('repo_url')
+          repo_name = repo_url.split("/")[-1]
+          user_name = repo_url.split("/")[-2]
+          provider_name = repo_url.split("/")[-3]
+          ref = spawner.user_options.get('image').split(':')[-1]  # commit hash
+          file_url = f"https://raw.githubusercontent.com/{user_name}/{repo_name}/{ref}/"
+          # Create temporary dir
+          t = tempfile.mkdtemp()
+
+          # Repo2Data
+          # Get data_requirement from upstream
+          print("Getting data requirements from {}".format(file_url))
+          data_req_path = os.path.join(t, "data_requirement.json")
+          data_req_found = True
+          try:
+            urllib.request.urlretrieve(file_url + "binder/data_requirement.json", data_req_path)
+          except:
+            print("{} not found".format(file_url + "binder/data_requirement.json"))
+            data_req_found = False
+          if data_req_found:
+            # Copy desired file from temporary dir
+            Repo2Data(server=True, data_requirement=data_req_path).install()
+          # Remove tmp dir
+          shutil.rmtree(t) 
+        c.KubeSpawner.pre_spawn_hook = my_pre_spawn_hook
+  proxy:
+    service:
+      type: NodePort
+  cull:
+    timeout: 1800 #30min
+    every: 30
+    concurrency: 5 #to avoid Hub slow down, 5 concurrent processes
+    maxAge: 28800 #8h
+  singleuser:
+    storage:
+      type: none
+      extraVolumes:
+      - name: shared-data
+        hostPath:
+          path: /DATA
+      - name: book-data
+        hostPath:
+          path: /DATA/book-artifacts
+      extraVolumeMounts:
+      - name: shared-data
+        mountPath: /home/jovyan/data  # where each user can reach shared data
+        readOnly : true
+      - name: book-data
+        mountPath: /mnt/books
+    memory:
+       limit: 2G
+    cpu:
+       limit: 2
+    startTimeout: 1800 #30min
+    #for repo2data https://zero-to-jupyterhub.readthedocs.io/en/latest/resources/reference.html#singleuser-initcontainers
+    # https://zero-to-jupyterhub.readthedocs.io/en/latest/jupyterhub/customizing/user-environment.html#about-user-storage-and-adding-files-to-it
+    extraFiles:
+      jb_build:
+        mountPath: /usr/local/share/jb_build.bash
+        mode: 0755
+    lifecycleHooks:
+      postStart:
+        exec:
+          command: ["bash", "/usr/local/share/jb_build.bash"]   
+
+# BinderHub config
+config:
+  GitHubRepoProvider:
+    banned_specs:
+      # - ^(?!neurolibre\/.*).*
+      - ^ines/spacy-binder.*
+      - ^soft4voip/rak.*
+      - ^hmharshit/cn-ait.*
+      - ^shishirchoudharygic/mltraining.*
+      - ^hmharshit/mltraining.*
+  BinderHub:
+    hub_url: https://binder.conp.cloud/jupyter
+    use_registry: true
+    image_prefix: binder-registry.conp.cloud/binder-registry.conp.cloud/binder-
+
+service:
+  type: NodePort
+
+ingress:
+  enabled: true
+  hosts:
+    - binder.conp.cloud
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/issuer: letsencrypt-production
+  https:
+    enabled: true
+    type: nginx
+  tls:
+    - secretName: binder-conp-cloud-tls
+      hosts: 
+        - binder.conp.cloud
