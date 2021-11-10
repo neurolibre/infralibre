@@ -51,7 +51,10 @@ kubectl wait --namespace binderhub \
   --selector=release=binderhub \
   --timeout=120s
 sudo helm upgrade binderhub jupyterhub/binderhub --version=${binder_version} \
-   --namespace=binderhub --set-file jupyterhub.singleuser.extraFiles.jb_builstringData=./jb_build.bash -f config.yaml -f secrets.yaml
+   --namespace=binderhub -f config.yaml -f secrets.yaml \
+   --set-file jupyterhub.singleuser.extraFiles.jb_build.stringData=./jb_build.bash \
+   --set-file jupyterhub.singleuser.extraFiles.repo2data.stringData=./repo2data.bash 
+
 # Grafana and prometheus
 # https://github.com/pangeo-data/pangeo-binder#binder-monitoring
 sudo helm repo add grafana https://grafana.github.io/helm-charts
