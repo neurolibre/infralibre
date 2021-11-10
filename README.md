@@ -1,5 +1,7 @@
 # Terraform BinderHub Cluster
 
+(for history, check https://github.com/neurolibre/terraform-binderhub_old)
+
 ## Requirements
 
 - Install [Terraform](https://www.terraform.io/downloads.html)
