@@ -76,6 +76,9 @@ jupyterhub:
 
 # BinderHub config
 config:
+  Launcher:
+    launch_timeout: 3600 #1h
+    retries: 10
   GitHubRepoProvider:
     banned_specs:
       # - ^(?!neurolibre\/.*).*
