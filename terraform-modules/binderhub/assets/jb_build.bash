@@ -47,6 +47,7 @@ execute:
   exclude_patterns          : []  # A list of patterns to *skip* in execution (e.g. a notebook that takes a really long time)
   timeout                   : -1  # remove restriction on execution time
 EOF
+
 # building jupyter book build
 mkdir -p ${BOOK_DST_PATH}
 touch ${BOOK_BUILD_LOG}
