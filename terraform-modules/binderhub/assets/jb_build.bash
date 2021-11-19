@@ -11,6 +11,7 @@ CONFIG_FILE="content/_config.yml"
 BOOK_DST_PATH="/mnt/books/${USER_NAME}/${PROVIDER_NAME}/${REPO_NAME}/${COMMIT_REF}"
 BOOK_BUILT_FLAG="${BOOK_DST_PATH}/successfully_built"
 BOOK_BUILD_LOG="${BOOK_DST_PATH}/book-build.log"
+BINDERHUB_URL="https://binder.conp.cloud"
 
 # checking if book build is necessary
 echo "Checking if jupyter book build will be done..."
@@ -28,6 +29,24 @@ if [ -f "${BOOK_BUILT_FLAG}" ]; then
 else
   echo -e "\t ${BOOK_BUILT_FLAG} not found."
 fi
+# changing config
+if [ ${USER_NAME} -e "roboneurolibre" ] ; then
+  BINDERHUB_URL="https://binder-mcgill.conp.cloud"
+  echo -e "\t Detecting oboneurolibre fork, changing launch_button config to production ${BINDERHUB_URL}."
+fi
+cat << EOF >> ${CONFIG_FILE}
+
+launch_buttons:
+  notebook_interface: "jupyterlab"  # or "classic"
+  binderhub_url: "${BINDERHUB_URL}"
+  
+execute:
+  execute_notebooks         : "cache"  # Whether to execute notebooks at build time. Must be one of ("auto", "force", "cache", "off")
+  # NOTE: The cache location below means that this book MUST be built from the parent directory, not within content/.
+  cache                     : "content/_build/.jupyter_cache"  # A path to the jupyter cache that will be used to store execution artifacts. Defaults to "_build/.jupyter_cache/"
+  exclude_patterns          : []  # A list of patterns to *skip* in execution (e.g. a notebook that takes a really long time)
+  timeout                   : -1  # remove restriction on execution time
+EOF
 # building jupyter book build
 mkdir -p ${BOOK_DST_PATH}
 touch ${BOOK_BUILD_LOG}
