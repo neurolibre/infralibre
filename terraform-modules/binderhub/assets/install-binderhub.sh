@@ -24,8 +24,8 @@ kubectl wait --namespace cert-manager \
   --selector=app.kubernetes.io/instance=cert-manager \
   --timeout=300s
 # apply the issuer(s)
-kubectl create namespace binderhub
-kubectl apply -f staging-binderhub-issuer.yaml
+# kubectl create namespace binderhub
+# kubectl apply -f staging-binderhub-issuer.yaml
 kubectl apply -f production-binderhub-issuer.yaml
 
 # Binderhub proxy
