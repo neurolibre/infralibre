@@ -45,15 +45,13 @@ kubectl label nodes neurolibre-master hub.jupyter.org/node-purpose=core
 sudo helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 sudo helm repo update
 sudo helm install binderhub jupyterhub/binderhub --version=${binder_version} \
-  --namespace=binderhub -f config.yaml -f secrets.yaml
+  --namespace=binderhub -f config.yaml -f secrets.yaml \
+   --set-file jupyterhub.singleuser.extraFiles.jb_build.stringData=./jb_build.bash \
+   --set-file jupyterhub.singleuser.extraFiles.repo2data.stringData=./repo2data.bash 
 kubectl wait --namespace binderhub \
   --for=condition=ready pod \
   --selector=release=binderhub \
   --timeout=120s
-sudo helm upgrade binderhub jupyterhub/binderhub --version=${binder_version} \
-   --namespace=binderhub -f config.yaml -f secrets.yaml \
-   --set-file jupyterhub.singleuser.extraFiles.jb_build.stringData=./jb_build.bash \
-   --set-file jupyterhub.singleuser.extraFiles.repo2data.stringData=./repo2data.bash 
 
 # Grafana and prometheus
 # https://github.com/pangeo-data/pangeo-binder#binder-monitoring
