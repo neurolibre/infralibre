@@ -5,6 +5,10 @@ while [ ! -f /shared/k8s-initialized ]; do sleep 1; done
 
 cd /home/${admin_user}
 
+# node helath monitoring
+sudo helm repo add deliveryhero https://charts.deliveryhero.io/
+sudo helm install deliveryhero/node-problem-detector --generate-name
+
 #Persistent volume
 kubectl create -f pv.yaml
 
