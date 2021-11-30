@@ -30,7 +30,7 @@ else
   echo -e "\t ${BOOK_BUILT_FLAG} not found."
 fi
 # changing config if test submission
-if [ ${USER_NAME} -ne "roboneurolibre" ] ; then
+if [[ ${USER_NAME} != "roboneurolibre" ]] ; then
   echo -e "\t Detecting user submission, changing launch_button config to test ${BINDERHUB_URL} and adding jb cache execution."
   cat << EOF >> ${CONFIG_FILE}
 
