@@ -32,10 +32,18 @@ fi
 # changing config if test submission
 if [[ ${USER_NAME} != "roboneurolibre" ]] ; then
   echo -e "\t Detecting user submission, changing launch_button config to test ${BINDERHUB_URL} and adding jb cache execution."
-  cat << EOF >> ${CONFIG_FILE}
-
+  # updating binderhub_url if exists, or adding it
+  if grep ${CONFIG_FILE} -e binderhub_url; then
+    echo "detect existing binderhub_url"
+    sed -i "/binderhub_url/c\  binderhub_url             : "${BINDERHUB_URL} ${CONFIG_FILE}
+  else
+    cat << EOF >> ${CONFIG_FILE}
+    
 launch_buttons:
   binderhub_url: "${BINDERHUB_URL}"
+EOF
+  fi
+  cat << EOF >> ${CONFIG_FILE}
 
 execute:
   execute_notebooks         : "cache"  # Whether to execute notebooks at build time. Must be one of ("auto", "force", "cache", "off")
