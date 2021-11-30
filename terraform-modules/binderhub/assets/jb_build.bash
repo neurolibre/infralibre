@@ -35,7 +35,6 @@ if [[ ${USER_NAME} != "roboneurolibre" ]] ; then
   cat << EOF >> ${CONFIG_FILE}
 
 launch_buttons:
-  notebook_interface: "jupyterlab"  # or "classic"
   binderhub_url: "${BINDERHUB_URL}"
 
 execute:
