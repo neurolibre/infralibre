@@ -12,7 +12,7 @@ BOOK_DST_PATH="/mnt/books/${USER_NAME}/${PROVIDER_NAME}/${REPO_NAME}/${COMMIT_RE
 BOOK_BUILT_FLAG="${BOOK_DST_PATH}/successfully_built"
 BOOK_BUILD_LOG="${BOOK_DST_PATH}/book-build.log"
 BINDERHUB_URL="https://binder.conp.cloud"
-BOOK_CACHE_PATH="content/_build/.jupyter_cache"
+BOOK_CACHE_PATH=${BOOK_DST_PATH}"/_build/.jupyter_cache"
 
 # checking if book build is necessary
 echo "Checking if jupyter book build will be done..."
