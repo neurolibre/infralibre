@@ -55,9 +55,7 @@ execute:
 EOF
 fi
 
-# building jupyter book build
-mkdir -p ${BOOK_DST_PATH}
-mkdir -p ${BOOK_CACHE_PATH}
+# building jupyter book
 touch ${BOOK_BUILD_LOG}
 echo "Building jupyter-book for ${USER_NAME}/${PROVIDER_NAME}/${REPO_NAME}/${COMMIT_REF}"
 mkdir -p ${BOOK_DST_PATH}
