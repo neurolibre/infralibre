@@ -78,6 +78,7 @@ jupyterhub:
 config:
   Launcher:
     retries: 10
+    retry_delay: 1
   GitHubRepoProvider:
     banned_specs:
       # - ^(?!neurolibre\/.*).*
