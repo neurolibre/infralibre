@@ -59,7 +59,7 @@ jupyterhub:
        limit: 2G
     cpu:
        limit: 2
-    #startTimeout: 3600 #1h
+    startTimeout: 3600 #1h
     #for repo2data https://zero-to-jupyterhub.readthedocs.io/en/latest/resources/reference.html#singleuser-initcontainers
     # https://zero-to-jupyterhub.readthedocs.io/en/latest/jupyterhub/customizing/user-environment.html#about-user-storage-and-adding-files-to-it
     extraFiles:
@@ -77,7 +77,6 @@ jupyterhub:
 # BinderHub config
 config:
   Launcher:
-    launch_timeout: 3600 #1h
     retries: 10
   GitHubRepoProvider:
     banned_specs:
