@@ -61,6 +61,11 @@ mkdir -p ${BOOK_DST_PATH}
 mkdir -p ${BOOK_CACHE_PATH}
 touch ${BOOK_BUILD_LOG}
 jupyter-book build --all --verbose --path-output ${BOOK_DST_PATH} content 2>&1 | tee ${BOOK_BUILD_LOG}
+# checking execution
+if grep ${BOOK_BUILD_LOG} -e "Execution Failed"; then
+  echo -e "Jupyter-book execution failed!"
+  exit 0
+fi
 # https://stackoverflow.com/a/1221870
 JB_EXIT_CODE=${PIPESTATUS[0]}
 if [ ${JB_EXIT_CODE} -ne 0 ] ; then
