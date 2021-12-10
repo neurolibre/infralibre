@@ -56,9 +56,10 @@ jupyterhub:
       - name: repo2data
         mountPath: /mnt/data
     memory:
+       guarantee: 2G
        limit: 4G
     cpu:
-       limit: 1
+       guarantee: 1
     startTimeout: 3600 #1h
     #for repo2data https://zero-to-jupyterhub.readthedocs.io/en/latest/resources/reference.html#singleuser-initcontainers
     # https://zero-to-jupyterhub.readthedocs.io/en/latest/jupyterhub/customizing/user-environment.html#about-user-storage-and-adding-files-to-it
