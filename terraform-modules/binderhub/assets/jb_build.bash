@@ -56,9 +56,10 @@ EOF
 fi
 
 # building jupyter book
-touch ${BOOK_BUILD_LOG}
 echo "Building jupyter-book for ${USER_NAME}/${PROVIDER_NAME}/${REPO_NAME}/${COMMIT_REF}"
 mkdir -p ${BOOK_DST_PATH}
+mkdir -p ${BOOK_CACHE_PATH}
+touch ${BOOK_BUILD_LOG}
 jupyter-book build --all --verbose --path-output ${BOOK_DST_PATH} content 2>&1 | tee ${BOOK_BUILD_LOG}
 # https://stackoverflow.com/a/1221870
 JB_EXIT_CODE=${PIPESTATUS[0]}
