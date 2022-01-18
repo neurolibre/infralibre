@@ -30,6 +30,10 @@ if [ -f "${BOOK_BUILT_FLAG}" ]; then
 else
   echo -e "\t ${BOOK_BUILT_FLAG} not found."
 fi
+if git log -1 | grep "neurolibre-debug"; then
+    echo "Bypassing jupyter-book build from user request."
+    exit 0
+fi
 # changing config if test submission
 if [[ ${USER_NAME} != "roboneurolibre" ]] ; then
   echo -e "\t Detecting user submission, changing launch_button config to test ${BINDERHUB_URL} and adding jb cache execution."
