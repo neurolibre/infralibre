@@ -15,31 +15,31 @@ BINDERHUB_URL="https://binder.conp.cloud"
 BOOK_CACHE_PATH=${BOOK_DST_PATH}"/_build/.jupyter_cache"
 
 # checking if book build is necessary
-echo "Checking if jupyter book build will be done..."
+echo "Checking if jupyter book build will be done..." 2>&1 | tee ${BOOK_BUILD_LOG}
 if [ -f "${CONFIG_FILE}" ]; then
-  echo -e "\t ${CONFIG_FILE} exists."
+  echo -e "\t ${CONFIG_FILE} exists." 2>&1 | tee -a ${BOOK_BUILD_LOG}
 else
-  echo -e "\t ${CONFIG_FILE} not found."
-  echo "Skipping jupyter-book build."
+  echo -e "\t ${CONFIG_FILE} not found." 2>&1 | tee -a ${BOOK_BUILD_LOG}
+  echo "Skipping jupyter-book build." 2>&1 | tee -a ${BOOK_BUILD_LOG}
   exit 0
 fi
 if [ -f "${BOOK_BUILT_FLAG}" ]; then
-  echo -e "\t ${BOOK_BUILT_FLAG} exists"
-  echo "Skipping jupyter-book build."
+  echo -e "\t ${BOOK_BUILT_FLAG} exists" 2>&1 | tee -a ${BOOK_BUILD_LOG}
+  echo "Skipping jupyter-book build." 2>&1 | tee -a ${BOOK_BUILD_LOG}
   exit 0
 else
-  echo -e "\t ${BOOK_BUILT_FLAG} not found."
+  echo -e "\t ${BOOK_BUILT_FLAG} not found." 2>&1 | tee -a ${BOOK_BUILD_LOG}
 fi
 if git log -1 | grep "neurolibre-debug"; then
-    echo "Bypassing jupyter-book build from user request."
+    echo "Bypassing jupyter-book build from user request." 2>&1 | tee -a ${BOOK_BUILD_LOG}
     exit 0
 fi
 # changing config if test submission
 if [[ ${USER_NAME} != "roboneurolibre" ]] ; then
-  echo -e "\t Detecting user submission, changing launch_button config to test ${BINDERHUB_URL} and adding jb cache execution."
+  echo -e "\t Detecting user submission, changing launch_button config to test ${BINDERHUB_URL} and adding jb cache execution." 2>&1 | tee -a ${BOOK_BUILD_LOG}
   # updating binderhub_url if exists, or adding it
   if grep ${CONFIG_FILE} -e binderhub_url; then
-    echo "detect existing binderhub_url"
+    echo "detect existing binderhub_url" 2>&1 | tee -a ${BOOK_BUILD_LOG}
     sed -i "/binderhub_url/c\  binderhub_url             : "${BINDERHUB_URL} ${CONFIG_FILE}
   else
     cat << EOF >> ${CONFIG_FILE}
@@ -60,23 +60,23 @@ EOF
 fi
 
 # building jupyter book
-echo "Building jupyter-book for ${USER_NAME}/${PROVIDER_NAME}/${REPO_NAME}/${COMMIT_REF}"
+echo "Building jupyter-book for ${USER_NAME}/${PROVIDER_NAME}/${REPO_NAME}/${COMMIT_REF}" 2>&1 | tee -a ${BOOK_BUILD_LOG}
 mkdir -p ${BOOK_DST_PATH}
 mkdir -p ${BOOK_CACHE_PATH}
 touch ${BOOK_BUILD_LOG}
-jupyter-book build --all --verbose --path-output ${BOOK_DST_PATH} content 2>&1 | tee ${BOOK_BUILD_LOG}
+jupyter-book build --all --verbose --path-output ${BOOK_DST_PATH} content 2>&1 | tee -a ${BOOK_BUILD_LOG}
 # checking execution
 if grep ${BOOK_BUILD_LOG} -e "Execution Failed"; then
-  echo -e "Jupyter-book execution failed!"
+  echo -e "Jupyter-book execution failed!" 2>&1 | tee -a ${BOOK_BUILD_LOG}
   exit 0
 fi
 # https://stackoverflow.com/a/1221870
 JB_EXIT_CODE=${PIPESTATUS[0]}
 if [ ${JB_EXIT_CODE} -ne 0 ] ; then
-  echo -e "Jupyter-book build failed!"
+  echo -e "Jupyter-book build failed!" 2>&1 | tee -a ${BOOK_BUILD_LOG}
   exit 0
 else
-  echo "Taring book build artifacts..."
-  tar -zcvf ${BOOK_DST_PATH}".tar.gz" ${BOOK_DST_PATH}
+  echo "Taring book build artifacts..." 2>&1 | tee -a ${BOOK_BUILD_LOG}
+  tar -zcvf ${BOOK_DST_PATH}".tar.gz" ${BOOK_DST_PATH} 2>&1 | tee -a ${BOOK_BUILD_LOG}
   touch ${BOOK_BUILT_FLAG}
 fi
