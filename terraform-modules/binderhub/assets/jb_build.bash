@@ -60,11 +60,14 @@ EOF
 fi
 
 # building jupyter book
+echo "" 2>&1 | tee -a ${BOOK_BUILD_LOG}
 echo "Building jupyter-book for ${USER_NAME}/${PROVIDER_NAME}/${REPO_NAME}/${COMMIT_REF}" 2>&1 | tee -a ${BOOK_BUILD_LOG}
+echo "" 2>&1 | tee -a ${BOOK_BUILD_LOG}
 mkdir -p ${BOOK_DST_PATH}
 mkdir -p ${BOOK_CACHE_PATH}
 touch ${BOOK_BUILD_LOG}
 jupyter-book build --all --verbose --path-output ${BOOK_DST_PATH} content 2>&1 | tee -a ${BOOK_BUILD_LOG}
+echo "" 2>&1 | tee -a ${BOOK_BUILD_LOG}
 # checking execution
 if grep ${BOOK_BUILD_LOG} -e "Execution Failed"; then
   echo -e "Jupyter-book execution failed!" 2>&1 | tee -a ${BOOK_BUILD_LOG}
@@ -72,6 +75,7 @@ if grep ${BOOK_BUILD_LOG} -e "Execution Failed"; then
 fi
 # https://stackoverflow.com/a/1221870
 JB_EXIT_CODE=${PIPESTATUS[0]}
+echo "Jupyter-book exit code:" $JB_EXIT_CODE 2>&1 | tee -a ${BOOK_BUILD_LOG}
 if [ ${JB_EXIT_CODE} -ne 0 ] ; then
   echo -e "Jupyter-book build failed!" 2>&1 | tee -a ${BOOK_BUILD_LOG}
   exit 0
