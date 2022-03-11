@@ -83,4 +83,6 @@ else
   echo "Taring book build artifacts..." 2>&1 | tee -a ${BOOK_BUILD_LOG}
   tar -zcvf ${BOOK_DST_PATH}".tar.gz" ${BOOK_DST_PATH} 2>&1 | tee -a ${BOOK_BUILD_LOG}
   touch ${BOOK_BUILT_FLAG}
+  echo "Filling metadata for current submission..." 2>&1 | tee -a ${BOOK_BUILD_LOG}
+  /bin/bash /usr/local/share/fill_submission_metadata.bash
 fi
