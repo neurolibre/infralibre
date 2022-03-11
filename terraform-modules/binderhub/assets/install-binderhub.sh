@@ -51,6 +51,7 @@ sudo helm repo update
 sudo helm install binderhub jupyterhub/binderhub --version=${binder_version} \
   --namespace=binderhub -f config.yaml -f secrets.yaml \
   --set-file jupyterhub.singleuser.extraFiles.repo2data.stringData=repo2data.bash \
+  --set-file jupyterhub.singleuser.extraFiles.fill_submission_metadata.stringData=fill_submission_metadata.bash \
   --set-file jupyterhub.singleuser.extraFiles.jb_build.stringData=jb_build.bash
 kubectl wait --namespace binderhub \
   --for=condition=ready pod \
