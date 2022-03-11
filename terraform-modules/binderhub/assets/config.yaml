@@ -70,6 +70,9 @@ jupyterhub:
       repo2data:
         mountPath: /usr/local/share/repo2data.bash
         mode: 0755
+      fill_submission_metadata:
+        mountPath: /usr/local/share/fill_submission_metadata.bash
+        mode: 0755
     lifecycleHooks:
       postStart:
         exec:
