@@ -5,7 +5,7 @@ LOOKUP_TABLE_PATH="/mnt/data/book-artifacts/lookup_table.tsv"
 DATA_REQ_PATH="/home/jovyan/binder/data_requirement.json"
 
 # create lookup table if doe snot exists
-if [ ! -f "LOOKUP_TABLE_PATH" ]; then
+if [ ! -f "${LOOKUP_TABLE_PATH}" ]; then
     mkdir -p "${LOOKUP_TABLE_PATH%/*}" && touch $LOOKUP_TABLE_PATH
     echo "date,repository_url,docker_img,data_project_name,data_url,data_doi" >> $LOOKUP_TABLE_PATH
 fi
