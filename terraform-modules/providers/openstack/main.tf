@@ -109,10 +109,12 @@ data "template_file" "kubeadm_master" {
 }
 
 data "openstack_networking_network_v2" "ext_network" {
+  name = "ext_network"
   external = "True"
 }
 
 data "openstack_networking_network_v2" "int_network" {
+  name = "int_network"
   external = "False"
 }
 
