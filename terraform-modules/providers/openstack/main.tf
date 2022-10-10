@@ -185,7 +185,6 @@ data "template_cloudinit_config" "master_config" {
 
 resource "openstack_compute_keypair_v2" "keypair" {
   name       = "${var.project_name}-keypair"
-  public_key = element(var.ssh_authorized_keys, 0)
 }
 
 resource "openstack_compute_instance_v2" "master" {
