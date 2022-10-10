@@ -109,11 +109,11 @@ data "template_file" "kubeadm_master" {
 }
 
 data "openstack_networking_network_v2" "ext_network" {
-  name = "public"
+  name = var.public_network
 }
 
 data "openstack_networking_network_v2" "int_network" {
-  external = false
+  name = var.cc_private_network
 }
 
 resource "openstack_networking_router_v2" "router_1" {

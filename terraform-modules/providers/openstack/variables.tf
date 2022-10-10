@@ -55,3 +55,6 @@ variable "docker_password" {
   description = "Docker hub password"
 }
 
+variable "public_network" {
+  default  = "Public-Network"
+}
