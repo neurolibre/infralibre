@@ -79,6 +79,22 @@ locals {
   network_name = "${var.project_name}-network"
 }
 
+resource "openstack_networking_subnet_v2" "subnet" {
+  count = 1 - var.is_computecanada
+
+  name        = "subnet"
+  network_id  = openstack_networking_network_v2.network_1[0].id
+  ip_version  = 4
+  cidr        = "10.0.1.0/24"
+  enable_dhcp = true
+}
+
+resource "openstack_networking_network_v2" "network_1" {
+  count = 1 - var.is_computecanada
+
+  name = local.network_name
+}
+
 data "template_file" "kubeadm_master" {
   template = file("${path.module}/../../../cloud-init/kubeadm/master.yaml")
 
@@ -92,8 +108,30 @@ data "template_file" "kubeadm_master" {
   }
 }
 
+data "openstack_networking_network_v2" "ext_network" {
+  name = "public"
+}
+
+data "openstack_networking_subnet_ids_v2" "ext_subnets" {
+  network_id = data.openstack_networking_network_v2.ext_network.id
+}
+
 data "openstack_networking_network_v2" "int_network" {
   external = false
+}
+
+resource "openstack_networking_router_v2" "router_1" {
+  count = 1 - var.is_computecanada
+
+  name                = "${var.project_name}-router"
+  external_network_id = data.openstack_networking_network_v2.ext_network.id
+}
+
+resource "openstack_networking_router_interface_v2" "router_interface_1" {
+  count = 1 - var.is_computecanada
+
+  router_id = openstack_networking_router_v2.router_1[0].id
+  subnet_id = openstack_networking_subnet_v2.subnet[0].id
 }
 
 data "template_file" "kubeadm_node" {
@@ -200,6 +238,10 @@ resource "openstack_compute_instance_v2" "node" {
   }
 }
 
+resource "openstack_networking_floatingip_v2" "fip_1" {
+  pool       = data.openstack_networking_network_v2.ext_network.name
+  subnet_ids = data.openstack_networking_subnet_ids_v2.ext_subnets.ids
+}
 
 resource "openstack_compute_floatingip_associate_v2" "fip_1" {
   floating_ip = openstack_networking_floatingip_v2.fip_1.address
