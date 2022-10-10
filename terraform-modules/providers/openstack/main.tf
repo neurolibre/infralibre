@@ -113,7 +113,8 @@ data "openstack_networking_network_v2" "ext_network" {
   external = true
 }
 
-data "openstack_networking_network_v2" "int_network" { 
+data "openstack_networking_network_v2" "int_network" {
+  name = var.cc_private_network
 }
 
 resource "openstack_networking_router_v2" "router_1" {
