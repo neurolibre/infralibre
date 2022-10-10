@@ -5,13 +5,6 @@ while [ ! -f /shared/k8s-initialized ]; do sleep 1; done
 
 cd /home/${admin_user}
 
-# See if vars are in scope
-echo ${admin_user}
-echo ${binder_version}
-
-# Try resolving : Kubernetes cluster unreachable: Get "http://localhost:8080/version" problem
-export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-
 # node helath monitoring
 sudo helm repo add deliveryhero https://charts.deliveryhero.io/
 sudo helm install deliveryhero/node-problem-detector --generate-name
