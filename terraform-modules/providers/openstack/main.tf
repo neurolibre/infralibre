@@ -109,11 +109,11 @@ data "template_file" "kubeadm_master" {
 }
 
 data "openstack_networking_network_v2" "ext_network" {
-  external = "True"
+  external = true
 }
 
 data "openstack_networking_network_v2" "int_network" {
-  external = "False"
+  external = false
 }
 
 resource "openstack_networking_router_v2" "router_1" {
