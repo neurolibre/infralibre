@@ -43,3 +43,6 @@ variable "docker_password" {
   description = "Docker hub password"
 }
 
+variable "key_path" {
+  description = "Private key path"
+}
