@@ -1,10 +1,11 @@
 provider "cloudflare" {
-  version = "<= 1.13.0"
+  version = "<= 2.10.1"
 }
 
 resource "cloudflare_record" "domain" {
-  domain = "${join(".", slice(split(".", var.domain), 1, length(split(".", var.domain))))}"
-  name   = "${element(split(".", var.domain), 0)}"
-  value  = "${var.public_ip}"
-  type   = "A"
+  zone_id = "ae42bc72343b3e27ab10ad833086b679"
+  name    = element(split(".", var.domain), 0)
+  value   = var.public_ip
+  type    = "A"
 }
+
