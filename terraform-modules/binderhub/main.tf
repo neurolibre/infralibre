@@ -66,6 +66,7 @@ resource "null_resource" "remote_install" {
   connection {
     user = var.admin_user
     host = var.ip
+    private_key = file("${var.key_path}")
   }
 
   provisioner "file" {
