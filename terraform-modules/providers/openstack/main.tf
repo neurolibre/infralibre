@@ -112,10 +112,6 @@ data "openstack_networking_network_v2" "ext_network" {
   name = "public"
 }
 
-data "openstack_networking_subnet_ids_v2" "ext_subnets" {
-  network_id = data.openstack_networking_network_v2.ext_network.id
-}
-
 data "openstack_networking_network_v2" "int_network" {
   external = false
 }
@@ -240,7 +236,6 @@ resource "openstack_compute_instance_v2" "node" {
 
 resource "openstack_networking_floatingip_v2" "fip_1" {
   pool       = data.openstack_networking_network_v2.ext_network.name
-  subnet_ids = data.openstack_networking_subnet_ids_v2.ext_subnets.ids
 }
 
 resource "openstack_compute_floatingip_associate_v2" "fip_1" {
