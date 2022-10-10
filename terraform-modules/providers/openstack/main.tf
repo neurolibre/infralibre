@@ -8,8 +8,8 @@ data "openstack_images_image_v2" "ubuntu" {
 }
 
 resource "openstack_compute_secgroup_v2" "secgroup_1" {
-  name        = "${var.project_name}-secgroup"
-  description = "BinderHub security group"
+  name        = "${var.project_name}-secgroup-new"
+  description = "BinderHub security group - Agah"
 
   rule {
     from_port   = -1
