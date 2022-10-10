@@ -3,8 +3,8 @@ provider "cloudflare" {
 }
 
 resource "cloudflare_record" "domain" {
-  zone_id = "ae42bc72343b3e27ab10ad833086b679"
-  name    = element(split(".", var.domain), 0)
+  zone_id = var.zone_id
+  name    = var.domain
   value   = var.public_ip
   type    = "A"
 }
