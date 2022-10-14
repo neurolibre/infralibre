@@ -63,17 +63,17 @@ data "template_file" "install-binderhub" {
 }
 
 data "template_file" "fill_submission_metadata" {
-  template = file("${path.module}/assets/fill_submission_metadata.sh")
+  template = file("${path.module}/assets/fill_submission_metadata.bash")
   vars     = {}
 }
 
 data "template_file" "repo2data" {
-  template = file("${path.module}/assets/repo2data.sh")
+  template = file("${path.module}/assets/repo2data.bash")
   vars     = {}
 }
 
 data "template_file" "jb_build" {
-  template = file("${path.module}/assets/jb_build.sh")
+  template = file("${path.module}/assets/jb_build.bash")
   vars     = {}
 }
 
@@ -85,17 +85,17 @@ resource "null_resource" "remote_install" {
 
   provisioner "file" {
     content     = data.template_file.fill_submission_metadata.rendered
-    destination = "/home/${var.admin_user}/fill_submission_metadata.sh"
+    destination = "/home/${var.admin_user}/fill_submission_metadata.bash"
   }
 
   provisioner "file" {
     content     = data.template_file.repo2data.rendered
-    destination = "/home/${var.admin_user}/repo2data.sh"
+    destination = "/home/${var.admin_user}/repo2data.bash"
   }
 
   provisioner "file" {
     content     = data.template_file.jb_build.rendered
-    destination = "/home/${var.admin_user}/jb_build.sh"
+    destination = "/home/${var.admin_user}/jb_build.bash"
   }
 
   provisioner "file" {
