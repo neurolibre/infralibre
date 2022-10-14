@@ -35,7 +35,7 @@ kubectl apply -f production-binderhub-issuer.yaml
 
 # Binderhub proxy
 sudo helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx/
-sudo helm install binderhub-proxy ingress-nginx/ingress-nginx --namespace=binderhub -f nginx-ingress.yaml --kubeconfig ~/.kube/config
+sudo helm install binderhub-proxy ingress-nginx/ingress-nginx --namespace=binderhub -f nginx-ingress.yaml --kubeconfig ~/.kube/config --version 4.1.4
 # wait until nginx is ready (https://kubernetes.github.io/ingress-nginx/deploy/)
 kubectl wait --namespace binderhub \
   --for=condition=ready pod \

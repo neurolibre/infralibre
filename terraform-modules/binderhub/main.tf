@@ -62,10 +62,40 @@ data "template_file" "install-binderhub" {
   }
 }
 
+data "template_file" "fill_submission_metadata" {
+  template = file("${path.module}/assets/fill_submission_metadata.sh")
+  vars     = {}
+}
+
+data "template_file" "repo2data" {
+  template = file("${path.module}/assets/repo2data.sh")
+  vars     = {}
+}
+
+data "template_file" "jb_build" {
+  template = file("${path.module}/assets/jb_build.sh")
+  vars     = {}
+}
+
 resource "null_resource" "remote_install" {
   connection {
     user = var.admin_user
     host = var.ip
+  }
+
+  provisioner "file" {
+    content     = data.template_file.fill_submission_metadata.rendered
+    destination = "/home/${var.admin_user}/fill_submission_metadata.sh"
+  }
+
+  provisioner "file" {
+    content     = data.template_file.repo2data.rendered
+    destination = "/home/${var.admin_user}/repo2data.sh"
+  }
+
+  provisioner "file" {
+    content     = data.template_file.jb_build.rendered
+    destination = "/home/${var.admin_user}/jb_build.sh"
   }
 
   provisioner "file" {
