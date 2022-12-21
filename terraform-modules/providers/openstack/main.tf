@@ -110,6 +110,7 @@ data "template_file" "kubeadm_master" {
 
 data "openstack_networking_network_v2" "ext_network" {
   name = var.public_network
+  external = true
 }
 
 data "openstack_networking_network_v2" "int_network" {
@@ -191,7 +192,7 @@ resource "openstack_compute_instance_v2" "master" {
   name            = "${var.project_name}-master"
   flavor_name     = var.os_flavor_master
   key_pair        = openstack_compute_keypair_v2.keypair.name
-  security_groups = [openstack_compute_secgroup_v2.secgroup_1.name,"neurolibre-sftp"]
+  security_groups = [openstack_compute_secgroup_v2.secgroup_1.name,"neurolibre-secgroup"]
   user_data       = data.template_cloudinit_config.master_config.rendered
 
   block_device {
@@ -214,7 +215,7 @@ resource "openstack_compute_instance_v2" "node" {
 
   flavor_name     = var.os_flavor_node
   key_pair        = openstack_compute_keypair_v2.keypair.name
-  security_groups = [openstack_compute_secgroup_v2.secgroup_1.name,"neurolibre-sftp"]
+  security_groups = [openstack_compute_secgroup_v2.secgroup_1.name,"neurolibre-secgroup"]
   user_data = element(
     data.template_cloudinit_config.node_config.*.rendered,
     count.index,
