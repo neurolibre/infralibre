@@ -76,7 +76,7 @@ jupyterhub:
     lifecycleHooks:
       postStart:
         exec:
-          command: ["/bin/sh", "-c", "/usr/local/share/repo2data.bash; /usr/local/share/jb_build.bash"]   
+          command: ["/bin/sh", "-c", "/usr/local/share/repo2data.bash; /usr/local/share/jb_build.bash"]
 
 # BinderHub config
 config:
