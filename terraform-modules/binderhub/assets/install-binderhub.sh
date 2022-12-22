@@ -51,14 +51,15 @@ sudo helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 sudo helm repo update
 sudo helm install binderhub jupyterhub/binderhub --version=${binder_version} \
   --namespace=binderhub -f config.yaml -f secrets.yaml \
-  --set-file jupyterhub.singleuser.extraFiles.repo2data.stringData=/home/${admin_user}/repo2data.bash \
-  --set-file jupyterhub.singleuser.extraFiles.fill_submission_metadata.stringData=/home/${admin_user}/fill_submission_metadata.bash \
-  --set-file jupyterhub.singleuser.extraFiles.jb_build.stringData=/home/${admin_user}/jb_build.bash \
+  --set-file jupyterhub.singleuser.extraFiles.repo2data.stringData=./repo2data.bash \
+  --set-file jupyterhub.singleuser.extraFiles.fill_submission_metadata.stringData=./fill_submission_metadata.bash \
+  --set-file jupyterhub.singleuser.extraFiles.jb_build.stringData=./jb_build.bash \
   --kubeconfig ~/.kube/config
-# sudo helm upgrade binderhub jupyterhub/binderhub --version=${binder_version} \
-#   --set-file jupyterhub.singleuser.extraFiles.repo2data.stringData=/home/${admin_user}/repo2data.bash \
-#   --set-file jupyterhub.singleuser.extraFiles.fill_submission_metadata.stringData=/home/${admin_user}/fill_submission_metadata.bash \
-#   --set-file jupyterhub.singleuser.extraFiles.jb_build.stringData=/home/${admin_user}/jb_build.bash \
+# sudo helm upgrade binderhub jupyterhub/binderhub -n binderhub --version=${binder_version} \
+#   -f confgi.yaml -f secrets.yaml \
+#   --set-file jupyterhub.singleuser.extraFiles.repo2data.stringData=./repo2data.bash \
+#   --set-file jupyterhub.singleuser.extraFiles.fill_submission_metadata.stringData=./fill_submission_metadata.bash \
+#   --set-file jupyterhub.singleuser.extraFiles.jb_build.stringData=./jb_build.bash \
 #   --kubeconfig ~/.kube/config
 kubectl wait --namespace binderhub \
   --for=condition=ready pod \
