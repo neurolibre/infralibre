@@ -17,6 +17,7 @@ jupyterhub:
       - secretName: binder-conp-cloud-tls
         hosts:
           - binder.conp.cloud
+          - tmp.binder.conp.cloud
   #https://discourse.jupyter.org/t/pre-building-images-on-binderhub/4325/4
   prePuller:
     continuous:
@@ -115,3 +116,4 @@ ingress:
     - secretName: binder-conp-cloud-tls
       hosts: 
         - binder.conp.cloud
+        - tmp.binder.conp.cloud
