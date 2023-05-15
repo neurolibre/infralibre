@@ -196,9 +196,8 @@ resource "openstack_compute_instance_v2" "master" {
   user_data       = data.template_cloudinit_config.master_config.rendered
 
   block_device {
-    uuid                  = var.image_id
-    source_type           = "image"
-    volume_size           = var.instance_volume_size
+    uuid                  = var.volume_uuid_1
+    source_type           = "volume"
     boot_index            = 0
     destination_type      = "volume"
     delete_on_termination = true
@@ -222,9 +221,8 @@ resource "openstack_compute_instance_v2" "node" {
   )
 
   block_device {
-    uuid                  = var.image_id
-    source_type           = "image"
-    volume_size           = var.instance_volume_size
+    uuid                  = var.volume_uuid_2
+    source_type           = "volume"
     boot_index            = 0
     destination_type      = "volume"
     delete_on_termination = true
