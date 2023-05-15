@@ -67,4 +67,7 @@ variable "volume_uuid_2" {
   description  = "Manual volume node"
 }
 
+variable "image_id" {
+  description  = "Manual image id"
+}
 
