@@ -197,13 +197,10 @@ resource "openstack_compute_instance_v2" "master" {
 
   block_device {
     uuid                  = var.volume_uuid_1
-    source_type           = "image"
-    volume_size           = var.instance_volume_size
+    source_type           = "volume"
     boot_index            = 0
     destination_type      = "volume"
     delete_on_termination = true
-    allocate_retries = 300
-    allocate_retries_interval = 3
   }
 
   network {
@@ -225,8 +222,7 @@ resource "openstack_compute_instance_v2" "node" {
 
   block_device {
     uuid                  = var.volume_uuid_2
-    source_type           = "image"
-    volume_size           = var.instance_volume_size
+    source_type           = "volume"
     boot_index            = 0
     destination_type      = "volume"
     delete_on_termination = true
