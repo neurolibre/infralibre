@@ -8,7 +8,7 @@ REPO_NAME=${BINDER_PARAMS[-3]}
 COMMIT_REF=${BINDER_PARAMS[-1]}
 # paths
 CONFIG_FILE="content/_config.yml"
-NEUROLIBRE_CUSTOM="content/_neurolibre.yaml"
+NEUROLIBRE_CUSTOM="content/_neurolibre.yml"
 BOOK_DST_PATH="/mnt/books/${USER_NAME}/${PROVIDER_NAME}/${REPO_NAME}/${COMMIT_REF}"
 BOOK_BUILT_FLAG="${BOOK_DST_PATH}/successfully_built"
 BOOK_BUILD_LOG="${BOOK_DST_PATH}/book-build.log"
