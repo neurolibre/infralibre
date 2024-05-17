@@ -58,16 +58,3 @@ variable "docker_password" {
 variable "public_network" {
   default  = "Public-Network"
 }
-
-variable "volume_uuid_1" {
-  description  = "Manual volume master"
-}
-
-variable "volume_uuid_2" {
-  description  = "Manual volume node"
-}
-
-variable "image_id" {
-  description  = "Manual image id"
-}
-
