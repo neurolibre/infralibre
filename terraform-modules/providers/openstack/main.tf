@@ -188,6 +188,12 @@ resource "openstack_compute_keypair_v2" "keypair" {
   public_key = element(var.ssh_authorized_keys, 0)
 }
 
+resource "openstack_blockstorage_volume_v1" "mastervolume" {
+  name        = "master-volume"
+  size        = var.instance_volume_size
+  image_id    = data.openstack_images_image_v2.ubuntu.id
+}
+
 resource "openstack_compute_instance_v2" "master" {
   name            = "${var.project_name}-master"
   flavor_name     = var.os_flavor_master
@@ -196,17 +202,22 @@ resource "openstack_compute_instance_v2" "master" {
   user_data       = data.template_cloudinit_config.master_config.rendered
 
   block_device {
-    uuid                  = data.openstack_images_image_v2.ubuntu.id
-    source_type           = "image"
-    volume_size           = var.instance_volume_size
-    boot_index            = 0
+    uuid                  = openstack_blockstorage_mastervolume_v1.volume.id
+    source_type           = "volume"
     destination_type      = "volume"
+    boot_index            = 0
     delete_on_termination = true
   }
 
   network {
     name = var.is_computecanada ? data.openstack_networking_network_v2.int_network.name : local.network_name
   }
+}
+
+resource "openstack_blockstorage_volume_v1" "nodevolume" {
+  name        = "node${count.index + 1}-volume"
+  size        = var.instance_volume_size
+  image_id    = data.openstack_images_image_v2.ubuntu.id
 }
 
 resource "openstack_compute_instance_v2" "node" {
@@ -222,11 +233,10 @@ resource "openstack_compute_instance_v2" "node" {
   )
 
   block_device {
-    uuid                  = data.openstack_images_image_v2.ubuntu.id
-    source_type           = "image"
-    volume_size           = var.instance_volume_size
-    boot_index            = 0
+    uuid                  = openstack_blockstorage_mastervolume_v1.nodevolume.id
+    source_type           = "volume"
     destination_type      = "volume"
+    boot_index            = 0
     delete_on_termination = true
   }
 
