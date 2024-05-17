@@ -202,7 +202,7 @@ resource "openstack_compute_instance_v2" "master" {
   user_data       = data.template_cloudinit_config.master_config.rendered
 
   block_device {
-    uuid                  = openstack_blockstorage_mastervolume_v1.volume.id
+    uuid                  = openstack_blockstorage_volume_v1.mastervolume.id
     source_type           = "volume"
     destination_type      = "volume"
     boot_index            = 0
@@ -233,7 +233,7 @@ resource "openstack_compute_instance_v2" "node" {
   )
 
   block_device {
-    uuid                  = openstack_blockstorage_mastervolume_v1.nodevolume.id
+    uuid                  = openstack_blockstorage_volume_v1.nodevolume.id
     source_type           = "volume"
     destination_type      = "volume"
     boot_index            = 0
