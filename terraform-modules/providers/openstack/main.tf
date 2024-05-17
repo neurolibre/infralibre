@@ -214,7 +214,7 @@ resource "openstack_compute_instance_v2" "master" {
   }
 }
 
-resource "openstack_blockstorage_volume_v1" "nodevolume" {
+resource "openstack_blockstorage_volume_v2" "nodevolume" {
   name        = "node-volume"
   size        = var.instance_volume_size
   image_id    = data.openstack_images_image_v2.ubuntu.id
@@ -233,7 +233,7 @@ resource "openstack_compute_instance_v2" "node" {
   )
 
   block_device {
-    uuid                  = openstack_blockstorage_volume_v1.nodevolume.id
+    uuid                  = openstack_blockstorage_volume_v2.nodevolume.id
     source_type           = "volume"
     destination_type      = "volume"
     boot_index            = 0
