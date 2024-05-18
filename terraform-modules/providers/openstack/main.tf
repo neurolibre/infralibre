@@ -73,9 +73,6 @@ resource "openstack_compute_secgroup_v2" "secgroup_1" {
   }
 }
 
-locals {
-  network_name = "${var.project_name}-network"
-}
 
 resource "openstack_networking_subnet_v2" "subnet" {
   count = var.is_computecanada ? 0 : 1
@@ -90,7 +87,7 @@ resource "openstack_networking_subnet_v2" "subnet" {
 resource "openstack_networking_network_v2" "network_1" {
   count = var.is_computecanada ? 0 : 1
 
-  name = local.network_name
+  name = "${var.project_name}-network"
 }
 
 data "template_file" "kubeadm_master" {
@@ -208,7 +205,7 @@ resource "openstack_compute_instance_v2" "master" {
   }
 
   network {
-    name = var.is_computecanada ? data.openstack_networking_network_v2.int_network.name : local.network_name
+    name = var.is_computecanada ? data.openstack_networking_network_v2.int_network.name : "${var.project_name}-network"
   }
 }
 
@@ -239,7 +236,7 @@ resource "openstack_compute_instance_v2" "node" {
   }
 
   network {
-    name = var.is_computecanada ? data.openstack_networking_network_v2.int_network.name : local.network_name
+    name = var.is_computecanada ? data.openstack_networking_network_v2.int_network.name : "${var.project_name}-network"
   }
 }
 
