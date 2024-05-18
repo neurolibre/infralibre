@@ -68,7 +68,7 @@ resource "null_resource" "remote_install" {
     host = var.ip
     type     = "ssh"
     agent    = "false"
-    private_key = var.admin_key
+    private_key = file(var.admin_key)
   }
 
   provisioner "file" {
