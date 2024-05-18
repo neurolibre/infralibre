@@ -1,6 +1,4 @@
 provider "openstack" {
-  version = "<= 1.24.0"
-}
 
 data "openstack_images_image_v2" "ubuntu" {
   name        = var.image_name
@@ -254,3 +252,4 @@ resource "openstack_compute_floatingip_associate_v2" "fip_1" {
   instance_id = openstack_compute_instance_v2.master.id
 }
 
+}

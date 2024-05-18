@@ -4,6 +4,7 @@ terraform {
   required_providers {
     openstack = {
       source = "terraform-providers/openstack"
+      version = "<= 1.24.0"
     }
     template = {
       source = "hashicorp/template"
