@@ -26,10 +26,6 @@ variable "admin_user" {
   description = "User with root access"
 }
 
-variable "admin_key" {
-  description = "You know what it is."
-}
-
 variable "binder_version" {
   description = "binderhub helm chart version - https://jupyterhub.github.io/helm-chart/#development-releases-binderhub"
 }
