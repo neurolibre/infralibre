@@ -16,7 +16,7 @@ write_files:
     permissions: 0755
     content: |
       #!/bin/bash
-      git clone https://github.com/neurolibre/kubeadm-bootstrap.git /tmp/kubeadm-bootstrap
+      git clone https://github.com/agahkarakuzu/kubeadm-bootstrap.git /tmp/kubeadm-bootstrap
       cd /tmp/kubeadm-bootstrap
       sudo ./install-kubeadm.bash
 
