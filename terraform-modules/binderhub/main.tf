@@ -67,6 +67,7 @@ resource "terraform_data" "binderhub" {
 connection {
   host = var.ip
   user = var.admin_user
+  timeout = "10m"
 }
 
 provisioner "file" {

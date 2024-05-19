@@ -159,10 +159,7 @@ resource "openstack_compute_instance_v2" "node" {
   flavor_name     = var.os_flavor_node
   key_pair        = openstack_compute_keypair_v2.keypair.name
   security_groups = [openstack_networking_secgroup_v2.common.id,"neurolibre-secgroup"]
-  user_data = element(
-    data.template_cloudinit_config.node_config.*.rendered,
-    count.index,
-  )
+  user_data = data.template_cloudinit_config.node_config.*.rendered
 
   block_device {
     uuid                  = openstack_blockstorage_volume_v3.nodevolume[count.index].id
