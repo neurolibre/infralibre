@@ -66,8 +66,8 @@ resource "openstack_networking_secgroup_rule_v2" "allow_internal_tcp" {
   ethertype         = "IPv4"
   security_group_id = openstack_networking_secgroup_v2.common.id
   protocol          = "tcp"
-  port_range_min    = 1
-  port_range_max    = 65535
+  port_range_min    = 0
+  port_range_max    = 0
   remote_ip_prefix  = "192.168.73.0/24"
 }
 
@@ -76,7 +76,7 @@ resource "openstack_networking_secgroup_rule_v2" "allow_internal_udp" {
   ethertype         = "IPv4"
   security_group_id = openstack_networking_secgroup_v2.common.id
   protocol          = "udp"
-  port_range_min    = 1
-  port_range_max    = 65535
+  port_range_min    = 0
+  port_range_max    = 0
   remote_ip_prefix  = "192.168.73.0/24"
 }

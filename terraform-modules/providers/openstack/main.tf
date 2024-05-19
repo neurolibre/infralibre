@@ -146,7 +146,8 @@ resource "openstack_compute_instance_v2" "master" {
 }
 
 resource "openstack_blockstorage_volume_v3" "nodevolume" {
-  name        = "node-volume"
+  count = var.nb_nodes
+  name        = format("node-%02d-volume", count.index + 1)
   size        = var.instance_volume_size
   image_id    = data.openstack_images_image_v2.ubuntu.id
 }
