@@ -130,7 +130,7 @@ resource "openstack_compute_instance_v2" "master" {
   name            = "${var.project_name}-master"
   flavor_name     = var.os_flavor_master
   key_pair        = openstack_compute_keypair_v2.keypair.name
-  security_groups = [openstack_networking_secgroup_v2.common.id,"neurolibre-secgroup"]
+  security_groups = [openstack_networking_secgroup_v2.common.id,"neurolibre-test-secgroup"]
   user_data       = data.template_cloudinit_config.master_config.rendered
 
   block_device {
@@ -143,7 +143,6 @@ resource "openstack_compute_instance_v2" "master" {
 
   network {
     name = var.is_computecanada ? data.openstack_networking_network_v2.int_network.name : "${var.project_name}-network"
-    port = openstack_networking_port_v2.master.id
   }
 }
 
@@ -160,7 +159,7 @@ resource "openstack_compute_instance_v2" "node" {
 
   flavor_name     = var.os_flavor_node
   key_pair        = openstack_compute_keypair_v2.keypair.name
-  security_groups = [openstack_networking_secgroup_v2.common.id,"neurolibre-secgroup"]
+  security_groups = [openstack_networking_secgroup_v2.common.id,"neurolibre-test-secgroup"]
   user_data =element(
               data.template_cloudinit_config.node_config.*.rendered,
               count.index,)
