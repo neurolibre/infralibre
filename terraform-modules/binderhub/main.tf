@@ -66,6 +66,7 @@ resource "terraform_data" "binderhub" {
 
 connection {
   host = var.ip
+  user = var.admin_user
 }
 
 provisioner "file" {
