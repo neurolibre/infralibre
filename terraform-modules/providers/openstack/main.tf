@@ -169,7 +169,7 @@ resource "openstack_compute_instance_v2" "node" {
 }
 
 resource "openstack_networking_port_v2" "fip_port" {
-  network_id = data.openstack_networking_network_v2.int_network.id
+  device_id = openstack_compute_instance_v2.master.id
 }
 
 resource "openstack_networking_floatingip_v2" "fip_1" {
