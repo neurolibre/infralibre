@@ -168,8 +168,8 @@ resource "openstack_compute_instance_v2" "node" {
   }
 }
 
-resource "openstack_networking_port_v2" "ext_port" {
-  network_id = data.openstack_networking_network_v2.ext_network.id
+resource "openstack_networking_port_v2" "fip_port" {
+  network_id = data.openstack_networking_network_v2.int_network.id
 }
 
 resource "openstack_networking_floatingip_v2" "fip_1" {
@@ -178,5 +178,5 @@ resource "openstack_networking_floatingip_v2" "fip_1" {
 
 resource "openstack_networking_floatingip_associate_v2" "fip_1" {
   floating_ip = openstack_networking_floatingip_v2.fip_1.address
-  port_id     = openstack_networking_port_v2.ext_port.id
+  port_id     = openstack_networking_port_v2.fip_port.id
 }
