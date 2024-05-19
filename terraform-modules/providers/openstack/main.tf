@@ -241,7 +241,7 @@ resource "openstack_compute_instance_v2" "node" {
 }
 
 resource "openstack_networking_floatingip_v2" "fip_1" {
-  pool       = data.openstack_networking_network_v2.ext_network.name
+  pool = data.openstack_networking_network_v2.ext_network.name
 }
 
 resource "openstack_compute_floatingip_associate_v2" "fip_1" {
