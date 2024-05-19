@@ -3,75 +3,6 @@ data "openstack_images_image_v2" "ubuntu" {
   most_recent = true
 }
 
-resource "openstack_compute_secgroup_v2" "secgroup_1" {
-  name        = "${var.project_name}-secgroup-new"
-  description = "BinderHub security group - Agah"
-
-  rule {
-    from_port   = -1
-    to_port     = -1
-    ip_protocol = "icmp"
-    self        = true
-  }
-
-  rule {
-    from_port   = 1
-    to_port     = 65535
-    ip_protocol = "tcp"
-    self        = true
-  }
-
-  rule {
-    from_port   = 1
-    to_port     = 65535
-    ip_protocol = "udp"
-    self        = true
-  }
-
-  rule {
-    from_port   = -1
-    to_port     = -1
-    ip_protocol = "icmp"
-    cidr        = "192.168.73.30/32"
-  }
-
-  rule {
-    from_port   = 1
-    to_port     = 65535
-    ip_protocol = "tcp"
-    cidr        = "192.168.73.30/32"
-  }
-
-  rule {
-    from_port   = 1
-    to_port     = 65535
-    ip_protocol = "udp"
-    cidr        = "192.168.73.30/32"
-  }
-
-  rule {
-    from_port   = 22
-    to_port     = 22
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  rule {
-    from_port   = 443
-    to_port     = 443
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  rule {
-    from_port   = 80
-    to_port     = 80
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-}
-
-
 resource "openstack_networking_subnet_v2" "subnet" {
   count = var.is_computecanada ? 0 : 1
 
@@ -84,7 +15,6 @@ resource "openstack_networking_subnet_v2" "subnet" {
 
 resource "openstack_networking_network_v2" "network_1" {
   count = var.is_computecanada ? 0 : 1
-
   name = "${var.project_name}-network"
 }
 
@@ -191,7 +121,7 @@ resource "openstack_compute_instance_v2" "master" {
   name            = "${var.project_name}-master"
   flavor_name     = var.os_flavor_master
   key_pair        = openstack_compute_keypair_v2.keypair.name
-  security_groups = [openstack_compute_secgroup_v2.secgroup_1.name,"neurolibre-secgroup"]
+  security_groups = [openstack_networking_secgroup_v2.common.id,"neurolibre-secgroup"]
   user_data       = data.template_cloudinit_config.master_config.rendered
 
   block_device {
@@ -219,7 +149,7 @@ resource "openstack_compute_instance_v2" "node" {
 
   flavor_name     = var.os_flavor_node
   key_pair        = openstack_compute_keypair_v2.keypair.name
-  security_groups = [openstack_compute_secgroup_v2.secgroup_1.name,"neurolibre-secgroup"]
+  security_groups = [openstack_networking_secgroup_v2.common.id,"neurolibre-secgroup"]
   user_data = element(
     data.template_cloudinit_config.node_config.*.rendered,
     count.index,
