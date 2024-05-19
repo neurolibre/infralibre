@@ -121,7 +121,7 @@ resource "openstack_blockstorage_volume_v3" "mastervolume" {
 resource "openstack_networking_port_v2" "master" {
   name               = "${var.project_name}-master"
   admin_state_up     = "true"
-  network_id         = openstack_networking_network_v2.int_network.id
+  network_id         = data.openstack_networking_network_v2.int_network.id
 }
 
 resource "openstack_compute_instance_v2" "master" {
