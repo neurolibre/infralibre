@@ -4,6 +4,7 @@ packages:
 
 runcmd:
   # NFS data
+  - echo "Mounting data"
   - mkdir -p /DATA
   - echo "192.168.73.179:/DATA      /DATA      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
   - mount -a
@@ -22,6 +23,7 @@ runcmd:
   - cat /tmp/kubeadm-bootstrap/.bashrc >> /home/${admin_user}/.bashrc
   # ssh config for nodes
   # make sure that k8s node is ready, and enable easy ssh
+  - echo "Adding nodes"
   - su ${admin_user} -c "touch /home/${admin_user}/.ssh/config"
   - mv /tmp/kubeadm-bootstrap/add_nodes.bash /home/${admin_user}/
   - chmod u+x /home/${admin_user}/add_nodes.bash
