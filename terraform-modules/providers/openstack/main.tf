@@ -168,12 +168,15 @@ resource "openstack_compute_instance_v2" "node" {
   }
 }
 
+resource "openstack_networking_port_v2" "ext_port" {
+  network_id = data.openstack_networking_network_v2.ext_network.id
+}
+
 resource "openstack_networking_floatingip_v2" "fip_1" {
   pool = data.openstack_networking_network_v2.ext_network.name
 }
 
-
-resource "openstack_networking_floatingip_associate_v2" "fip_1" {
+resource "openstack_compute_floatingip_associate_v2" "fip_1" {
   floating_ip = openstack_networking_floatingip_v2.fip_1.address
-  instance_id = openstack_compute_instance_v2.master.id
+  port_id     = openstack_networking_port_v2.ext_port.id
 }
