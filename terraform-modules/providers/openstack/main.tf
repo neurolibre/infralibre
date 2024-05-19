@@ -181,7 +181,7 @@ resource "openstack_compute_keypair_v2" "keypair" {
   public_key = element(var.ssh_authorized_keys, 0)
 }
 
-resource "openstack_blockstorage_volume_v2" "mastervolume" {
+resource "openstack_blockstorage_volume_v3" "mastervolume" {
   name        = "master-volume"
   size        = var.instance_volume_size
   image_id    = data.openstack_images_image_v2.ubuntu.id
@@ -195,7 +195,7 @@ resource "openstack_compute_instance_v2" "master" {
   user_data       = data.template_cloudinit_config.master_config.rendered
 
   block_device {
-    uuid                  = openstack_blockstorage_volume_v2.mastervolume.id
+    uuid                  = openstack_blockstorage_volume_v3.mastervolume.id
     source_type           = "volume"
     destination_type      = "volume"
     boot_index            = 0
@@ -207,7 +207,7 @@ resource "openstack_compute_instance_v2" "master" {
   }
 }
 
-resource "openstack_blockstorage_volume_v2" "nodevolume" {
+resource "openstack_blockstorage_volume_v3" "nodevolume" {
   name        = "node-volume"
   size        = var.instance_volume_size
   image_id    = data.openstack_images_image_v2.ubuntu.id
@@ -226,7 +226,7 @@ resource "openstack_compute_instance_v2" "node" {
   )
 
   block_device {
-    uuid                  = openstack_blockstorage_volume_v2.nodevolume.id
+    uuid                  = openstack_blockstorage_volume_v3.nodevolume.id
     source_type           = "volume"
     destination_type      = "volume"
     boot_index            = 0
