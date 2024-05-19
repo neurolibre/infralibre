@@ -1,7 +1,11 @@
 #!/bin/bash
 #waiting for k8s initialization
+echo "[Binderhub pre-install] Waiting for the instance boot to finalize"
 while [ ! -f /var/lib/cloud/instance/boot-finished ]; do sleep 10; done
+echo "[Binderhub pre-install] Waiting for k8s init to finalize"
 while [ ! -f /shared/k8s-initialized ]; do sleep 1; done
+
+echo "[Binderhub install] Started"
 
 cd /home/${admin_user}
 
