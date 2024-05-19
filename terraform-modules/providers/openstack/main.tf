@@ -1,5 +1,3 @@
-provider "openstack" {
-
 data "openstack_images_image_v2" "ubuntu" {
   name        = var.image_name
   most_recent = true
@@ -247,6 +245,4 @@ resource "openstack_networking_floatingip_v2" "fip_1" {
 resource "openstack_compute_floatingip_associate_v2" "fip_1" {
   floating_ip = openstack_networking_floatingip_v2.fip_1.address
   instance_id = openstack_compute_instance_v2.master.id
-}
-
 }

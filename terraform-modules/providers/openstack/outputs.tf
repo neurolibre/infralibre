@@ -1,5 +1,5 @@
 output "public_ip" {
-  value = module.openstack.openstack_networking_floatingip_v2.fip_1.address
+  value = openstack.resource.openstack_networking_floatingip_v2.fip_1.address
 }
 
 output "admin_user" {
