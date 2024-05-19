@@ -62,66 +62,64 @@ data "template_file" "install-binderhub" {
   }
 }
 
-resource "null_resource" "remote_install" {
-  connection {
-    user = var.admin_user
-    host = var.ip
-    agent= true
-  }
+resource "terraform_data" "binderhub" {
 
-  provisioner "file" {
-    source     = "${path.module}/assets/fill_submission_metadata.bash"
-    destination = "/home/${var.admin_user}/fill_submission_metadata.bash"
-  }
+connection {
+  host = var.ip
+}
 
-  provisioner "file" {
-    source     = "${path.module}/assets/repo2data.bash"
-    destination = "/home/${var.admin_user}/repo2data.bash"
-  }
+provisioner "file" {
+  content     = data.template_file.config.rendered
+  destination = "/home/${var.admin_user}/config.yaml"
+}
 
-  provisioner "file" {
-    source     = "${path.module}/assets/jb_build.bash"
-    destination = "/home/${var.admin_user}/jb_build.bash"
-  }
+provisioner "file" {
+  content     = data.template_file.secrets.rendered
+  destination = "/home/${var.admin_user}/secrets.yaml"
+}
 
-  provisioner "file" {
-    content     = data.template_file.config.rendered
-    destination = "/home/${var.admin_user}/config.yaml"
-  }
+provisioner "file" {
+  content     = data.template_file.pv.rendered
+  destination = "/home/${var.admin_user}/pv.yaml"
+}
 
-  provisioner "file" {
-    content     = data.template_file.secrets.rendered
-    destination = "/home/${var.admin_user}/secrets.yaml"
-  }
+provisioner "file" {
+  content     = data.template_file.nginx-ingress.rendered
+  destination = "/home/${var.admin_user}/nginx-ingress.yaml"
+}
 
-  provisioner "file" {
-    content     = data.template_file.pv.rendered
-    destination = "/home/${var.admin_user}/pv.yaml"
-  }
+provisioner "file" {
+  content     = data.template_file.production-binderhub-issuer.rendered
+  destination = "/home/${var.admin_user}/production-binderhub-issuer.yaml"
+}
 
-  provisioner "file" {
-    content     = data.template_file.nginx-ingress.rendered
-    destination = "/home/${var.admin_user}/nginx-ingress.yaml"
-  }
+provisioner "file" {
+  content     = data.template_file.staging-binderhub-issuer.rendered
+  destination = "/home/${var.admin_user}/staging-binderhub-issuer.yaml"
+}
 
-  provisioner "file" {
-    content     = data.template_file.production-binderhub-issuer.rendered
-    destination = "/home/${var.admin_user}/production-binderhub-issuer.yaml"
-  }
+provisioner "file" {
+  content     = data.template_file.install-binderhub.rendered
+  destination = "/home/${var.admin_user}/install-binderhub.sh"
+}
 
-  provisioner "file" {
-    content     = data.template_file.staging-binderhub-issuer.rendered
-    destination = "/home/${var.admin_user}/staging-binderhub-issuer.yaml"
-  }
 
-  provisioner "file" {
-    content     = data.template_file.install-binderhub.rendered
-    destination = "/home/${var.admin_user}/install-binderhub.sh"
-  }
+provisioner "file" {
+  source     = "${path.module}/assets/fill_submission_metadata.bash"
+  destination = "/home/${var.admin_user}/fill_submission_metadata.bash"
+}
 
-  provisioner "remote-exec" {
-    inline = [
-      "bash /home/${var.admin_user}/install-binderhub.sh",
-    ]
-  }
+provisioner "file" {
+  source     = "${path.module}/assets/repo2data.bash"
+  destination = "/home/${var.admin_user}/repo2data.bash"
+}
+
+provisioner "file" {
+  source     = "${path.module}/assets/jb_build.bash"
+  destination = "/home/${var.admin_user}/jb_build.bash"
+}
+
+provisioner "remote-exec" {
+  inline = ["bash /home/${var.admin_user}/install-binderhub.sh",]
+}
 }
