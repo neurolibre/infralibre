@@ -75,6 +75,8 @@ data "template_file" "kubeadm_common" {
 }
 
 data "template_cloudinit_config" "node_config" {
+  count = var.nb_nodes
+
   part {
     filename     = "common.yaml"
     merge_type   = "list(append)+dict(recurse_array)+str()"
@@ -159,7 +161,7 @@ resource "openstack_compute_instance_v2" "node" {
   flavor_name     = var.os_flavor_node
   key_pair        = openstack_compute_keypair_v2.keypair.name
   security_groups = [openstack_networking_secgroup_v2.common.id,"neurolibre-secgroup"]
-  user_data = data.template_cloudinit_config.node_config.*.rendered
+  user_data = data.template_cloudinit_config.node_config[count.index].rendered
 
   block_device {
     uuid                  = openstack_blockstorage_volume_v3.nodevolume[count.index].id
