@@ -117,6 +117,13 @@ resource "openstack_blockstorage_volume_v3" "mastervolume" {
   image_id    = data.openstack_images_image_v2.ubuntu.id
 }
 
+
+resource "openstack_networking_port_v2" "master" {
+  name               = "${var.project_name}-master"
+  admin_state_up     = "true"
+  network_id         = openstack_networking_network_v2.int_network.id
+}
+
 resource "openstack_compute_instance_v2" "master" {
   name            = "${var.project_name}-master"
   flavor_name     = var.os_flavor_master
@@ -134,6 +141,7 @@ resource "openstack_compute_instance_v2" "master" {
 
   network {
     name = var.is_computecanada ? data.openstack_networking_network_v2.int_network.name : "${var.project_name}-network"
+    port = openstack_networking_port_v2.master.id
   }
 }
 
@@ -168,15 +176,11 @@ resource "openstack_compute_instance_v2" "node" {
   }
 }
 
-resource "openstack_networking_port_v2" "fip_port" {
-  device_id = openstack_compute_instance_v2.master.id
-}
-
 resource "openstack_networking_floatingip_v2" "fip_1" {
   pool = data.openstack_networking_network_v2.ext_network.name
 }
 
 resource "openstack_networking_floatingip_associate_v2" "fip_1" {
   floating_ip = openstack_networking_floatingip_v2.fip_1.address
-  port_id     = openstack_networking_port_v2.fip_port.id
+  port_id     = openstack_networking_port_v2.master.id
 }
