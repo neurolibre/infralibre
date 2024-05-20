@@ -1,7 +1,6 @@
 #cloud-config
 packages:
   - nfs-kernel-server
-  - nfs-common
 
 runcmd:
   # Mount SFTP to /DATA directory
