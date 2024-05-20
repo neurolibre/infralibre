@@ -127,6 +127,10 @@ resource "openstack_networking_port_v2" "master" {
   name               = "${var.project_name}-master"
   admin_state_up     = "true"
   network_id         = data.openstack_networking_network_v2.int_network.id
+  security_group_ids = [
+    openstack_networking_secgroup_v2.common.id,
+    "neurolibre-test-secgroup"
+  ]
 }
 
 resource "openstack_compute_instance_v2" "master" {
@@ -146,9 +150,6 @@ resource "openstack_compute_instance_v2" "master" {
 
   network {
     port = openstack_networking_port_v2.master.id
-  }
-  network {
-    name = var.is_computecanada ? data.openstack_networking_network_v2.int_network.name : "${var.project_name}-network"
   }
 }
 
