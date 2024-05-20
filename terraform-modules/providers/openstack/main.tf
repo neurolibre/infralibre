@@ -3,6 +3,7 @@ data "openstack_images_image_v2" "ubuntu" {
   most_recent = true
 }
 
+# Define a network, only if not using Compute Canada
 resource "openstack_networking_subnet_v2" "subnet" {
   count = var.is_computecanada ? 0 : 1
 
@@ -13,10 +14,12 @@ resource "openstack_networking_subnet_v2" "subnet" {
   enable_dhcp = true
 }
 
+# Define a subnet within the network, only if not using Compute Canada
 resource "openstack_networking_network_v2" "network_1" {
   count = var.is_computecanada ? 0 : 1
   name = "${var.project_name}-network"
 }
+
 
 data "template_file" "kubeadm_master" {
   template = file("${path.module}/../../../cloud-init/kubeadm/master.yaml")
@@ -40,6 +43,7 @@ data "openstack_networking_network_v2" "int_network" {
   name = var.cc_private_network
 }
 
+# Define a router, only if not using Compute Canada
 resource "openstack_networking_router_v2" "router_1" {
   count = var.is_computecanada ? 0 : 1
 
@@ -47,16 +51,15 @@ resource "openstack_networking_router_v2" "router_1" {
   external_network_id = data.openstack_networking_network_v2.ext_network.id
 }
 
+# Attach the subnet to the router, only if not using Compute Canada
 resource "openstack_networking_router_interface_v2" "router_interface_1" {
   count = var.is_computecanada ? 0 : 1
-
   router_id = openstack_networking_router_v2.router_1[0].id
   subnet_id = openstack_networking_subnet_v2.subnet[0].id
 }
 
 data "template_file" "kubeadm_node" {
   template = file("${path.module}/../../../cloud-init/kubeadm/node.yaml")
-
   vars = {
     master_ip       = openstack_compute_instance_v2.master.network[0].fixed_ip_v4
     admin_user      = var.admin_user
@@ -143,6 +146,9 @@ resource "openstack_compute_instance_v2" "master" {
 
   network {
     port = openstack_networking_port_v2.master.id
+  }
+  network {
+    name = var.is_computecanada ? data.openstack_networking_network_v2.int_network.name : "${var.project_name}-network"
   }
 }
 
