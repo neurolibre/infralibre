@@ -142,7 +142,7 @@ resource "openstack_compute_instance_v2" "master" {
   }
 
   network {
-    name = var.is_computecanada ? data.openstack_networking_network_v2.int_network.name : "${var.project_name}-network"
+    port = openstack_networking_port_v2.master.id
   }
 }
 
