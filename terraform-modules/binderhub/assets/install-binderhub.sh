@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "[Binderhub pre-install] BOOT?"
-while [ ! -f /var/lib/cloud/instance/boot-finished ]; do sleep 10; echo "Waiting for cloud-init on master to finalize"; done
+while [ ! -f /var/lib/cloud/instance/boot-finished ]; do sleep 30; echo "Waiting for cloud-init on master to finalize (could take ~10min)"; done
 echo "[Binderhub pre-install] K8S READY?"
 while [ ! -f /shared/k8s-initialized ]; do sleep 5; echo "Waiting for K8S on master to be ready"; done
 
@@ -22,10 +22,10 @@ kubectl create namespace cert-manager
 sudo helm repo add jetstack https://charts.jetstack.io
 sudo helm repo update
 # running on master node to avoid issues with webhook not in the k8s network
-sudo helm install cert-manager --namespace cert-manager --version v1.9.0 jetstack/cert-manager --set installCRDs=true \
-  --set nodeSelector."node-role\.kubernetes\.io/master=" \
-  --set cainjector.nodeSelector."node-role\.kubernetes\.io/master=" \
-  --set webhook.nodeSelector."node-role\.kubernetes\.io/master=" \
+sudo helm install cert-manager --namespace cert-manager --version v1.12.0 jetstack/cert-manager --set installCRDs=true \
+  --set nodeSelector."node-role\.kubernetes\.io/control-plane=" \
+  --set cainjector.nodeSelector."node-role\.kubernetes\.io/control-plane=" \
+  --set webhook.nodeSelector."node-role\.kubernetes\.io/control-plane=" \
   --kubeconfig ~/.kube/config
 #wait until cert-manager is ready
 kubectl wait --namespace cert-manager \
@@ -35,6 +35,7 @@ kubectl wait --namespace cert-manager \
 # apply the issuer(s)
 kubectl create namespace binderhub
 # kubectl apply -f staging-binderhub-issuer.yaml
+kubectl apply -f cloudflare-secret.yaml -n binderhub
 kubectl apply -f production-binderhub-issuer.yaml
 
 # Binderhub proxy

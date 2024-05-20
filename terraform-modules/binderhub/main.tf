@@ -62,6 +62,13 @@ data "template_file" "install-binderhub" {
   }
 }
 
+data "template_file" "cloudflare-secret" {
+  template = file("${path.module}/assets/cloudflare-secret.yaml")
+  vars = {
+    cloudflare_token  = var.cloudflare_token
+  }
+}
+
 resource "terraform_data" "binderhub" {
 
 connection {
