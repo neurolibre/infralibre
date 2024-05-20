@@ -3,12 +3,11 @@ packages:
   - nfs-kernel-server
 
 runcmd:
-  # NFS data
-  - echo "Mounting data"
-  - mkdir -p /DATA
-  - echo "192.168.73.179:/DATA      /DATA      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
+  # Mount SFTP to /DATA directory
+  - mkdir -p ${sftp_dir}
+  - echo "${sftp_ip}:${sftp_dir}      ${sftp_dir}      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
   - mount -a
-  # NFS
+  # NFS export /shared directory and make it accessible to all subnet
   - echo "/shared `hostname -I | awk '{print $1}' | grep -Po '(\d+\.){3}'`0/24(rw,sync,no_root_squash,no_all_squash)" > /etc/exports
   - mkdir -p /shared
   - chown ${admin_user} /shared
@@ -16,7 +15,9 @@ runcmd:
   - systemctl restart nfs-kernel-server
   # Kubeadm  
   - echo "SUDO_UID=${admin_user} sudo -E /tmp/kubeadm-bootstrap/init-master.bash" >> /tmp/install.sh
+  # Initialize kubeadm 
   - su ${admin_user} -c "/tmp/install.sh"
+  # Share the join command with all the nodes 
   - kubeadm token create --print-join-command > /shared/kubeadm-join.bash
   - kubectl label nodes `hostname` type=production  
   # k8s commands

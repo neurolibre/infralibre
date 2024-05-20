@@ -5,8 +5,8 @@ runcmd:
   # NFS
   - mkdir -p /shared
   - echo "${master_ip}:/shared      /shared      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
-  - mkdir -p /DATA
-  - echo "192.168.73.179:/DATA      /DATA      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
+  - mkdir -p ${sftp_dir}
+  - echo "${sftp_ip}:${sftp_dir}      ${sftp_dir}      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
   - mount -a
   # Kubeadm  
   - echo "while [ ! -f /shared/kubeadm-join.bash ]; do sleep 1; done; sudo bash /shared/kubeadm-join.bash" >> /tmp/install.sh

@@ -5,42 +5,6 @@ data "openstack_images_image_v2" "ubuntu" {
   most_recent = true
 }
 
-# Pass the keys provided in the local main.tf
-# to create a master.yaml template config on the 
-# instantiated VM.
-data "template_file" "kubeadm_master" {
-  template = file("${path.module}/../../../cloud-init/kubeadm/master.yaml")
-
-  vars = {
-    admin_user      = var.admin_user
-    project_name    = var.project_name
-    nb_nodes        = var.nb_nodes
-    docker_registry = var.docker_registry
-    docker_id       = var.docker_id
-    docker_password = var.docker_password
-  }
-}
-
-# Do the same for node.yaml (worker node exclusive)
-data "template_file" "kubeadm_node" {
-  template = file("${path.module}/../../../cloud-init/kubeadm/node.yaml")
-  vars = {
-    master_ip       = openstack_compute_instance_v2.master.network[0].fixed_ip_v4
-    admin_user      = var.admin_user
-    docker_registry = var.docker_registry
-    docker_id       = var.docker_id
-    docker_password = var.docker_password
-  }
-}
-
-# Do the same for common.yaml
-data "template_file" "kubeadm_common" {
-  template = file("${path.module}/../../../cloud-init/kubeadm/common.yaml")
-  vars = {
-    ssh_authorized_keys = indent(2, join("\n", formatlist("- %s", var.ssh_authorized_keys)))
-  }
-}
-
 # =====================================================
 # NOTE: We don't create/destroy these network resources
 # they pre-exist. Hence, we just grab details to proceed.
@@ -103,7 +67,7 @@ data "template_cloudinit_config" "master_config" {
 # This is the first entry of the ssh_authorized_keys
 # This is passed from main.tf LOCALLY (not version controlled)
 resource "openstack_compute_keypair_v2" "keypair" {
-  name       = "${var.project_name}-keypair"
+  name       = "${var.project_name}-keypair-ed25519"
   public_key = element(var.ssh_authorized_keys, 0)
 }
 
@@ -112,6 +76,7 @@ resource "openstack_compute_keypair_v2" "keypair" {
 data "openstack_networking_secgroup_v2" "neurolibre_sftp_secgroup" {
   name = var.sftp_secgroup_name
 }
+
 
 # Create a PORT under the internal network which will be attached to 
 # the master node with the security groups defined here.
@@ -212,6 +177,45 @@ resource "openstack_networking_floatingip_associate_v2" "fip_1" {
 }
 
 
+# Pass the keys provided in the local main.tf
+# to create a master.yaml template config on the 
+# instantiated VM.
+data "template_file" "kubeadm_master" {
+  template = file("${path.module}/../../../cloud-init/kubeadm/master.yaml")
+
+  vars = {
+    sftp_ip         = var.sftp_ip_address
+    sftp_dir        = var.sftp_mnt_dir
+    admin_user      = var.admin_user
+    project_name    = var.project_name
+    nb_nodes        = var.nb_nodes
+    docker_registry = var.docker_registry
+    docker_id       = var.docker_id
+    docker_password = var.docker_password
+  }
+}
+
+# Do the same for node.yaml (worker node exclusive)
+data "template_file" "kubeadm_node" {
+  template = file("${path.module}/../../../cloud-init/kubeadm/node.yaml")
+  vars = {
+    master_ip       = openstack_compute_instance_v2.master.access_ip_v4
+    sftp_ip         = var.sftp_ip_address
+    sftp_dir         = var.sftp_mnt_dir
+    admin_user      = var.admin_user
+    docker_registry = var.docker_registry
+    docker_id       = var.docker_id
+    docker_password = var.docker_password
+  }
+}
+
+# Do the same for common.yaml
+data "template_file" "kubeadm_common" {
+  template = file("${path.module}/../../../cloud-init/kubeadm/common.yaml")
+  vars = {
+    ssh_authorized_keys = indent(2, join("\n", formatlist("- %s", var.ssh_authorized_keys)))
+  }
+}
 
 
 # # ================================================== OpenNebula attemps
