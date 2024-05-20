@@ -47,6 +47,10 @@ variable "docker_registry" {
   default     = "docker.io"
 }
 
+variable "sftp_secgroup_name" {
+  description = "A security group name that already exists on the sftp server."
+}
+
 variable "docker_id" {
   description = "Docker hub username"
 }
