@@ -23,9 +23,9 @@ sudo helm repo add jetstack https://charts.jetstack.io
 sudo helm repo update
 # running on master node to avoid issues with webhook not in the k8s network
 sudo helm install cert-manager --namespace cert-manager --version v1.12.0 jetstack/cert-manager --set installCRDs=true \
-  --set nodeSelector."node-role\.kubernetes\.io/control-plane=" \
-  --set cainjector.nodeSelector."node-role\.kubernetes\.io/control-plane=" \
-  --set webhook.nodeSelector."node-role\.kubernetes\.io/control-plane=" \
+  --set nodeSelector."node-role\.kubernetes\.io/master=" \
+  --set cainjector.nodeSelector."node-role\.kubernetes\.io/master=" \
+  --set webhook.nodeSelector."node-role\.kubernetes\.io/master=" \
   --kubeconfig ~/.kube/config
 #wait until cert-manager is ready
 kubectl wait --namespace cert-manager \
