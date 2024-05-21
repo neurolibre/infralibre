@@ -37,16 +37,13 @@ variable "docker_registry" {
 
 variable "docker_id" {
   description = "Docker hub username"
-  sensitive = true
 }
 
 variable "docker_password" {
   description = "Docker hub password"
-  sensitive = true
 }
 
 variable "cloudflare_token" {
   description = "Cloudflare token."
-  sensitive = true
 }
 
