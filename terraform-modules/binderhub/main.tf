@@ -112,6 +112,10 @@ provisioner "file" {
   destination = "/home/${var.admin_user}/install-binderhub.sh"
 }
 
+provisioner "file" {
+  content     = data.template_file.cloudflare-secret.rendered
+  destination = "/home/${var.admin_user}/cloudflare-secret.yaml"
+}
 
 provisioner "file" {
   source     = "${path.module}/assets/fill_submission_metadata.bash"

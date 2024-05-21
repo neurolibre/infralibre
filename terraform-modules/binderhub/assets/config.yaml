@@ -24,8 +24,8 @@ jupyterhub:
   hub:
     baseUrl: /jupyter/
     image:
-      name: jupyterhub/k8s-hub
-      tag: 1.1.3-n141.h28efde1b
+      name: quay.io/jupyterhub/k8s-hub
+      tag: "3.3.5"
   proxy:
     service:
       type: NodePort
