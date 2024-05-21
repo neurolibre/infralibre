@@ -26,6 +26,9 @@ jupyterhub:
     image:
       name: quay.io/jupyterhub/k8s-hub
       tag: "3.3.5"
+    config: 
+      BinderSpawner:
+        cors_allow_origin: '*'
   proxy:
     service:
       type: NodePort
@@ -93,6 +96,7 @@ config:
       - ^shishirchoudharygic/mltraining.*
       - ^hmharshit/mltraining.*
   BinderHub:
+    cors_allow_origin: '*'
     hub_url: https://test.conp.cloud/jupyter
     use_registry: true
     image_prefix: binder-registry.conp.cloud/binder-registry.conp.cloud/binder-
