@@ -77,10 +77,15 @@ fi
 if [ -f "$NEUROLIBRE_CUSTOM" ]; then
     BOOK_LAYOUT=$(extract_yaml_field "$NEUROLIBRE_CUSTOM" "book_layout")
     SINGLE_PAGE=$(extract_yaml_field "$NEUROLIBRE_CUSTOM" "single_page")
+    MYST=$(extract_yaml_field "$NEUROLIBRE_CUSTOM" "build_myst")
   else
     echo "YAML file not found: $yaml_file"
 fi
 
+if [ "$MYST" == "true" ]; then
+  echo "Myst build requested, skipping jupyter book build"
+  exit 0
+fi
 
 # building jupyter book
 echo "" 2>&1 | tee -a ${BOOK_BUILD_LOG}
