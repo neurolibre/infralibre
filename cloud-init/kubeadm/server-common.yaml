@@ -41,14 +41,14 @@ runcmd:
   - VERSION_DOCKER=$(apt-cache madison docker-ce | awk '{ print $3 }' | sort -V | head -n 1)
   - VERSION_CONTAINERD=$(apt-cache madison containerd.io | awk '{ print $3 }' | sort -V | head -n 1)
   - apt install -y containerd.io=$VERSION_CONTAINERD docker-ce=$VERSION_DOCKER docker-ce-cli=$VERSION_DOCKER
-  - echo "{ \"data-root\": \"/mnt\" }" | tee /etc/docker/daemon.json # Configure docker to use ephemeral volume
+  - 'echo "{ \"data-root\": \"/mnt\" }" | tee /etc/docker/daemon.json'
   - systemctl restart docker
   - systemctl restart containerd
   - curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg   # Install redis
   - chmod 644 /usr/share/keyrings/redis-archive-keyring.gpg
   - echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
   - apt-get update
-  - apt-get install redis
+  - apt-get install -y redis
   - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash # Install node version manager 
   - . /tmp/setup_nvm.sh
   - nvm install 20  # Install node v 20
