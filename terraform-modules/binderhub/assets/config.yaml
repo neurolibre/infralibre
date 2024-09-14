@@ -77,7 +77,7 @@ config:
     use_registry: true
     image_prefix: binder-registry.conp.cloud/binder-registry.conp.cloud/binder-
     banner_message: |
-      <div style="text-align:center;"><p>This BinderHub deployment is exclusive for published NeuroLibre preprints.</p></div>
+      <div style="text-align:center;"><p>NeuroLibre BinderHub: Preview reproducible preprints</p></div>
 
 service:
   type: NodePort
