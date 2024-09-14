@@ -20,6 +20,10 @@ manage_resolv_conf: true
 # Install redis 
 runcmd:
   - echo "127.0.0.1 $(hostname)" | sudo tee -a /etc/hosts
+  - mkdir -p ${volume_mount_point} # Mount the volume
+  - if ! blkid ${volume_device}; then mkfs.ext4 ${volume_device}; fi
+  - echo "${volume_device} ${volume_mount_point} ext4 defaults 0 2" | tee -a /etc/fstab
+  - mount -a
   - install -m 0755 -d /etc/apt/keyrings # Install docker
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
   - chmod a+r /etc/apt/keyrings/docker.asc

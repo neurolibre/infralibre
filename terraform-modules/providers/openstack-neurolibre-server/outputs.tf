@@ -17,4 +17,3 @@ output "docker_id" {
 output "docker_password" {
   value = var.docker_password
 }
-
