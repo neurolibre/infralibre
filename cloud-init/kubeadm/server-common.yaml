@@ -1,12 +1,12 @@
 #cloud-config
 packages:
   - git
-  - curl 
-  - gnupg2 
-  - software-properties-common 
-  - apt-transport-https 
+  - curl
+  - gnupg
+  - software-properties-common
+  - apt-transport-https
   - ca-certificates
-  - gpg 
+  - gpg
   - lsb-release
   - nginx
   - fail2ban
@@ -50,7 +50,7 @@ runcmd:
   - apt-get update
   - apt-get install redis
   - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash # Install node version manager 
-- . /tmp/setup_nvm.sh
+  - . /tmp/setup_nvm.sh
   - nvm install 20  # Install node v 20
   - add-apt-repository ppa:deadsnakes/ppa # Add ded sneyks 
   - apt update
