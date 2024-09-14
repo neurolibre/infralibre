@@ -117,20 +117,22 @@ provisioner "file" {
   destination = "/home/${var.admin_user}/cloudflare-secret.yaml"
 }
 
-provisioner "file" {
-  source     = "${path.module}/assets/fill_submission_metadata.bash"
-  destination = "/home/${var.admin_user}/fill_submission_metadata.bash"
-}
+## DEPRECATED
 
-provisioner "file" {
-  source     = "${path.module}/assets/repo2data.bash"
-  destination = "/home/${var.admin_user}/repo2data.bash"
-}
+# provisioner "file" {
+#   source     = "${path.module}/assets/fill_submission_metadata.bash"
+#   destination = "/home/${var.admin_user}/fill_submission_metadata.bash"
+# }
 
-provisioner "file" {
-  source     = "${path.module}/assets/jb_build.bash"
-  destination = "/home/${var.admin_user}/jb_build.bash"
-}
+# provisioner "file" {
+#   source     = "${path.module}/assets/repo2data.bash"
+#   destination = "/home/${var.admin_user}/repo2data.bash"
+# }
+
+# provisioner "file" {
+#   source     = "${path.module}/assets/jb_build.bash"
+#   destination = "/home/${var.admin_user}/jb_build.bash"
+# }
 
 provisioner "remote-exec" {
   inline = ["bash /home/${var.admin_user}/install-binderhub.sh",]

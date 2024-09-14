@@ -37,6 +37,7 @@ jupyterhub:
     every: 30
     concurrency: 5 #to avoid Hub slow down, 5 concurrent processes
     maxAge: 7200 #2h
+  # https://z2jh.jupyter.org/en/latest/resources/reference.html#singleuser  
   singleuser:
     storage:
       type: none
@@ -44,42 +45,17 @@ jupyterhub:
       - name: shared-data
         hostPath:
           path: /DATA
-      - name: book-data
-        hostPath:
-          path: /DATA/book-artifacts
-      - name: repo2data
-        hostPath:
-          path: /DATA
       extraVolumeMounts:
       - name: shared-data
         mountPath: /home/jovyan/data  # where each user can reach shared data
         readOnly : true
-      - name: book-data
-        mountPath: /mnt/books
-      - name: repo2data
-        mountPath: /mnt/data
     memory:
        guarantee: 4G
        limit: 8G
     cpu:
        guarantee: 1
     startTimeout: 3600 #1h
-    #for repo2data https://zero-to-jupyterhub.readthedocs.io/en/latest/resources/reference.html#singleuser-initcontainers
     # https://zero-to-jupyterhub.readthedocs.io/en/latest/jupyterhub/customizing/user-environment.html#about-user-storage-and-adding-files-to-it
-    extraFiles:
-      jb_build:
-        mountPath: /usr/local/share/jb_build.bash
-        mode: 0755
-      repo2data:
-        mountPath: /usr/local/share/repo2data.bash
-        mode: 0755
-      fill_submission_metadata:
-        mountPath: /usr/local/share/fill_submission_metadata.bash
-        mode: 0755
-    lifecycleHooks:
-      postStart:
-        exec:
-          command: ["/bin/sh", "-c", "/usr/local/share/repo2data.bash; /usr/local/share/jb_build.bash"]
 
 # BinderHub config
 config:

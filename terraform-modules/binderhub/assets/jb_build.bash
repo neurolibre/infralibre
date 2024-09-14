@@ -1,5 +1,10 @@
 #!/bin/bash
 
+
+# ---------------------------------------------------------------
+# DEPRECATED
+# ---------------------------------------------------------------
+
 # repo parameters
 IFS='/'; BINDER_PARAMS=(${BINDER_REF_URL}); unset IFS;
 PROVIDER_NAME=${BINDER_PARAMS[-5]}
