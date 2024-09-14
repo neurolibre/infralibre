@@ -26,7 +26,7 @@ data "openstack_networking_network_v2" "int_network" {
 # See cloud-init/kubeadm directory
 data "template_cloudinit_config" "server_config" {
   part {
-    filename     = "common.yaml"
+    filename     = "server-common.yaml"
     merge_type   = "list(append)+dict(recurse_array)+str()"
     content_type = "text/cloud-config"
     content      = data.template_file.server_common.rendered
