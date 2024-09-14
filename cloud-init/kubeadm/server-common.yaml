@@ -1,0 +1,55 @@
+#cloud-config
+packages:
+  - git
+  - curl 
+  - gnupg2 
+  - software-properties-common 
+  - apt-transport-https 
+  - ca-certificates
+  - gpg 
+  - lsb-release
+  - nginx
+  - fail2ban
+  - python3-virtualenv
+  - apache2-utils
+
+package_reboot_if_required: false
+manage_resolv_conf: true
+
+# Install dockerm configure to use /mnt
+# Install redis 
+runcmd:
+  - echo "127.0.0.1 $(hostname)" | sudo tee -a /etc/hosts
+  - install -m 0755 -d /etc/apt/keyrings # Install docker
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  - chmod a+r /etc/apt/keyrings/docker.asc
+  - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+  - apt-get update
+  - VERSION_DOCKER=$(apt-cache madison docker-ce | awk '{ print $3 }' | sort -V | head -n 1)
+  - VERSION_CONTAINERD=$(apt-cache madison containerd.io | awk '{ print $3 }' | sort -V | head -n 1)
+  - apt install -y containerd.io=$VERSION_CONTAINERD docker-ce=$VERSION_DOCKER docker-ce-cli=$VERSION_DOCKER
+  - echo "{ \"data-root\": \"/mnt\" }" | tee /etc/docker/daemon.json # Configure docker to use ephemeral volume
+  - systemctl restart docker
+  - systemctl restart containerd
+  - curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg   # Install redis
+  - chmod 644 /usr/share/keyrings/redis-archive-keyring.gpg
+  - echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+  - apt-get update
+  - apt-get install redis
+  - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash # Install node version manager 
+  - export NVM_DIR="$HOME/.nvm"
+  - [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  - [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+  - nvm install 20  # Install node v 20
+  - add-apt-repository ppa:deadsnakes/ppa # Add ded sneyks 
+  - apt update
+  - apt install -y python3.10 # Install py310
+  - apt install -y python3-pip
+  - git clone https://github.com/neurolibre/full-stack-server ~/full-stack-server # Clone da repo
+
+ssh_authorized_keys:
+  ${ssh_authorized_keys}
+
+disable_ec2_metadata: true
+timezone: "America/Montreal"
+output: { all: "| tee -a /var/log/cloud-init-output.log" }
