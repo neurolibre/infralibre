@@ -60,3 +60,8 @@ variable "existing_keypair_name" {
   description = "Name of the existing keypair to use"
   type        = string
 }
+
+variable "private_key_file" {
+  description = "Path to the private key file for SSH"
+  type        = string
+}

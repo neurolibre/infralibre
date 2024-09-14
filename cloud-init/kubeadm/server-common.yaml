@@ -25,6 +25,16 @@ write_files:
       [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
       [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
+  - path: /tmp/install_nvm.sh
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      set -e
+      curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+      . /tmp/setup_nvm.sh
+      nvm install 20
+      echo "NVM and Node.js installation completed" | tee -a /var/log/cloud-init-output.log
+
 # Install dockerm configure to use /mnt
 # Install redis 
 runcmd:
@@ -49,13 +59,10 @@ runcmd:
   - echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
   - apt-get update
   - apt-get install -y redis
-  - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash # Install node version manager 
-  - . /tmp/setup_nvm.sh
-  - nvm install 20  # Install node v 20
+  - /bin/bash /tmp/install_nvm.sh 2>&1 | tee -a /var/log/cloud-init-output.log
   - add-apt-repository ppa:deadsnakes/ppa # Add ded sneyks 
-  - apt update
-  - apt install -y python3.10 # Install py310
-  - apt install -y python3-pip
+  - apt-get update
+  - apt-get install -y python3.10 python3-pip
   - git clone https://github.com/neurolibre/full-stack-server ~/full-stack-server # Clone da repo
 
 ssh_authorized_keys:

@@ -109,3 +109,20 @@ data "template_file" "server_common" {
     volume_device       = var.existing_volume_uuid != "" ? "/dev/disk/by-uuid/${var.existing_volume_uuid}" : "/dev/disk/by-uuid/${openstack_blockstorage_volume_v3.servervolume[0].id}"
   }
 }
+
+resource "null_resource" "wait_for_cloud_init" {
+  depends_on = [openstack_compute_instance_v2.server]
+
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    private_key = file(var.private_key_file)
+    host        = openstack_compute_instance_v2.server.access_ip_v4
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "/usr/bin/cloud-init status --wait"  # This will wait for cloud-init to complete
+    ]
+  }
+}
