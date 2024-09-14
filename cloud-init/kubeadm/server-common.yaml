@@ -16,6 +16,15 @@ packages:
 package_reboot_if_required: false
 manage_resolv_conf: true
 
+write_files:
+  - path: /tmp/setup_nvm.sh
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
 # Install dockerm configure to use /mnt
 # Install redis 
 runcmd:
@@ -41,9 +50,7 @@ runcmd:
   - apt-get update
   - apt-get install redis
   - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash # Install node version manager 
-  - export NVM_DIR="$HOME/.nvm"
-  - [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-  - [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+- . /tmp/setup_nvm.sh
   - nvm install 20  # Install node v 20
   - add-apt-repository ppa:deadsnakes/ppa # Add ded sneyks 
   - apt update
