@@ -60,9 +60,14 @@ resource "openstack_blockstorage_volume_v3" "servervolume" {
   image_id    = data.openstack_images_image_v2.ubuntu.id
 }
 
+data "openstack_compute_keypair_v2" "existing_keypair" {
+  name = var.existing_keypair_name
+}
+
 resource "openstack_compute_instance_v2" "server" {
   name            = "${var.project_name}-${var.server_flavor}-server"
   flavor_name     = var.os_flavor_server
+  key_pair        = data.openstack_compute_keypair_v2.existing_keypair.name
   #key_pair        = openstack_compute_keypair_v2.keypair.name
   security_groups = [openstack_networking_secgroup_v2.common.id,
                     data.openstack_networking_secgroup_v2.neurolibre_nfs_secgroup.id]

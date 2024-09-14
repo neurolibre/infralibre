@@ -55,3 +55,8 @@ variable "nfs_mnt_dir" {
 variable "public_network" {
   default  = "Public-Network"
 }
+
+variable "existing_keypair_name" {
+  description = "Name of the existing keypair to use"
+  type        = string
+}
