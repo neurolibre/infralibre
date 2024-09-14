@@ -63,7 +63,7 @@ resource "openstack_blockstorage_volume_v3" "servervolume" {
 resource "openstack_compute_instance_v2" "server" {
   name            = "${var.project_name}-${var.server_flavor}-server"
   flavor_name     = var.os_flavor_server
-  key_pair        = openstack_compute_keypair_v2.keypair.name
+  #key_pair        = openstack_compute_keypair_v2.keypair.name
   security_groups = [openstack_networking_secgroup_v2.common.id,
                     data.openstack_networking_secgroup_v2.neurolibre_nfs_secgroup.id]
   user_data       = data.template_cloudinit_config.server_config.rendered
