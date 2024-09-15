@@ -1,3 +1,7 @@
+provider "cloudflare" {
+  api_token = var.cloudflare_api_token
+}
+
 # Grab information about the image name 
 # provided in the local (not version ctrld) main.tf
 data "openstack_images_image_v2" "ubuntu" {
@@ -99,10 +103,6 @@ resource "openstack_networking_floatingip_v2" "fip_1" {
 resource "openstack_networking_floatingip_associate_v2" "fip_1" {
   floating_ip = openstack_networking_floatingip_v2.fip_1.address
   port_id     = openstack_networking_port_v2.server.id
-}
-
-provider "cloudflare" {
-  api_token = var.cloudflare_api_token
 }
 
 resource "cloudflare_origin_ca_certificate" "origin_cert" {
