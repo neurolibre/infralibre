@@ -114,16 +114,13 @@ resource "null_resource" "wait_for_cloud_init" {
   depends_on = [openstack_compute_instance_v2.server]
 
   connection {
-    type        = "ssh"
     user        = "ubuntu"
-    private_key = file(var.private_key_file)
-    agent = true
-    host        = openstack_compute_instance_v2.server.access_ip_v4
+    host        =  openstack_networking_floatingip_v2.fip_1.address
   }
 
   provisioner "remote-exec" {
     inline = [
-      "/usr/bin/cloud-init status --wait"  # This will wait for cloud-init to complete
+      "/usr/bin/cloud-init status --wait"
     ]
   }
 }
