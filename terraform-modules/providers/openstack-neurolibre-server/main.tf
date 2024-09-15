@@ -133,8 +133,8 @@ data "template_file" "server_common" {
     server_flavor       = var.server_flavor
     api_username        = var.api_username
     api_password        = var.api_password
-    cloudflare_cert     = sensitive(cloudflare_origin_ca_certificate.origin_cert.certificate)
-    cloudflare_key      = sensitive(tls_private_key.private_key.private_key_pem)
+    cloudflare_cert     = cloudflare_origin_ca_certificate.origin_cert.certificate
+    cloudflare_key      = tls_private_key.private_key.private_key_pem
   }
 }
 
@@ -150,15 +150,19 @@ resource "null_resource" "wait_for_cloud_init" {
     inline = [
       <<-EOT
       #!/bin/bash
-      echo "Waiting for cloud-init to complete..."
-      while true; do
-        status=$(cloud-init status --wait)
-        echo "$(date): Cloud-init status: $status"
-        if [[ "$status" == *"done"* ]]; then
-          echo "Cloud-init has completed."
-          break
-        fi
-        sleep 10
+      set -e
+      start_time=$(date +%s)
+      status=$(cloud-init status --wait)
+      echo "$(date): Cloud-init status: $status"
+      if [[ "$status" == *"done"* ]]; then
+          echo "Cloud-init has completed successfully."
+          exit 0
+      elif [[ "$status" == *"error"* ]]; then
+          echo "Cloud-init encountered an error."
+          cloud-init analyze show
+          exit 1
+      fi  
+      sleep 10
       done
       EOT
     ]

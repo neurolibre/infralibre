@@ -19,12 +19,12 @@ manage_resolv_conf: true
 write_files:
   - path: /etc/ssl/conp.cloud.pem
     permissions: '0644'
-    content: ${jsonencode(cloudflare_cert)}
-    encoding: b64
+    content: |
+      ${cloudflare_cert}
   - path: /etc/ssl/conp.cloud.key
     permissions: '0600'
-    content: ${jsonencode(cloudflare_key)}
-    encoding: b64
+    content: |
+      ${cloudflare_key}
 
   - path: /tmp/setup_nvm.sh
     permissions: '0755'
@@ -60,6 +60,7 @@ write_files:
       apt-get install -y python3.8 python3.8-distutils python3-pip
       git clone https://github.com/neurolibre/full-stack-server /home/ubuntu/full-stack-server
       echo "Cloned full-stack-server"
+      touch /tmp/py_and_full_stack_completed
 
   - path: /tmp/setup_venv.sh
     permissions: '0755'
@@ -84,6 +85,7 @@ write_files:
       cp /home/ubuntu/full-stack-server/systemd/default/celery /etc/default/
       chown ubuntu:ubuntu /etc/default/celery
       chmod 644 /etc/default/celery
+      touch /tmp/celery_setup_completed
       echo "Copied over celery systemd files"
 
   - path: /tmp/setup_server_service.sh
@@ -97,6 +99,7 @@ write_files:
       cp /home/ubuntu/full-stack-server/systemd/default/neurolibre-server /etc/default/
       chown ubuntu:ubuntu /etc/default/neurolibre-server
       chmod 644 /etc/default/neurolibre-server
+      touch /tmp/server_setup_completed
       echo "Server ($SERVER_TYPE) systemd files copied"
 
   - path: /tmp/setup_nginx.sh
@@ -118,6 +121,7 @@ write_files:
       cp -r /home/ubuntu/venv/neurolibre38/lib/python3.8/site-packages/flask_apispec/static/ /var/run/neurolibre/doc_assets/flask-apispec
       cp -r /home/ubuntu/full-stack-server/assets /var/run/neurolibre/
       cp -r /home/ubuntu/full-stack-server/fail2ban/* /etc/fail2ban/
+      touch /tmp/nginx_setup_completed
       echo "Nginx setup completed successfully"
 
 # Install dockerm configure to use /mnt
@@ -152,18 +156,15 @@ runcmd:
   - su - ubuntu -c "/bin/bash /tmp/install_nvm.sh"
   - while [ ! -f /tmp/nvm_installed ]; do sleep 1; done;
   - /bin/bash /tmp/py_and_full_stack.sh
+  - while [ ! -f /tmp/py_and_full_stack_completed ]; do sleep 1; done;
   - su - ubuntu -c "/bin/bash /tmp/setup_venv.sh"
   - while [ ! -f /tmp/venv_setup_completed ]; do sleep 1; done;
   - /bin/bash /tmp/setup_nginx.sh
-  - touch /tmp/nginx_setup_completed
+  - while [ ! -f /tmp/nginx_setup_completed ]; do sleep 1; done;
   - /bin/bash /tmp/setup_celery.sh
-  - touch /tmp/celery_setup_completed
+  - while [ ! -f /tmp/celery_setup_completed ]; do sleep 1; done;
   - /bin/bash /tmp/setup_server_service.sh
-  - touch /tmp/server_setup_completed
-  - base64 -d /etc/ssl/conp.cloud.pem > /etc/ssl/conp.cloud_decoded.pem && mv /etc/ssl/conp.cloud_decoded.pem /etc/ssl/conp.cloud.pem
-  - base64 -d /etc/ssl/conp.cloud.key > /etc/ssl/conp.cloud_decoded.key && mv /etc/ssl/conp.cloud_decoded.key /etc/ssl/conp.cloud.key
-  - chmod 644 /etc/ssl/conp.cloud.pem
-  - chmod 600 /etc/ssl/cloudflare.key
+  - while [ ! -f /tmp/server_setup_completed ]; do sleep 1; done;
   - systemctl restart nginx
   - touch /tmp/cloud_init_completed
 
