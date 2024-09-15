@@ -120,7 +120,19 @@ resource "null_resource" "wait_for_cloud_init" {
 
   provisioner "remote-exec" {
     inline = [
-      "/usr/bin/cloud-init status --wait"
+      <<-EOT
+      #!/bin/bash
+      echo "Waiting for cloud-init to complete..."
+      while true; do
+        status=$(cloud-init status --wait=0)
+        echo "$(date): Cloud-init status: $status"
+        if [[ "$status" == *"done"* ]]; then
+          echo "Cloud-init has completed."
+          break
+        fi
+        sleep 10
+      done
+      EOT
     ]
   }
 }

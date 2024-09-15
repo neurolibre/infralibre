@@ -31,9 +31,26 @@ write_files:
       #!/bin/bash
       set -e
       curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+      while [ ! -d $HOME/.nvm ]; do sleep 1; done;
       . /tmp/setup_nvm.sh
       nvm install 20
-      echo "NVM and Node.js installation completed" | tee -a /var/log/cloud-init-output.log
+      if node --version > /dev/null 2>&1; then
+        touch /tmp/nvm_installed
+      else
+        echo "Failed to install node js"
+        exit 1
+      fi
+
+  - path: /tmp/py_and_full_stack.sh
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      set -e
+      add-apt-repository -y ppa:deadsnakes/ppa
+      apt-get update
+      apt-get install -y python3.10 python3-pip
+      su - ubuntu -c "git clone https://github.com/neurolibre/full-stack-server /home/ubuntu/full-stack-server"
+      echo "Cloned full-stack-server"
 
 # Install dockerm configure to use /mnt
 # Install redis 
@@ -59,11 +76,9 @@ runcmd:
   - echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
   - apt-get update
   - apt-get install -y redis
-  - /bin/bash /tmp/install_nvm.sh 2>&1 | tee -a /var/log/cloud-init-output.log
-  - add-apt-repository ppa:deadsnakes/ppa # Add ded sneyks 
-  - apt-get update
-  - apt-get install -y python3.10 python3-pip
-  - git clone https://github.com/neurolibre/full-stack-server ~/full-stack-server # Clone da repo
+  - su - ubuntu -c "/bin/bash /tmp/install_nvm.sh"
+  - while [ ! -d /tmp/nvm_installed ]; do sleep 1; done;
+  - /bin/bash /tmp/py_and_full_stack.sh
 
 ssh_authorized_keys:
   ${ssh_authorized_keys}
