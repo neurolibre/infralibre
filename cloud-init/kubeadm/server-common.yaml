@@ -30,7 +30,7 @@ write_files:
     permissions: '0755'
     content: |
       #!/bin/bash
-      export NVM_DIR="$HOME/.nvm"
+      export NVM_DIR="/home/ubuntu/.nvm"
       [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
       [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
@@ -40,7 +40,7 @@ write_files:
       #!/bin/bash
       set -e
       curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-      while [ ! -d $HOME/.nvm ]; do sleep 1; done;
+      while [ ! -d /home/ubuntu/.nvm ]; do sleep 1; done;
       . /tmp/setup_nvm.sh
       nvm install 20
       if node --version > /dev/null 2>&1; then
@@ -57,8 +57,8 @@ write_files:
       set -e
       add-apt-repository -y ppa:deadsnakes/ppa
       apt-get update
-      apt-get install -y python3.8 python3-pip
-      su - ubuntu -c "git clone https://github.com/neurolibre/full-stack-server $HOME/full-stack-server"
+      apt-get install -y python3.8 python3.8-distutils python3-pip
+      git clone https://github.com/neurolibre/full-stack-server /home/ubuntu/full-stack-server
       echo "Cloned full-stack-server"
 
   - path: /tmp/setup_venv.sh
@@ -66,21 +66,21 @@ write_files:
     content: |
       #!/bin/bash
       set -e
-      mkdir -p $HOME/venv
-      cd $HOME/venv
-      virtualenv neurolibre --python=/usr/bin/python3.8
-      source $HOME/venv/neurolibre/bin/activate
+      mkdir -p /home/ubuntu/venv
+      cd /home/ubuntu/venv
+      virtualenv neurolibre38 --python=/usr/bin/python3.8
+      source /home/ubuntu/venv/neurolibre38/bin/activate
       pip3 install --upgrade pip setuptools wheel
-      pip3 install -r $HOME/full-stack-server/api/requirements.txt
-      touch $HOME/venv_setup_completed
+      pip3 install -r /home/ubuntu/full-stack-server/api/requirements.txt
+      touch /home/ubuntu/venv_setup_completed
 
   - path: /tmp/setup_celery.sh
     permissions: '0755'
     content: |
       #!/bin/bash
       set -e
-      cp $HOME/full-stack-server/systemd/neurolibre-celery.service /etc/systemd/system/
-      cp $HOME/full-stack-server/systemd/default/celery /etc/default/
+      cp /home/ubuntu/full-stack-server/systemd/neurolibre-celery.service /etc/systemd/system/
+      cp /home/ubuntu/full-stack-server/systemd/default/celery /etc/default/
       chown ubuntu:ubuntu /etc/default/celery
       chmod 644 /etc/default/celery
       echo "Copied over celery systemd files"
@@ -92,8 +92,8 @@ write_files:
       set -e
       SERVER_TYPE="${server_flavor}"
       echo "Copying neurolibre-$SERVER_TYPE.service to /etc/systemd/system/"
-      cp $HOME/full-stack-server/systemd/neurolibre-$SERVER_TYPE.service /etc/systemd/system/
-      cp $HOME/full-stack-server/systemd/default/neurolibre-server /etc/default/
+      cp /home/ubuntu/full-stack-server/systemd/neurolibre-$SERVER_TYPE.service /etc/systemd/system/
+      cp /home/ubuntu/full-stack-server/systemd/default/neurolibre-server /etc/default/
       chown ubuntu:ubuntu /etc/default/neurolibre-server
       chmod 644 /etc/default/neurolibre-server
       echo "Server ($SERVER_TYPE) systemd files copied"
@@ -105,8 +105,8 @@ write_files:
       set -e
       SERVER_TYPE="${server_flavor}"
       echo "NGINX $SERVER_TYPE"
-      cp $HOME/full-stack-server/nginx/neurolibre-$SERVER_TYPE.conf /etc/nginx/sites-available/
-      cp $HOME/full-stack-server/nginx/neurolibre_params /etc/nginx/
+      cp /home/ubuntu/full-stack-server/nginx/neurolibre-$SERVER_TYPE.conf /etc/nginx/sites-available/
+      cp /home/ubuntu/full-stack-server/nginx/neurolibre_params /etc/nginx/
       htpasswd -c /etc/nginx/.htpasswd ${api_username} ${api_password}
       rm -f /etc/nginx/sites-enabled/default
       mkdir -p /var/run/neurolibre
@@ -114,9 +114,9 @@ write_files:
       chown ubuntu:www-data /var/run/neurolibre
       ln -s /etc/nginx/sites-available/neurolibre-$SERVER_TYPE.conf /etc/nginx/sites-enabled/
       mkdir -p /var/run/neurolibre/doc_assets
-      cp -r $HOME/venv/neurolibre38/lib/python3.8/site-packages/flask_apispec/static/ /var/run/neurolibre/doc_assets/flask-apispec
-      cp -r $HOME/full-stack-server/assets /var/run/neurolibre/
-      cp -r $HOME/full-stack-server/fail2ban/* /etc/fail2ban/
+      cp -r /home/ubuntu/venv/neurolibre38/lib/python3.8/site-packages/flask_apispec/static/ /var/run/neurolibre/doc_assets/flask-apispec
+      cp -r /home/ubuntu/full-stack-server/assets /var/run/neurolibre/
+      cp -r /home/ubuntu/full-stack-server/fail2ban/* /etc/fail2ban/
       echo "Nginx setup completed successfully"
 
 # Install dockerm configure to use /mnt
@@ -138,6 +138,9 @@ runcmd:
   - 'echo "{ \"data-root\": \"/mnt\" }" | tee /etc/docker/daemon.json'
   - systemctl restart docker
   - systemctl restart containerd
+  - groupadd docker
+  - usermod -aG docker ubuntu
+  - newgrp docker
   - curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg   # Install redis
   - chmod 644 /usr/share/keyrings/redis-archive-keyring.gpg
   - echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
