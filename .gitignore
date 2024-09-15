@@ -1,0 +1,5 @@
+*.tfvars
+*.tfvars.json
+.terraform/
+.env/
+.env

@@ -101,12 +101,40 @@ resource "openstack_networking_floatingip_associate_v2" "fip_1" {
   port_id     = openstack_networking_port_v2.server.id
 }
 
+provider "cloudflare" {
+  api_token = var.cloudflare_api_token
+}
+
+resource "cloudflare_origin_ca_certificate" "origin_cert" {
+  hostnames         = [var.cloudflare_hostname]
+  request_type      = "origin-rsa"
+  requested_validity = 5475
+  csr               = tls_cert_request.cert_request.cert_request_pem
+}
+
+resource "tls_private_key" "private_key" {
+  algorithm = "RSA"
+}
+
+resource "tls_cert_request" "cert_request" {
+  private_key_pem = tls_private_key.private_key.private_key_pem
+
+  subject {
+    common_name = var.cloudflare_hostname
+  }
+}
+
 data "template_file" "server_common" {
   template = file("${path.module}/../../../cloud-init/kubeadm/server-common.yaml")
   vars = {
     ssh_authorized_keys = indent(2, join("\n", formatlist("- %s", var.ssh_authorized_keys)))
     volume_mount_point  = var.volume_mount_point
     volume_device       = var.existing_volume_uuid != "" ? "/dev/disk/by-uuid/${var.existing_volume_uuid}" : "/dev/disk/by-uuid/${openstack_blockstorage_volume_v3.servervolume[0].id}"
+    server_flavor       = var.server_flavor
+    api_username        = var.api_username
+    api_password        = var.api_password
+    cloudflare_cert     = sensitive(cloudflare_origin_ca_certificate.origin_cert.certificate)
+    cloudflare_key      = sensitive(tls_private_key.private_key.private_key_pem)
   }
 }
 
@@ -124,7 +152,7 @@ resource "null_resource" "wait_for_cloud_init" {
       #!/bin/bash
       echo "Waiting for cloud-init to complete..."
       while true; do
-        status=$(cloud-init status --wait=0)
+        status=$(cloud-init status --wait)
         echo "$(date): Cloud-init status: $status"
         if [[ "$status" == *"done"* ]]; then
           echo "Cloud-init has completed."

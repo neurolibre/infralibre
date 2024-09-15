@@ -5,6 +5,7 @@ variable "instance_volume_size" {
 variable "ssh_authorized_keys" {
   description = "List of public SSH keys that can connect to the cluster"
   type        = list(string)
+  sensitive   = true
 }
 
 variable "os_flavor_server" {
@@ -61,7 +62,31 @@ variable "existing_keypair_name" {
   type        = string
 }
 
-variable "private_key_file" {
-  description = "Path to the private key file for SSH"
+variable "api_username" {
+  description = "Username for the API"
+  type        = string
+  sensitive   = true
+}
+
+variable "api_password" {
+  description = "Password for the API"
+  type        = string
+  sensitive   = true
+  }
+
+variable "cloudflare_api_token" {
+  description = "Cloudflare API token"
+  type        = string
+  sensitive   = true
+}
+
+variable "cloudflare_zone_id" {
+  description = "Cloudflare Zone ID"
+  type        = string
+  sensitive   = true
+}
+
+variable "cloudflare_hostname" {
+  description = "Hostname for the Cloudflare origin certificate"
   type        = string
 }

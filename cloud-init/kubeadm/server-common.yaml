@@ -17,6 +17,15 @@ package_reboot_if_required: false
 manage_resolv_conf: true
 
 write_files:
+  - path: /etc/ssl/conp.cloud.pem
+    permissions: '0644'
+    content: ${jsonencode(cloudflare_cert)}
+    encoding: b64
+  - path: /etc/ssl/conp.cloud.key
+    permissions: '0600'
+    content: ${jsonencode(cloudflare_key)}
+    encoding: b64
+
   - path: /tmp/setup_nvm.sh
     permissions: '0755'
     content: |
@@ -48,9 +57,67 @@ write_files:
       set -e
       add-apt-repository -y ppa:deadsnakes/ppa
       apt-get update
-      apt-get install -y python3.10 python3-pip
-      su - ubuntu -c "git clone https://github.com/neurolibre/full-stack-server /home/ubuntu/full-stack-server"
+      apt-get install -y python3.8 python3-pip
+      su - ubuntu -c "git clone https://github.com/neurolibre/full-stack-server $HOME/full-stack-server"
       echo "Cloned full-stack-server"
+
+  - path: /tmp/setup_venv.sh
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      set -e
+      mkdir -p $HOME/venv
+      cd $HOME/venv
+      virtualenv neurolibre --python=/usr/bin/python3.8
+      source $HOME/venv/neurolibre/bin/activate
+      pip3 install --upgrade pip setuptools wheel
+      pip3 install -r $HOME/full-stack-server/api/requirements.txt
+      touch $HOME/venv_setup_completed
+
+  - path: /tmp/setup_celery.sh
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      set -e
+      cp $HOME/full-stack-server/systemd/neurolibre-celery.service /etc/systemd/system/
+      cp $HOME/full-stack-server/systemd/default/celery /etc/default/
+      chown ubuntu:ubuntu /etc/default/celery
+      chmod 644 /etc/default/celery
+      echo "Copied over celery systemd files"
+
+  - path: /tmp/setup_server_service.sh
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      set -e
+      SERVER_TYPE="${server_flavor}"
+      echo "Copying neurolibre-$SERVER_TYPE.service to /etc/systemd/system/"
+      cp $HOME/full-stack-server/systemd/neurolibre-$SERVER_TYPE.service /etc/systemd/system/
+      cp $HOME/full-stack-server/systemd/default/neurolibre-server /etc/default/
+      chown ubuntu:ubuntu /etc/default/neurolibre-server
+      chmod 644 /etc/default/neurolibre-server
+      echo "Server ($SERVER_TYPE) systemd files copied"
+
+  - path: /tmp/setup_nginx.sh
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      set -e
+      SERVER_TYPE="${server_flavor}"
+      echo "NGINX $SERVER_TYPE"
+      cp $HOME/full-stack-server/nginx/neurolibre-$SERVER_TYPE.conf /etc/nginx/sites-available/
+      cp $HOME/full-stack-server/nginx/neurolibre_params /etc/nginx/
+      htpasswd -c /etc/nginx/.htpasswd ${api_username} ${api_password}
+      rm -f /etc/nginx/sites-enabled/default
+      mkdir -p /var/run/neurolibre
+      chmod 770 /var/run/neurolibre
+      chown ubuntu:www-data /var/run/neurolibre
+      ln -s /etc/nginx/sites-available/neurolibre-$SERVER_TYPE.conf /etc/nginx/sites-enabled/
+      mkdir -p /var/run/neurolibre/doc_assets
+      cp -r $HOME/venv/neurolibre38/lib/python3.8/site-packages/flask_apispec/static/ /var/run/neurolibre/doc_assets/flask-apispec
+      cp -r $HOME/full-stack-server/assets /var/run/neurolibre/
+      cp -r $HOME/full-stack-server/fail2ban/* /etc/fail2ban/
+      echo "Nginx setup completed successfully"
 
 # Install dockerm configure to use /mnt
 # Install redis 
@@ -76,9 +143,21 @@ runcmd:
   - echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
   - apt-get update
   - apt-get install -y redis
+  - systemctl enable redis
+  - systemctl start redis
   - su - ubuntu -c "/bin/bash /tmp/install_nvm.sh"
-  - while [ ! -d /tmp/nvm_installed ]; do sleep 1; done;
+  - while [ ! -f /tmp/nvm_installed ]; do sleep 1; done;
   - /bin/bash /tmp/py_and_full_stack.sh
+  - su - ubuntu -c "/bin/bash /tmp/setup_venv.sh"
+  - while [ ! -f /tmp/venv_setup_completed ]; do sleep 1; done;
+  - /bin/bash /tmp/setup_nginx.sh
+  - /bin/bash /tmp/setup_celery.sh
+  - /bin/bash /tmp/setup_server_service.sh
+  - base64 -d /etc/ssl/conp.cloud.pem > /etc/ssl/conp.cloud_decoded.pem && mv /etc/ssl/conp.cloud_decoded.pem /etc/ssl/conp.cloud.pem
+  - base64 -d /etc/ssl/conp.cloud.key > /etc/ssl/conp.cloud_decoded.key && mv /etc/ssl/conp.cloud_decoded.key /etc/ssl/conp.cloud.key
+  - chmod 644 /etc/ssl/conp.cloud.pem
+  - chmod 600 /etc/ssl/cloudflare.key
+  - systemctl restart nginx
 
 ssh_authorized_keys:
   ${ssh_authorized_keys}
