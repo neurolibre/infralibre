@@ -103,7 +103,8 @@ write_files:
       echo "NGINX $SERVER_TYPE"
       cp /home/ubuntu/full-stack-server/nginx/neurolibre-$SERVER_TYPE.conf /etc/nginx/sites-available/
       cp /home/ubuntu/full-stack-server/nginx/neurolibre_params /etc/nginx/
-      htpasswd -c /etc/nginx/.htpasswd ${api_username} ${api_password}
+      echo "${api_password}" | sudo htpasswd -i -c /etc/nginx/.htpasswd "${api_username}"
+      chmod 600 /etc/nginx/.htpasswd
       rm -f /etc/nginx/sites-enabled/default
       mkdir -p /var/run/neurolibre
       chmod 770 /var/run/neurolibre
