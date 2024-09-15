@@ -73,20 +73,3 @@ variable "api_password" {
   type        = string
   sensitive   = true
   }
-
-variable "cloudflare_api_token" {
-  description = "Cloudflare API token"
-  type        = string
-  sensitive   = true
-}
-
-variable "cloudflare_zone_id" {
-  description = "Cloudflare Zone ID"
-  type        = string
-  sensitive   = true
-}
-
-variable "cloudflare_hostname" {
-  description = "Hostname for the Cloudflare origin certificate"
-  type        = string
-}

@@ -1,7 +1,3 @@
-provider "cloudflare" {
-  api_token = var.cloudflare_api_token
-}
-
 # Grab information about the image name 
 # provided in the local (not version ctrld) main.tf
 data "openstack_images_image_v2" "ubuntu" {
@@ -105,25 +101,6 @@ resource "openstack_networking_floatingip_associate_v2" "fip_1" {
   port_id     = openstack_networking_port_v2.server.id
 }
 
-resource "cloudflare_origin_ca_certificate" "origin_cert" {
-  hostnames         = [var.cloudflare_hostname]
-  request_type      = "origin-rsa"
-  requested_validity = 5475
-  csr               = tls_cert_request.cert_request.cert_request_pem
-}
-
-resource "tls_private_key" "private_key" {
-  algorithm = "RSA"
-}
-
-resource "tls_cert_request" "cert_request" {
-  private_key_pem = tls_private_key.private_key.private_key_pem
-
-  subject {
-    common_name = var.cloudflare_hostname
-  }
-}
-
 data "template_file" "server_common" {
   template = file("${path.module}/../../../cloud-init/kubeadm/server-common.yaml")
   vars = {
@@ -133,8 +110,6 @@ data "template_file" "server_common" {
     server_flavor       = var.server_flavor
     api_username        = var.api_username
     api_password        = var.api_password
-    cloudflare_cert     = cloudflare_origin_ca_certificate.origin_cert.certificate
-    cloudflare_key      = tls_private_key.private_key.private_key_pem
   }
 }
 
@@ -148,6 +123,8 @@ resource "null_resource" "wait_for_cloud_init" {
 
   provisioner "remote-exec" {
     inline = [
+      "#!/bin/bash",
+      "echo 'Waiting for cloud-init to complete...'",
       "cloud-init status --wait >> /dev/null"
     ]
   }

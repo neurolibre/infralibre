@@ -1,4 +1,5 @@
 #cloud-config
+
 packages:
   - git
   - curl
@@ -17,15 +18,6 @@ package_reboot_if_required: false
 manage_resolv_conf: true
 
 write_files:
-  - path: /etc/ssl/conp.cloud.pem
-    permissions: '0644'
-    content: |
-      ${cloudflare_cert}
-  - path: /etc/ssl/conp.cloud.key
-    permissions: '0600'
-    content: |
-      ${cloudflare_key}
-
   - path: /tmp/setup_nvm.sh
     permissions: '0755'
     content: |
