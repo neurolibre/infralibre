@@ -151,18 +151,17 @@ resource "null_resource" "wait_for_cloud_init" {
       <<-EOT
       #!/bin/bash
       set -e
-      start_time=$(date +%s)
-      status=$(cloud-init status --wait)
-      echo "$(date): Cloud-init status: $status"
-      if [[ "$status" == *"done"* ]]; then
+      while true; do
+        status=$(cloud-init status --wait)
+        if [[ "$status" == *"done"* ]]; then
           echo "Cloud-init has completed successfully."
           exit 0
-      elif [[ "$status" == *"error"* ]]; then
+        elif [[ "$status" == *"error"* ]]; then
           echo "Cloud-init encountered an error."
           cloud-init analyze show
           exit 1
-      fi  
-      sleep 10
+        fi
+        sleep 10
       done
       EOT
     ]
