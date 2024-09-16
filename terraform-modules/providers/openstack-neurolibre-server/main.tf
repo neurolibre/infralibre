@@ -106,7 +106,7 @@ resource "openstack_networking_floatingip_associate_v2" "fip_1" {
 }
 
 resource "cloudflare_origin_ca_certificate" "origin_cert" {
-  hostnames         = [var.cloudflare_hostname]
+  hostnames         = [var.server_domain]
   request_type      = "origin-rsa"
   requested_validity = 5475
   csr               = tls_cert_request.cert_request.cert_request_pem
@@ -121,10 +121,16 @@ resource "tls_cert_request" "cert_request" {
   private_key_pem = tls_private_key.private_key.private_key_pem
 
   subject {
-    common_name = var.cloudflare_hostname
+    common_name = var.server_domain
   }
 }
 
+resource "cloudflare_record" "domain" {
+  zone_id = var.cloudflare_zone_id
+  name    = var.server_subdomain
+  content = openstack_networking_floatingip_v2.fip_1.address
+  type    = "A"
+}
 
 data "template_file" "server_common" {
   template = file("${path.module}/../../../cloud-init/kubeadm/server-common.yaml")
@@ -164,7 +170,7 @@ resource "null_resource" "wait_for_cloud_init" {
   provisioner "local-exec" {
     command = [
       "echo 'Origin CA certificate'",
-      "scp -o StrictHostKeyChecking=no ${local_sensitive_file.certificate.filename} ${local_sensitive_file.private_key.filename} ubuntu@${openstack_networking_floatingip_v2.fip_1.address}:/home/ubuntu/"
+      "scp -i ${var.ssh_private_key} -o StrictHostKeyChecking=no ${local_sensitive_file.certificate.filename} ${local_sensitive_file.private_key.filename} ubuntu@${openstack_networking_floatingip_v2.fip_1.address}:/home/ubuntu/"
     ]
   }
 
