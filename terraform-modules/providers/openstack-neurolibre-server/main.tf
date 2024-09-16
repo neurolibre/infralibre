@@ -168,10 +168,7 @@ resource "null_resource" "wait_for_cloud_init" {
   }
 
   provisioner "local-exec" {
-    command = [
-      "echo 'Origin CA certificate'",
-      "scp -i ${var.ssh_private_key} -o StrictHostKeyChecking=no ${local_sensitive_file.certificate.filename} ${local_sensitive_file.private_key.filename} ubuntu@${openstack_networking_floatingip_v2.fip_1.address}:/home/ubuntu/"
-    ]
+    command = "scp -i ${var.ssh_private_key} -o StrictHostKeyChecking=no ${local_sensitive_file.certificate.filename} ${local_sensitive_file.private_key.filename} ubuntu@${openstack_networking_floatingip_v2.fip_1.address}:/home/ubuntu/"
   }
 
   provisioner "remote-exec" {
