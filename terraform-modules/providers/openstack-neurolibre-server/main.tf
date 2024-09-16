@@ -168,7 +168,24 @@ resource "null_resource" "wait_for_cloud_init" {
   }
 
   provisioner "local-exec" {
-    command = "scp -i ${var.ssh_private_key} -o StrictHostKeyChecking=no ${local_sensitive_file.certificate.filename} ${local_sensitive_file.private_key.filename} ubuntu@${openstack_networking_floatingip_v2.fip_1.address}:/home/ubuntu/"
+    command = <<-EOT
+      #!/bin/bash
+      max_retries=30
+      counter=0
+      until ssh -i ${var.ssh_private_key} -o StrictHostKeyChecking=no -o ConnectTimeout=5 ubuntu@${openstack_networking_floatingip_v2.fip_1.address} echo "Host is ready"
+      do
+        if [ $counter -eq $max_retries ]
+        then
+          echo "Failed to connect after $max_retries attempts. Exiting."
+          exit 1
+        fi
+        echo "Waiting for host to become available... (Attempt $((counter+1))/$max_retries)"
+        sleep 10
+        ((counter++))
+      done
+
+      scp -i ${var.ssh_private_key} -o StrictHostKeyChecking=no ${local_sensitive_file.certificate.filename} ${local_sensitive_file.private_key.filename} ubuntu@${openstack_networking_floatingip_v2.fip_1.address}:/home/ubuntu/
+    EOT
   }
 
   provisioner "remote-exec" {
