@@ -196,16 +196,14 @@ resource "null_resource" "wait_for_cloud_init" {
       "sudo mkdir -p /etc/ssl",
       "while [ ! -f /home/ubuntu/certificate.pem.base64 ]; do sleep 1; done",
       "while [ ! -f /home/ubuntu/private_key.pem.base64 ]; do sleep 1; done",
-      "sudo mv /home/ubuntu/certificate.pem.base64 /etc/ssl/certificate.pem.base64",
-      "sudo mv /home/ubuntu/private_key.pem.base64 /etc/ssl/private_key.pem.base64",
-      "while [ ! -f /etc/ssl/certificate.pem.base64 ]; do sleep 1; done",
-      "while [ ! -f /etc/ssl/private_key.pem.base64 ]; do sleep 1; done",
-      "sudo base64 -d /etc/ssl/certificate.pem.base64 | sudo tee /etc/ssl/${var.server_domain}.pem > /dev/null",
-      "sudo base64 -d /etc/ssl/private_key.pem.base64 | sudo tee /etc/ssl/${var.server_domain}.key > /dev/null",
-      "sudo chmod 644 /etc/ssl/${var.server_domain}.pem",
-      "sudo chmod 600 /etc/ssl/${var.server_domain}.key",
-      "sudo chown root:root /etc/ssl/${var.server_domain}.pem",
-      "sudo chown root:root /etc/ssl/${var.server_domain}.key"
+      "sudo base64 -d /home/ubuntu/certificate.pem.base64 > /home/ubuntu/${var.server_domain}.pem",
+      "sudo base64 -d /home/ubuntu/private_key.pem.base64 > /home/ubuntu/${var.server_domain}.key",
+      "sudo chmod 644 /home/ubuntu/${var.server_domain}.pem",
+      "sudo chmod 600 /home/ubuntu/${var.server_domain}.key",
+      "sudo chown root:root /home/ubuntu/${var.server_domain}.pem",
+      "sudo chown root:root /home/ubuntu/${var.server_domain}.key",
+      "sudo mv /home/ubuntu/${var.server_domain}.key /etc/ssl/${var.server_domain}.key",
+      "sudo mv /home/ubuntu/${var.server_domain}.pem /etc/ssl/${var.server_domain}.pem"
     ]
   }
 
