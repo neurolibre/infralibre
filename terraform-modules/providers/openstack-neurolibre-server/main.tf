@@ -191,14 +191,13 @@ resource "null_resource" "wait_for_cloud_init" {
   provisioner "remote-exec" {
     inline = [
       "#!/bin/bash",
-      "mkdir -p /etc/ssl",
-      "base64 -d /home/ubuntu/certificate.pem.base64 | sudo tee /etc/ssl/${var.server_domain}.pem > /dev/null",
-      "base64 -d /home/ubuntu/private_key.pem.base64 | sudo tee /etc/ssl/${var.server_domain}.key > /dev/null",
-      "chmod 644 /etc/ssl/${var.server_domain}.pem",
-      "chmod 600 /etc/ssl/${var.server_domain}.key",
-      "chown root:root /etc/ssl/${var.server_domain}.pem",
-      "chown root:root /etc/ssl/${var.server_domain}.key",
-      "rm -f /home/ubuntu/certificate.pem.base64 /home/ubuntu/private_key.pem.base64"
+      "sudo mkdir -p /etc/ssl",
+      "sudo base64 -d /home/ubuntu/certificate.pem.base64 > /etc/ssl/${var.server_domain}.pem 2> /dev/null",
+      "sudo base64 -d /home/ubuntu/private_key.pem.base64 > /etc/ssl/${var.server_domain}.key 2> /dev/null",
+      "sudo chmod 644 /etc/ssl/${var.server_domain}.pem",
+      "sudo chmod 600 /etc/ssl/${var.server_domain}.key",
+      "sudo chown root:root /etc/ssl/${var.server_domain}.pem",
+      "sudo chown root:root /etc/ssl/${var.server_domain}.key"
     ]
   }
 
