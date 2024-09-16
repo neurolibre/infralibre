@@ -184,6 +184,8 @@ resource "null_resource" "wait_for_cloud_init" {
         ((counter++))
       done
 
+      while [ ! -f "${local_sensitive_file.certificate.filename}" ]; do sleep 1; done
+      while [ ! -f "${local_sensitive_file.private_key.filename}" ]; do sleep 1; done
       scp -i ${var.ssh_private_key} -o StrictHostKeyChecking=no ${local_sensitive_file.certificate.filename} ${local_sensitive_file.private_key.filename} ubuntu@${openstack_networking_floatingip_v2.fip_1.address}:/home/ubuntu/
     EOT
   }
@@ -192,12 +194,15 @@ resource "null_resource" "wait_for_cloud_init" {
     inline = [
       "#!/bin/bash",
       "sudo mkdir -p /etc/ssl",
-      "sudo mv ${local_sensitive_file.certificate.filename} /etc/ssl/${var.server_domain}.pem",
-      "sudo mv ${local_sensitive_file.private_key.filename} /etc/ssl/${var.server_domain}.key",
+      "while [ ! -f /home/ubuntu/certificate.pem.base64 ]; do sleep 1; done",
+      "while [ ! -f /home/ubuntu/private_key.pem.base64 ]; do sleep 1; done",
+      "sudo mv /home/ubuntu/certificate.pem.base64 /etc/ssl/${var.server_domain}.pem",
+      "sudo mv /home/ubuntu/private_key.pem.base64 /etc/ssl/${var.server_domain}.key",
       "sudo chmod 644 /etc/ssl/${var.server_domain}.pem",
       "sudo chmod 600 /etc/ssl/${var.server_domain}.key",
       "sudo chown root:root /etc/ssl/${var.server_domain}.pem",
-      "sudo chown root:root /etc/ssl/${var.server_domain}.key"
+      "sudo chown root:root /etc/ssl/${var.server_domain}.key",
+      "sudo rm /home/ubuntu/certificate.pem.base64 /home/ubuntu/private_key.pem.base64"
     ]
   }
 
