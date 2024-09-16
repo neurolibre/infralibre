@@ -127,7 +127,7 @@ resource "tls_cert_request" "cert_request" {
 
 resource "cloudflare_record" "domain" {
   zone_id = var.cloudflare_zone_id
-  name    = var.server_domain
+  name    = var.server_subdomain
   content = openstack_networking_floatingip_v2.fip_1.address
   type    = "A"
 }

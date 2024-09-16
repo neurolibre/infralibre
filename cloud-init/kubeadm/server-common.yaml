@@ -101,11 +101,11 @@ write_files:
     content: |
       #!/bin/bash
       set -e
-      SERVER_TYPE="${server_flavor}"
-      SERVER_SUBDOMAIN="${server_subdomain}"
-      SERVER_DOMAIN="${server_domain}"
+      export SERVER_TYPE="${server_flavor}"
+      export SERVER_DOMAIN="${server_domain}"
+      export SERVER_SUBDOMAIN="${server_subdomain}"
       echo "NGINX $SERVER_TYPE"
-      envsubst '$SERVER_NAME $SERVER_SUBDOMAIN' < /home/ubuntu/full-stack-server/nginx/neurolibre-$SERVER_TYPE.template > /etc/nginx/sites-available/neurolibre-$SERVER_TYPE.conf
+      envsubst '${SERVER_DOMAIN} ${SERVER_SUBDOMAIN}' < /home/ubuntu/full-stack-server/nginx/neurolibre-$SERVER_TYPE.template > /etc/nginx/sites-available/neurolibre-$SERVER_TYPE.conf
       cp /home/ubuntu/full-stack-server/nginx/neurolibre_params /etc/nginx/
       rm -f /etc/nginx/sites-enabled/default
       mkdir -p /var/run/neurolibre
@@ -118,6 +118,19 @@ write_files:
       cp -r /home/ubuntu/full-stack-server/fail2ban/* /etc/fail2ban/
       touch /tmp/nginx_setup_completed
       echo "Nginx setup completed successfully"
+
+  - path: /tmp/start_neurolibre_server.sh
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      set -e
+      systemctl enable neurolibre-${server_flavor}.service
+      systemctl start neurolibre-${server_flavor}.service
+      echo "Started neurolibre-${server_flavor}"
+      systemctl enable neurolibre-celery.service
+      systemctl start neurolibre-celery.service
+      echo "Started neurolibre-celery"
+      systemctl restart nginx.service
 
 # Install dockerm configure to use /mnt
 # Install redis 
