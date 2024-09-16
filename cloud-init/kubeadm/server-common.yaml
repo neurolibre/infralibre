@@ -87,32 +87,30 @@ write_files:
     content: |
       #!/bin/bash
       set -e
-      SERVER_TYPE="${server_flavor}"
-      echo "Copying neurolibre-$SERVER_TYPE.service to /etc/systemd/system/"
-      cp /home/ubuntu/full-stack-server/systemd/neurolibre-$SERVER_TYPE.service /etc/systemd/system/
+      echo "Copying neurolibre-${server_flavor}.service to /etc/systemd/system/"
+      cp /home/ubuntu/full-stack-server/systemd/neurolibre-${server_flavor}.service /etc/systemd/system/
       cp /home/ubuntu/full-stack-server/systemd/default/neurolibre-server /etc/default/
       chown ubuntu:ubuntu /etc/default/neurolibre-server
       chmod 644 /etc/default/neurolibre-server
       touch /tmp/server_setup_completed
-      echo "Server ($SERVER_TYPE) systemd files copied"
+      echo "Server (${server_flavor}) systemd files copied"
 
   - path: /tmp/setup_nginx.sh
     permissions: '0755'
     content: |
       #!/bin/bash
       set -e
-      SERVER_TYPE="${server_flavor}"
       export SERVER_SUBDOMAIN="${server_subdomain}"
       export SERVER_DOMAIN="${server_domain}"
-      echo "NGINX $SERVER_TYPE"
-      envsubst '${SERVER_DOMAIN} ${SERVER_SUBDOMAIN}' < /home/ubuntu/full-stack-server/nginx/neurolibre-$SERVER_TYPE.template > /home/ubuntu/neurolibre-$SERVER_TYPE.conf
-      cp /home/ubuntu/neurolibre-$SERVER_TYPE.conf /etc/nginx/sites-available/neurolibre-$SERVER_TYPE.conf
+      echo "NGINX ${server_flavor}"
+      envsubst '${SERVER_DOMAIN} ${SERVER_SUBDOMAIN}' < /home/ubuntu/full-stack-server/nginx/neurolibre-${server_flavor}.template > /home/ubuntu/neurolibre-${server_flavor}.conf
+      cp /home/ubuntu/neurolibre-${server_flavor}.conf /etc/nginx/sites-available/neurolibre-${server_flavor}.conf
       cp /home/ubuntu/full-stack-server/nginx/neurolibre_params /etc/nginx/
       rm -f /etc/nginx/sites-enabled/default
       mkdir -p /var/run/neurolibre
       chmod 770 /var/run/neurolibre
       chown ubuntu:www-data /var/run/neurolibre
-      ln -s /etc/nginx/sites-available/neurolibre-$SERVER_TYPE.conf /etc/nginx/sites-enabled/
+      ln -s /etc/nginx/sites-available/neurolibre-${server_flavor}.conf /etc/nginx/sites-enabled/
       mkdir -p /var/run/neurolibre/doc_assets
       cp -r /home/ubuntu/venv/neurolibre38/lib/python3.8/site-packages/flask_apispec/static/ /var/run/neurolibre/doc_assets/flask-apispec
       cp -r /home/ubuntu/full-stack-server/assets /var/run/neurolibre/
