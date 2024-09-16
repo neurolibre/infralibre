@@ -201,8 +201,7 @@ resource "null_resource" "wait_for_cloud_init" {
       "sudo chmod 644 /etc/ssl/${var.server_domain}.pem",
       "sudo chmod 600 /etc/ssl/${var.server_domain}.key",
       "sudo chown root:root /etc/ssl/${var.server_domain}.pem",
-      "sudo chown root:root /etc/ssl/${var.server_domain}.key",
-      "sudo rm /home/ubuntu/certificate.pem.base64 /home/ubuntu/private_key.pem.base64"
+      "sudo chown root:root /etc/ssl/${var.server_domain}.key"
     ]
   }
 
