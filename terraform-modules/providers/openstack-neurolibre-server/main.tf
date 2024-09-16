@@ -127,7 +127,7 @@ resource "tls_cert_request" "cert_request" {
 
 resource "cloudflare_record" "domain" {
   zone_id = var.cloudflare_zone_id
-  name    = var.server_subdomain
+  name    = var.server_domain
   content = openstack_networking_floatingip_v2.fip_1.address
   type    = "A"
 }
@@ -147,13 +147,13 @@ data "template_file" "server_common" {
 }
 
 resource "local_sensitive_file" "certificate" {
-  content_base64 = base64encode(cloudflare_origin_ca_certificate.origin_cert.certificate)
+  content = base64encode(cloudflare_origin_ca_certificate.origin_cert.certificate)
   filename = "${path.module}/certificate.pem.base64"
   file_permission = "0644"
 }
 
 resource "local_sensitive_file" "private_key" {
-  content_base64 = base64encode(tls_private_key.private_key.private_key_pem)
+  content = base64encode(tls_private_key.private_key.private_key_pem)
   filename = "${path.module}/private_key.pem.base64"
   file_permission = "0600"
 }
@@ -192,8 +192,8 @@ resource "null_resource" "wait_for_cloud_init" {
     inline = [
       "#!/bin/bash",
       "sudo mkdir -p /etc/ssl",
-      "sudo base64 -d /home/ubuntu/certificate.pem.base64 > /etc/ssl/${var.server_domain}.pem 2> /dev/null",
-      "sudo base64 -d /home/ubuntu/private_key.pem.base64 > /etc/ssl/${var.server_domain}.key 2> /dev/null",
+      "sudo mv ${local_sensitive_file.certificate.filename} /etc/ssl/${var.server_domain}.pem",
+      "sudo mv ${local_sensitive_file.private_key.filename} /etc/ssl/${var.server_domain}.key",
       "sudo chmod 644 /etc/ssl/${var.server_domain}.pem",
       "sudo chmod 600 /etc/ssl/${var.server_domain}.key",
       "sudo chown root:root /etc/ssl/${var.server_domain}.pem",
