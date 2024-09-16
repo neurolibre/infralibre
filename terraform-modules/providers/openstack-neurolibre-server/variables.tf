@@ -26,6 +26,11 @@ variable "server_flavor" {
   description = "Determines the type of neurolibre server: preview or preprint."
   type = string
   default = "preview"
+
+  validation {
+    condition     = contains(["preprint", "preview"], var.server_flavor)
+    error_message = "The server_flavor must be either 'preprint' or 'preview'."
+  }
 }
 
 variable "existing_volume_uuid" {
