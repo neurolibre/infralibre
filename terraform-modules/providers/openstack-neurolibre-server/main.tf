@@ -1,3 +1,7 @@
+provider "cloudflare" {
+  api_token = var.cloudflare_api_token
+}
+
 # Grab information about the image name 
 # provided in the local (not version ctrld) main.tf
 data "openstack_images_image_v2" "ubuntu" {
@@ -101,6 +105,27 @@ resource "openstack_networking_floatingip_associate_v2" "fip_1" {
   port_id     = openstack_networking_port_v2.server.id
 }
 
+resource "cloudflare_origin_ca_certificate" "origin_cert" {
+  hostnames         = [var.cloudflare_hostname]
+  request_type      = "origin-rsa"
+  requested_validity = 5475
+  csr               = tls_cert_request.cert_request.cert_request_pem
+}
+
+resource "tls_private_key" "private_key" {
+  algorithm = "RSA"
+  rsa_bits  = 2048
+}
+
+resource "tls_cert_request" "cert_request" {
+  private_key_pem = tls_private_key.private_key.private_key_pem
+
+  subject {
+    common_name = var.cloudflare_hostname
+  }
+}
+
+
 data "template_file" "server_common" {
   template = file("${path.module}/../../../cloud-init/kubeadm/server-common.yaml")
   vars = {
@@ -110,8 +135,23 @@ data "template_file" "server_common" {
     server_flavor       = var.server_flavor
     api_username        = var.api_username
     api_password        = var.api_password
+    server_domain       = var.server_domain
+    server_subdomain    = var.server_subdomain
   }
 }
+
+resource "local_sensitive_file" "certificate" {
+  content_base64 = base64encode(cloudflare_origin_ca_certificate.origin_cert.certificate)
+  filename = "${path.module}/certificate.pem.base64"
+  file_permission = "0644"
+}
+
+resource "local_sensitive_file" "private_key" {
+  content_base64 = base64encode(tls_private_key.private_key.private_key_pem)
+  filename = "${path.module}/private_key.pem.base64"
+  file_permission = "0600"
+}
+
 
 resource "null_resource" "wait_for_cloud_init" {
   depends_on = [openstack_compute_instance_v2.server]
@@ -119,6 +159,27 @@ resource "null_resource" "wait_for_cloud_init" {
   connection {
     user        = "ubuntu"
     host        =  openstack_networking_floatingip_v2.fip_1.address
+  }
+
+  provisioner "local-exec" {
+    command = [
+      "echo 'Origin CA certificate'",
+      "scp -o StrictHostKeyChecking=no ${local_sensitive_file.certificate.filename} ${local_sensitive_file.private_key.filename} ubuntu@${openstack_networking_floatingip_v2.fip_1.address}:/home/ubuntu/"
+    ]
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "#!/bin/bash",
+      "mkdir -p /etc/ssl",
+      "base64 -d /home/ubuntu/certificate.pem.base64 | sudo tee /etc/ssl/${var.server_domain}.pem > /dev/null",
+      "base64 -d /home/ubuntu/private_key.pem.base64 | sudo tee /etc/ssl/${var.server_domain}.key > /dev/null",
+      "chmod 644 /etc/ssl/${var.server_domain}.pem",
+      "chmod 600 /etc/ssl/${var.server_domain}.key",
+      "chown root:root /etc/ssl/${var.server_domain}.pem",
+      "chown root:root /etc/ssl/${var.server_domain}.key",
+      "rm -f /home/ubuntu/certificate.pem.base64 /home/ubuntu/private_key.pem.base64"
+    ]
   }
 
   provisioner "remote-exec" {

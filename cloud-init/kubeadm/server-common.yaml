@@ -13,6 +13,7 @@ packages:
   - fail2ban
   - python3-virtualenv
   - apache2-utils
+  - gettext
 
 package_reboot_if_required: false
 manage_resolv_conf: true
@@ -50,8 +51,9 @@ write_files:
       add-apt-repository -y ppa:deadsnakes/ppa
       apt-get update
       apt-get install -y python3.8 python3.8-distutils python3-pip
-      git clone https://github.com/neurolibre/full-stack-server /home/ubuntu/full-stack-server
+      su - ubuntu -c "git clone https://github.com/neurolibre/full-stack-server /home/ubuntu/full-stack-server"
       echo "Cloned full-stack-server"
+      chown -R ubuntu:ubuntu /home/ubuntu/full-stack-server
       touch /tmp/py_and_full_stack_completed
 
   - path: /tmp/setup_venv.sh
@@ -100,8 +102,10 @@ write_files:
       #!/bin/bash
       set -e
       SERVER_TYPE="${server_flavor}"
+      SERVER_SUBDOMAIN="${server_subdomain}"
+      SERVER_DOMAIN="${server_domain}"
       echo "NGINX $SERVER_TYPE"
-      cp /home/ubuntu/full-stack-server/nginx/neurolibre-$SERVER_TYPE.conf /etc/nginx/sites-available/
+      envsubst '$SERVER_NAME $SERVER_SUBDOMAIN' < /home/ubuntu/full-stack-server/nginx/neurolibre-$SERVER_TYPE.template > /etc/nginx/sites-available/neurolibre-$SERVER_TYPE.conf
       cp /home/ubuntu/full-stack-server/nginx/neurolibre_params /etc/nginx/
       rm -f /etc/nginx/sites-enabled/default
       mkdir -p /var/run/neurolibre
