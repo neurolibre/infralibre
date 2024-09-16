@@ -69,26 +69,9 @@ variable "public_network" {
 }
 
 variable "existing_keypair_name" {
-  description = "Name of the existing keypair to use"
+  description = "The name of the existing keypair registered in openstack that can let you connect to the server in case var.ssh_authorized_keys cannot be set successfully."
   type        = string
-}
-
-variable "api_username" {
-  description = "Username for the API"
-  type        = string
-  sensitive   = true
-}
-
-variable "api_password" {
-  description = "Password for the API"
-  type        = string
-  sensitive   = true
-  }
-
-variable "cloudflare_api_token" {
-  description = "Cloudflare API token"
-  type        = string
-  sensitive   = true
+  default     = "agah25519"
 }
 
 variable "server_domain" {
@@ -110,13 +93,13 @@ variable "ssh_authorized_keys" {
 }
 
 variable "cloudflare_zone_id" {
-  description = "Cloudflare Zone ID"
+  description = "Cloudflare Zone ID."
   type        = string
   sensitive   = true
 }
 
 variable "cloudflare_api_token" {
-  description = "Cloudflare API token"
+  description = "Cloudflare API token with the necessary permissions to update the DNS records and create TLS/SSL certificates."
   type        = string
   sensitive   = true
 }
@@ -126,3 +109,15 @@ variable "ssh_private_key" {
   type        = string
   sensitive   = true
 }
+
+variable "api_username" {
+  description = "Username for the Flask API (subdomain.neurolibre.org/api)."
+  type        = string
+  sensitive   = true
+}
+
+variable "api_password" {
+  description = "Password for the Flask API (subdomain.neurolibre.org/api)."
+  type        = string
+  sensitive   = true
+  }
