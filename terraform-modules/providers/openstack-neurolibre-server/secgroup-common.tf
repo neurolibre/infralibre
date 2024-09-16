@@ -1,6 +1,6 @@
 resource "openstack_networking_secgroup_v2" "common" {
-  name        = "${var.project_name}-secgroup-new"
-  description = "Common security group for BinderHub nodes"
+  name        = "${var.project_name}-secgroup-server"
+  description = "Security group for neurolibre-server"
 }
 
 resource "openstack_networking_secgroup_rule_v2" "icmp_self" {
