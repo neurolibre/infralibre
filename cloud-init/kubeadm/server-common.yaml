@@ -102,10 +102,9 @@ write_files:
       #!/bin/bash
       set -e
       SERVER_TYPE="${server_flavor}"
-      SERVER_SUBDOMAIN="${server_subdomain}"
-      SERVER_DOMAIN="${server_domain}"
-      export SERVER_TYPE SERVER_SUBDOMAIN SERVER_DOMAIN
-      echo "NGINX $SERVER_TYPE $SERVER_DOMAIN $SERVER_SUBDOMAIN"
+      export SERVER_SUBDOMAIN="${server_subdomain}"
+      export SERVER_DOMAIN="${server_domain}"
+      echo "NGINX $SERVER_TYPE"
       envsubst '${SERVER_DOMAIN} ${SERVER_SUBDOMAIN}' < /home/ubuntu/full-stack-server/nginx/neurolibre-$SERVER_TYPE.template > /home/ubuntu/neurolibre-$SERVER_TYPE.conf
       cp /home/ubuntu/neurolibre-$SERVER_TYPE.conf /etc/nginx/sites-available/neurolibre-$SERVER_TYPE.conf
       cp /home/ubuntu/full-stack-server/nginx/neurolibre_params /etc/nginx/
