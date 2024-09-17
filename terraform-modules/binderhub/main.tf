@@ -26,6 +26,7 @@ data "template_file" "prod_config" {
     docker_id       = var.docker_id
     binderhub_subdomain = var.binderhub_subdomain
     binderhub_domain = var.binderhub_domain
+    project_name    = var.project_name
   }
 }
 

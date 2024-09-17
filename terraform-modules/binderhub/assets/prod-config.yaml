@@ -2,15 +2,15 @@ jupyterhub:
   ingress:
     enabled: true
     hosts:
-      - "${binderhub_subdomain}"."${binderhub_domain}"
+      - ${binderhub_subdomain}.${binderhub_domain}
     annotations:
       kubernetes.io/ingress.class: nginx
       kubernetes.io/tls-acme: "true"
       cert-manager.io/issuer: letsencrypt-production
     tls:
-      - secretName: ${binderhub_subdomain}-${binderhub_domain}-tls
+      - secretName: ${project_name}-secret-tls
         hosts:
-          - "${binderhub_subdomain}"."${binderhub_domain}"
+          - ${binderhub_subdomain}.${binderhub_domain}
   #https://discourse.jupyter.org/t/pre-building-images-on-binderhub/4325/4
   prePuller:
     continuous:
@@ -80,12 +80,12 @@ config:
       - ^shishirchoudharygic/mltraining.*
       - ^hmharshit/mltraining.*
   BinderHub:
-    hub_url: https://"${binderhub_subdomain}"."${binderhub_domain}"/jupyter
+    hub_url: https://${binderhub_subdomain}.${binderhub_domain}/jupyter
     use_registry: true
     image_prefix: binder-registry.conp.cloud/binder-registry.conp.cloud/binder-
     cors_allow_origin: '*'
     banner_message: |
-      <div style="text-align:center;"><img src="https://github.com/neurolibre/brand/blob/main/png/roboneuro_leaf.png?raw=true" style="height: 200px;"></img></div>
+      <div style="text-align:center;"><img src="https://github.com/neurolibre/brand/blob/main/png/roboneuro_leaf.png?raw=true" style="height: 200px;"></img><p>Reserved for published neurolibre.org preprints.</p></div>
 
 service:
   type: NodePort
@@ -93,7 +93,7 @@ service:
 ingress:
   enabled: true
   hosts:
-    - "${binderhub_subdomain}"."${binderhub_domain}"
+    - ${binderhub_subdomain}.${binderhub_domain}
   annotations:
     kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
@@ -102,6 +102,6 @@ ingress:
     enabled: true
     type: nginx
   tls:
-    - secretName: ${binderhub_subdomain}-${binderhub_domain}-tls
+    - secretName: ${project_name}-secret-tls
       hosts:
-        - "${binderhub_subdomain}"."${binderhub_domain}"
+        - ${binderhub_subdomain}.${binderhub_domain}
