@@ -16,7 +16,7 @@ data "template_file" "config" {
 }
 
 data "template_file" "prod_config" {
-  template = file("${path.module}/assets/prod_config.yaml")
+  template = file("${path.module}/assets/prod-config.yaml")
   vars = {
     domain          = var.domain
     TLS_name        = var.TLS_name
