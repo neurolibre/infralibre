@@ -61,7 +61,7 @@ kubectl label nodes neurolibre-master hub.jupyter.org/node-purpose=core
 sudo helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 sudo helm repo update
 sudo helm install binderhub jupyterhub/binderhub --version=${binder_version} \
-  --namespace=binderhub -f ${config_file} -f secrets.yaml \
+  --namespace=binderhub -f $config_file -f secrets.yaml \
   --kubeconfig ~/.kube/config
 
   # DROPPING JB BUILD INSIDE POD SUPPORT
