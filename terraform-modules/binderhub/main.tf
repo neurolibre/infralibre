@@ -70,7 +70,6 @@ data "template_file" "install-binderhub" {
   template = file("${path.module}/assets/install-binderhub.sh")
   vars = {
     binder_version  = var.binder_version
-    binder_config   = var.binder_config
     deployment_type = var.deployment_type
     admin_user      = var.admin_user
     docker_id       = var.docker_id

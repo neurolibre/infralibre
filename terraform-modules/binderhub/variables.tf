@@ -47,11 +47,6 @@ variable "cloudflare_token" {
   description = "Cloudflare token."
 }
 
-variable "binder_config" {
-  description = "Binderhub config file (config.yaml or prod-config.yaml)"
-  type        = string
-}
-
 variable "binderhub_subdomain" {
   description = "Binderhub subdomain (e.g. <<binder>>.example.org)"
   type        = string
