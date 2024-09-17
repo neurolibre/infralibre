@@ -74,6 +74,7 @@ data "template_file" "install-binderhub" {
     admin_user      = var.admin_user
     docker_id       = var.docker_id
     docker_password = var.docker_password
+    project_name    = var.project_name
   }
 }
 

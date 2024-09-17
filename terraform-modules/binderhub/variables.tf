@@ -61,3 +61,8 @@ variable "deployment_type" {
   description = "Deployment type (test or production)"
   type        = string
 }
+
+variable "project_name" {
+  description = "Project name (same as the project name used in the openstack provider)"
+  type        = string
+}
