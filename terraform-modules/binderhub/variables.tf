@@ -60,9 +60,4 @@ variable "binderhub_domain" {
 variable "deployment_type" {
   description = "Deployment type (test or production)"
   type        = string
-
-  validation {
-    condition     = contains(["test", "production"], var.deployment_type)
-    error_message = "The deployment_type must be either 'test' or 'production'."
-  }
 }
