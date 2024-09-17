@@ -15,6 +15,20 @@ data "template_file" "config" {
   }
 }
 
+data "template_file" "prod_config" {
+  template = file("${path.module}/assets/prod_config.yaml")
+  vars = {
+    domain          = var.domain
+    TLS_name        = var.TLS_name
+    cpu_alloc       = var.cpu_alloc
+    mem_alloc       = var.mem_alloc_gb
+    docker_registry = var.docker_registry
+    docker_id       = var.docker_id
+    binderhub_subdomain = var.binderhub_subdomain
+    binderhub_domain = var.binderhub_domain
+  }
+}
+
 data "template_file" "secrets" {
   template = file("${path.module}/assets/secrets.yaml")
   vars = {
@@ -56,6 +70,8 @@ data "template_file" "install-binderhub" {
   template = file("${path.module}/assets/install-binderhub.sh")
   vars = {
     binder_version  = var.binder_version
+    binder_config   = var.binder_config
+    deployment_type = var.deployment_type
     admin_user      = var.admin_user
     docker_id       = var.docker_id
     docker_password = var.docker_password
@@ -80,6 +96,11 @@ connection {
 provisioner "file" {
   content     = data.template_file.config.rendered
   destination = "/home/${var.admin_user}/config.yaml"
+}
+
+provisioner "file" {
+  content     = data.template_file.prod_config.rendered
+  destination = "/home/${var.admin_user}/prod-config.yaml"
 }
 
 provisioner "file" {

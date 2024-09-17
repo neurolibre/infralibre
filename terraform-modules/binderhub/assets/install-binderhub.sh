@@ -48,6 +48,12 @@ kubectl wait --namespace binderhub \
   --timeout=120s
 kubectl get services --namespace binderhub binderhub-proxy-ingress-nginx-controller
 
+if [ "${deployment_type}" = "production" ]; then
+  config_file="prod-config.yaml"
+else
+  config_file="config.yaml"
+fi
+
 # Binderhub
 # schedule binderhub core pods just on master
 # https://alan-turing-institute.github.io/hub23-deploy/advanced/optimising-jupyterhub.html#labelling-nodes-for-core-purpose
@@ -55,7 +61,7 @@ kubectl label nodes neurolibre-master hub.jupyter.org/node-purpose=core
 sudo helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 sudo helm repo update
 sudo helm install binderhub jupyterhub/binderhub --version=${binder_version} \
-  --namespace=binderhub -f config.yaml -f secrets.yaml \
+  --namespace=binderhub -f ${config_file} -f secrets.yaml \
   --kubeconfig ~/.kube/config
 
   # DROPPING JB BUILD INSIDE POD SUPPORT

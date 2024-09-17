@@ -47,3 +47,27 @@ variable "cloudflare_token" {
   description = "Cloudflare token."
 }
 
+variable "binder_config" {
+  description = "Binderhub config file (config.yaml or prod-config.yaml)"
+  type        = string
+}
+
+variable "binderhub_subdomain" {
+  description = "Binderhub subdomain (e.g. <<binder>>.example.org)"
+  type        = string
+}
+
+variable "binderhub_domain" {
+  description = "Binderhub domain (e.g. example.org)"
+  type        = string
+}
+
+variable "deployment_type" {
+  description = "Deployment type (test or production)"
+  type        = string
+
+  validation {
+    condition     = contains(["test", "production"], var.deployment_type)
+    error_message = "The deployment_type must be either 'test' or 'production'."
+  }
+}
