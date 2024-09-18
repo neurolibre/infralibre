@@ -114,3 +114,15 @@ variable "swift_container" {
   description = "swift container for docker registry"
   default = "docker_registry"
 }
+
+variable "docker_registry_user" {
+  description = "Username for docker registry"
+}
+
+variable "docker_registry_password" {
+  description = "Password for docker registry"
+}
+
+variable "docker_registry_path" {
+  description = "Path to docker registry"
+}

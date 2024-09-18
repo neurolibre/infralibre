@@ -8,7 +8,9 @@ resource "null_resource" "generate_ssl" {
 data "template_file" "registry_vars" {
     template = file("templates/registry_vars.env")
     vars = {
-        extra_vars = var.docker_registry_extra_vars
+        docker_registry_path = var.docker_registry_path
+        docker_registry_user = var.docker_registry_user
+        docker_registry_password = var.docker_registry_password
         secret = var.prefix
     }
 }
@@ -102,6 +104,7 @@ resource "openstack_compute_instance_v2" "registry" {
             "openssl x509 -req -in /tmp/files/ssl/cert.csr -CA /tmp/files/ssl/ca.pem -CAkey /tmp/files/ssl/ca-key.pem \\",
             "-CAcreateserial -out /tmp/files/ssl/cert.pem -days 365 -extensions v3_req -extfile /tmp/files/ssl/openssl.cnf",
             "sudo mkdir -p /etc/docker/ssl",
+            "sudo mkdir -p ${var.docker_registry_path}",
             "sudo cp /tmp/files/ssl/ca.pem /opt/docker-registry/ssl/",
             "sudo cp /tmp/files/ssl/cert.pem /opt/docker-registry/ssl/",
             "sudo cp /tmp/files/ssl/key.pem /opt/docker-registry/ssl/",
@@ -114,6 +117,7 @@ resource "openstack_compute_instance_v2" "registry" {
             "sudo su -c \"cat <<'EOF' >> /opt/docker-registry/config/registry.env\n${template_file.local_vars.rendered}\nEOF\"",
             "fi",
             "docker pull registry:${var.docker_registry_version}",
+            "docker run --entrypoint htpasswd registry:${var.docker_registry_version} -Bbn ${var.docker_registry_user} ${var.docker_registry_user} >> ${var.docker_registry_path}/htpasswd",
             "docker run -d --name docker-registry \\",
             "  -v /opt/docker-registry:/opt/docker-registry \\",
             "  -p 443:5000 --restart always \\",
