@@ -171,7 +171,7 @@ resource "null_resource" "wait_for_cloud_init" {
 
   provisioner "file" {
           source = local_sensitive_file.private_key.filename
-          destination = "/home/ubuntu/private_key.pem.base64}"
+          destination = "/home/ubuntu/private_key.pem.base64"
   }
 
   provisioner "file" {
