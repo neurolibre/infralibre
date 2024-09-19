@@ -40,6 +40,9 @@ data "template_cloudinit_config" "server_config" {
 
 # Grab details of a security group that HAS ALREADY BEEN
 # attached to the nfs server (/DATA_NFS)
+# The same security group is used for the server, necessary permissions
+# are added in the security group module.
+# You can use secgroup-common.tf to create the secgroup
 data "openstack_networking_secgroup_v2" "neurolibre_nfs_secgroup" {
   name = var.nfs_secgroup_name
 }
@@ -51,7 +54,6 @@ resource "openstack_networking_port_v2" "server" {
   admin_state_up     = "true"
   network_id         = data.openstack_networking_network_v2.int_network.id
   security_group_ids = [
-    openstack_networking_secgroup_v2.common.id,
     data.openstack_networking_secgroup_v2.neurolibre_nfs_secgroup.id
   ]
 }
@@ -73,7 +75,7 @@ resource "openstack_compute_instance_v2" "server" {
   flavor_name     = var.os_flavor_server
   key_pair        = data.openstack_compute_keypair_v2.existing_keypair.name
   #key_pair        = openstack_compute_keypair_v2.keypair.name
-  security_groups = [openstack_networking_secgroup_v2.common.id,
+  security_groups = [
                     data.openstack_networking_secgroup_v2.neurolibre_nfs_secgroup.id]
   user_data       = data.template_cloudinit_config.server_config.rendered
 
@@ -167,27 +169,14 @@ resource "null_resource" "wait_for_cloud_init" {
     host        =  openstack_networking_floatingip_v2.fip_1.address
   }
 
-  provisioner "local-exec" {
-    command = <<-EOT
-      #!/bin/bash
-      max_retries=30
-      counter=0
-      until ssh -i ${var.ssh_private_key} -o StrictHostKeyChecking=no -o ConnectTimeout=5 ubuntu@${openstack_networking_floatingip_v2.fip_1.address} echo "Host is ready"
-      do
-        if [ $counter -eq $max_retries ]
-        then
-          echo "Failed to connect after $max_retries attempts. Exiting."
-          exit 1
-        fi
-        echo "Waiting for host to become available... (Attempt $((counter+1))/$max_retries)"
-        sleep 10
-        ((counter++))
-      done
+  provisioner "file" {
+          content      = local_sensitive_file.private_key.content
+          destination = "/home/ubuntu/${local_sensitive_file.private_key.filename}"
+  }
 
-      while [ ! -f "${local_sensitive_file.certificate.filename}" ]; do sleep 1; done
-      while [ ! -f "${local_sensitive_file.private_key.filename}" ]; do sleep 1; done
-      scp -i ${var.ssh_private_key} -o StrictHostKeyChecking=no ${local_sensitive_file.certificate.filename} ${local_sensitive_file.private_key.filename} ubuntu@${openstack_networking_floatingip_v2.fip_1.address}:/home/ubuntu/
-    EOT
+  provisioner "file" {
+          content      = local_sensitive_file.certificate.content
+          destination = "/home/ubuntu/${local_sensitive_file.certificate.filename}"
   }
 
   provisioner "remote-exec" {
