@@ -30,10 +30,10 @@ data "openstack_networking_network_v2" "int_network" {
 # See cloud-init/kubeadm directory
 data "template_cloudinit_config" "server_config" {
   part {
-    filename     = "server-common.yaml"
+    filename     = "neurolibre-server.yaml"
     merge_type   = "list(append)+dict(recurse_array)+str()"
     content_type = "text/cloud-config"
-    content      = data.template_file.server_common.rendered
+    content      = data.template_file.neurolibre_server.rendered
   }
 }
 
@@ -134,8 +134,8 @@ resource "cloudflare_record" "domain" {
   type    = "A"
 }
 
-data "template_file" "server_common" {
-  template = file("${path.module}/../../../cloud-init/kubeadm/server-common.yaml")
+data "template_file" "neurolibre_server" {
+  template = file("${path.module}/neurolibre-server.yaml")
   vars = {
     ssh_authorized_keys = indent(2, join("\n", formatlist("- %s", var.ssh_authorized_keys)))
     volume_mount_point  = var.volume_mount_point
