@@ -170,13 +170,13 @@ resource "null_resource" "wait_for_cloud_init" {
   }
 
   provisioner "file" {
-          content      = local_sensitive_file.private_key.content
-          destination = "/home/ubuntu/${local_sensitive_file.private_key.filename}"
+          source = local_sensitive_file.private_key.filename
+          destination = "/home/ubuntu/private_key.pem.base64}"
   }
 
   provisioner "file" {
-          content      = local_sensitive_file.certificate.content
-          destination = "/home/ubuntu/${local_sensitive_file.certificate.filename}"
+          source = local_sensitive_file.certificate.filename
+          destination = "/home/ubuntu/certificate.pem.base64"
   }
 
   provisioner "remote-exec" {
