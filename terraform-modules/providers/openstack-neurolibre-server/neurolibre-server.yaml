@@ -101,7 +101,7 @@ write_files:
       #!/bin/bash
       set -e
       echo "NGINX ${server_flavor}"
-      sed 's/${SERVER_SUBDOMAIN}/${server_subdomain}/g; s/${SERVER_DOMAIN}/${server_domain}/g' /home/ubuntu/full-stack-server/nginx/neurolibre-${server_flavor}.template > /home/ubuntu/neurolibre-${server_flavor}.conf
+      sed 's/$${SERVER_SUBDOMAIN}/${server_subdomain}/g; s/$${SERVER_DOMAIN}/${server_domain}/g' /home/ubuntu/full-stack-server/nginx/neurolibre-${server_flavor}.template > /home/ubuntu/neurolibre-${server_flavor}.conf
       cp /home/ubuntu/neurolibre-${server_flavor}.conf /etc/nginx/sites-available/neurolibre-${server_flavor}.conf
       cp /home/ubuntu/full-stack-server/nginx/neurolibre_params /etc/nginx/
       rm -f /etc/nginx/sites-enabled/default
