@@ -1,0 +1,13 @@
+http:
+  middlewares:
+    compress:
+      compress: {}
+    large-upload:
+      buffering:
+        maxRequestBodyBytes: 10737418240  # 10GB
+        memRequestBodyBytes: 134217728    # 128MB
+    registry-ratelimit:
+      rateLimit:
+        average: 100
+        burst: 50
+        period: 1s

@@ -3,7 +3,7 @@ variable "image" {
     default = "coreos"
 }
 
-variable "prefix" {
+variable "project_name" {
     description = "prefix of openstack resources"
     default = "example"
 }
@@ -13,11 +13,11 @@ variable "instance_count" {
     default = 1
 }
 
-variable "network_name" {
+variable "cc_private_network" {
     default = "internal"
 }
 
-variable "floatingip_pool" {
+variable "public_network" {
     default = "external"
 }
 
@@ -29,92 +29,6 @@ variable "ssh_user" {
     default = "core"
 }
 
-variable "docker_registry_version" {
-    description = "version of docker registry to use. Should be 2 or higher."
-    default = "2"
-}
-
-variable "docker_registry_extra_vars" {
-    description = "extra ENV vars to use when starting registry"
-    default = "REGISTRY_HTTP_TLS_CLIENTCAS_0=/opt/docker-registry/ssl/ca.pem"
-}
-
-variable "docker_registry_swift_extra_vars" {
-    description = "extra ENV vars for swift to use when starting registry"
-    default = ""
-}
-
-variable "docker_registry_storage_backend" {
-    description = "storage backend to use for docker registry [local|swift]"
-    default = "local"
-}
-
-variable "docker_install_command" {
-    description = "If docker is not found, this command will be run"
-    default = "sudo apt-get update && sudo apt-get -y install curl && curl -sSL get.docker.com | sudo bash"
-}
-
-variable "username" {
-  description = "Your openstack username"
-}
-
-variable "password" {
-  description = "Your openstack password"
-}
-
-variable "tenant" {
-  description = "Your openstack tenant/project"
-}
-
-variable "auth_url" {
-  description = "Your openstack auth URL"
-}
-
-variable "public_key_path" {
-  description = "The path of the ssh pub key"
-  default = "~/.ssh/id_rsa.pub"
-}
-
-variable "whitelist_network" {
-  description = "network to allow connectivity from"
-  default = "0.0.0.0/0"
-}
-
-variable "generate_ssl" {
-  description = "set to 1 to regenerate SSL certificates/keys"
-  default = 1
-}
-
-variable "fqdn" {
-    description = "FQDN for certificate"
-    default = "registry.local"
-}
-
-variable "swift_username" {
-  description = "Your openstack username"
-  default = ""
-}
-
-variable "swift_password" {
-  description = "Your openstack password"
-  default = ""
-}
-
-variable "swift_tenant" {
-  description = "Your openstack tenant/project"
-  default = ""
-}
-
-variable "swift_auth_url" {
-  description = "Your openstack auth URL"
-  default = ""
-}
-
-variable "swift_container" {
-  description = "swift container for docker registry"
-  default = "docker_registry"
-}
-
 variable "docker_registry_user" {
   description = "Username for docker registry"
 }
@@ -123,6 +37,48 @@ variable "docker_registry_password" {
   description = "Password for docker registry"
 }
 
-variable "docker_registry_path" {
-  description = "Path to docker registry"
+variable "existing_keypair_name" {
+  description = "Name of existing keypair to use"
+} 
+
+variable "existing_secgroup_name" {
+  description = "Name of common secgroup to use"
+}
+
+variable "cloudflare_api_token" {
+  description = "Cloudflare API token"
+}
+
+variable "server_domain" {
+  description = "Domain name of the server"
+}
+
+variable "cloudflare_zone_id" {
+  description = "Cloudflare zone ID"
+} 
+
+variable "host_src_path" {
+  description = "Path to the host source directory where docker swarm sources will be copied"
+}
+
+variable "registry_local_volume" {
+  description = "Path where the registry will be mounted on the server.This is where the large volumes will be mounted."
+}
+
+variable "traefik_subdomain" {
+  description = "Traefik subdomain"
+}
+
+variable "docker_subdomain" {
+  description = "Docker subdomain"
+}
+
+variable "existing_volume_uuid" {
+  description = "UUID of an existing volume to attach to the server. If not set (default), a new volume will be created with var.instance_volume_size storage capacity."
+  type        = string
+}
+
+variable "instance_volume_size" {
+  description = "Volume size that will be attached to the var.volume_point_dir on this server. This will not be used if var.existing_volume_uuid is set."
+  type        = number
 }
