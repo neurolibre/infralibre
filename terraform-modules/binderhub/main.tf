@@ -190,7 +190,7 @@ provisioner "file" {
 }
 
 provisioner "file" {
-  content     = data.template_file.prometheus_deploy.rendered
+  source      = "${path.module}/prometheus/prometheus-deploy.yaml"
   destination = "/home/${var.admin_user}/prometheus-deploy.yaml"
 }
 
