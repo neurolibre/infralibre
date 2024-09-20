@@ -2,10 +2,6 @@ variable "ip" {
   description = "ip address of the master"
 }
 
-variable "domain" {
-  description = "Domain name"
-}
-
 variable "TLS_name" {
   description = "TLS certificate name, same as domain but with dashes instead of points"
 }
@@ -84,11 +80,6 @@ variable "grafana_admin_password" {
 
 variable "prometheus_subdomain" {
   description = "Prometheus subdomain (e.g. <<prometheus>>.example.org)"
-  type        = string
-}
-
-variable "cloudflare_api_token" {
-  description = "Cloudflare API token"
   type        = string
 }
 
