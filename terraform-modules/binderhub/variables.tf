@@ -57,12 +57,32 @@ variable "binderhub_domain" {
   type        = string
 }
 
-variable "deployment_type" {
-  description = "Deployment type (test or production)"
+variable "binder_deployment_yaml_config" {
+  description = "config.yaml or prod-config.yaml"
   type        = string
 }
 
 variable "project_name" {
   description = "Project name (same as the project name used in the openstack provider)"
+  type        = string
+}
+
+variable "grafana_subdomain" {
+  description = "Grafana subdomain (e.g. <<grafana>>.example.org)"
+  type        = string
+}
+
+variable "grafana_admin_user" {
+  description = "Grafana admin user"
+  type        = string
+}
+
+variable "grafana_admin_password" {
+  description = "Grafana admin password"
+  type        = string
+}
+
+variable "prometheus_subdomain" {
+  description = "Prometheus subdomain (e.g. <<prometheus>>.example.org)"
   type        = string
 }
