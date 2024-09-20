@@ -97,13 +97,6 @@ data "template_file" "grafana_deploy" {
   }
 }
 
-data "template_file" "grafana_ingress" {
-  template = file("${path.module}/grafana/grafana-ingress.yaml")
-  vars = {
-    grafana_subdomain = var.grafana_subdomain
-    binderhub_domain  = var.binderhub_domain
-  }
-}
 
 data "template_file" "prometheus_configmap" {
   template = file("${path.module}/prometheus/prometheus-configmap.yaml")
