@@ -110,11 +110,6 @@ resource "openstack_compute_instance_v2" "master" {
   security_groups = [openstack_networking_secgroup_v2.common.id,
                     data.openstack_networking_secgroup_v2.neurolibre_sftp_secgroup.id]
 
-  provisioner "file" {
-    content = data.local_sensitive_file.node_ssh.content
-    destination = "/tmp/${var.ssh_private_key_name}"
-  }
-
   # Cloud init config for master node
   user_data       = data.template_cloudinit_config.master_config.rendered
 
@@ -204,6 +199,7 @@ data "template_file" "kubeadm_master" {
     docker_id       = var.docker_id
     docker_password = var.docker_password
     ssh_private_key_name = var.ssh_private_key_name
+    ssh_private_key = base64encode(data.local_sensitive_file.node_ssh.content)
   }
 }
 

@@ -4,8 +4,9 @@ packages:
 
 runcmd:
   # Mount SFTP to /DATA directory
-  - mv /tmp/${ssh_private_key_name} /home/${admin_user}/.ssh/${ssh_private_key_name}
+  - echo "${ssh_private_key}" | base64 -d > /home/${admin_user}/.ssh/${ssh_private_key_name}
   - chmod 600 /home/${admin_user}/.ssh/${ssh_private_key_name}
+  - ls -l /home/${admin_user}/.ssh/
   - mkdir -p ${sftp_dir}
   - echo "${sftp_ip}:${sftp_dir}      ${sftp_dir}      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
   - mount -a
