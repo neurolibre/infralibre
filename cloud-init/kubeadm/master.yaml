@@ -6,6 +6,7 @@ runcmd:
   # Mount SFTP to /DATA directory
   - echo "${ssh_private_key}" | base64 -d > /home/${admin_user}/.ssh/${ssh_private_key_name}
   - chmod 600 /home/${admin_user}/.ssh/${ssh_private_key_name}
+  - chown ${admin_user}:${admin_user} /home/${admin_user}/.ssh/${ssh_private_key_name}
   - ls -l /home/${admin_user}/.ssh/
   - mkdir -p ${sftp_dir}
   - echo "${sftp_ip}:${sftp_dir}      ${sftp_dir}      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
@@ -27,7 +28,24 @@ runcmd:
   - |
     for i in $(seq 1 ${nb_nodes}); do
       node_name=${project_name}-node$i
-      scp -o StrictHostKeyChecking=no -i /home/${admin_user}/.ssh/${ssh_private_key_name} /shared/kubeadm-join.bash ${admin_user}@$node_name:/tmp/
+      echo "Attempting to copy kubeadm-join.bash to $node_name" >> /tmp/scp_log.txt
+      retry_count=0
+      max_retries=5
+      while [ $retry_count -lt $max_retries ]; do
+        scp -o StrictHostKeyChecking=no -i /home/${admin_user}/.ssh/${ssh_private_key_name} /shared/kubeadm-join.bash ${admin_user}@$node_name:/tmp/
+        if [ $? -eq 0 ]; then
+          echo "Successfully copied kubeadm-join.bash to $node_name on attempt $((retry_count + 1))" >> /tmp/scp_log.txt
+          break
+        else
+          retry_count=$((retry_count + 1))
+          if [ $retry_count -lt $max_retries ]; then
+            echo "Failed to copy to $node_name. Retrying in 10 seconds... (Attempt $retry_count of $max_retries)" >> /tmp/scp_log.txt
+            sleep 10
+          else
+            echo "Failed to copy kubeadm-join.bash to $node_name after $max_retries attempts" >> /tmp/scp_log.txt
+          fi
+        fi
+      done
     done
   - kubectl label nodes `hostname` type=production
   # k8s commands
