@@ -4,9 +4,6 @@ packages:
 
 runcmd:
   # Mount SFTP to /DATA directory
-  - echo "${ssh_private_key}" | base64 -d > /home/${admin_user}/.ssh/${ssh_private_key_name}
-  - chmod 600 /home/${admin_user}/.ssh/${ssh_private_key_name}
-  - chown ${admin_user}:${admin_user} /home/${admin_user}/.ssh/${ssh_private_key_name}
   - ls -l /home/${admin_user}/.ssh/
   - mkdir -p ${sftp_dir}
   - echo "${sftp_ip}:${sftp_dir}      ${sftp_dir}      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
@@ -22,6 +19,9 @@ runcmd:
   # Initialize kubeadm 
   - su ${admin_user} -c "/tmp/install.sh"
   # Share the join command with all the nodes 
+  - echo "${ssh_private_key}" | base64 -d > /home/${admin_user}/.ssh/${ssh_private_key_name}
+  - chmod 600 /home/${admin_user}/.ssh/${ssh_private_key_name}
+  - chown ${admin_user}:${admin_user} /home/${admin_user}/.ssh/${ssh_private_key_name}
   - kubeadm token create --print-join-command > /shared/kubeadm-join.bash
   - chmod +x /shared/kubeadm-join.bash
   # Share the join command with all the nodes using scp
