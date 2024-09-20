@@ -205,7 +205,7 @@ provisioner "file" {
   }
 
 provisioner "file" {
-  content     = data.template_file.prometheus_exporters.rendered
+  source      = "${path.module}/prometheus/prometheus-exporters.yaml"
   destination = "/home/${var.admin_user}/prometheus-exporters.yaml"
 }
 
