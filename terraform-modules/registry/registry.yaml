@@ -44,6 +44,7 @@ runcmd:
   - mkdir -p ${host_src_path}/registry
   - mkdir -p ${host_src_path}/redis
   - mkdir -p ${host_src_path}/traefik/conf.d
+
 disable_ec2_metadata: true
 timezone: "America/Montreal"
 output: { all: "| tee -a /var/log/cloud-init-output.log" }

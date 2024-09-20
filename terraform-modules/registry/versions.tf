@@ -10,6 +10,10 @@ terraform {
       source = "cloudflare/cloudflare"
       version = "~> 4.40.0"
     }
+    newrelic = {
+      source = "newrelic/newrelic"
+      version = "~> 3.2.0"
+    }
     template = {
       source = "hashicorp/template"
     }

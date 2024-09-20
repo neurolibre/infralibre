@@ -82,3 +82,19 @@ variable "instance_volume_size" {
   description = "Volume size that will be attached to the var.volume_point_dir on this server. This will not be used if var.existing_volume_uuid is set."
   type        = number
 }
+
+variable "new_relic_api" {
+  description = "New Relic API key"
+}
+
+variable "new_relic_account" {
+  description = "New Relic account ID"
+}
+
+variable "new_relic_license" {
+  description = "New Relic license key"
+}
+
+variable "admin_email" {
+  description = "Admin email for newrelic alerts"
+}
