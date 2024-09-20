@@ -11,9 +11,12 @@ data:
       - job_name: 'binderhub'
         scheme: https
         static_configs:
-          - targets: ['${binderhub_subdomain}.${binderhub_domain}']
+          - targets: ['fire.conp.cloud']
       - job_name: 'jupyterhub'
         scheme: https
         metrics_path: '/jupyter/hub/metrics'
         static_configs:
-          - targets: ['${binderhub_subdomain}.${binderhub_domain}']
+          - targets: ['fire.conp.cloud']
+      - job_name: 'node-exporter'
+        static_configs:
+          - targets: ['node-exporter.monitoring.svc.cluster.local:9100']

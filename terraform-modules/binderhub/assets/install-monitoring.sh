@@ -32,6 +32,17 @@ apply_resource grafana-ingress.yaml grafana
 apply_resource prometheus-deploy.yaml monitoring
 apply_resource prometheus-ingress.yaml monitoring
 apply_resource prometheus-service.yaml monitoring
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+helm upgrade node-exporter prometheus-community/prometheus-node-exporter \
+    --namespace monitoring \
+    --set service.type=ClusterIP \
+    --set service.name=node-exporter \
+    --set fullnameOverride=node-exporter \
+    --set daemonset.enabled=true
+
 apply_resource prometheus-configmap.yaml monitoring
 
 echo "Monitoring stack installation complete!"
