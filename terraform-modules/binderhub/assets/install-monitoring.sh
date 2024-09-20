@@ -36,7 +36,7 @@ apply_resource prometheus-service.yaml monitoring
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 
-helm upgrade node-exporter prometheus-community/prometheus-node-exporter \
+helm install node-exporter prometheus-community/prometheus-node-exporter \
     --namespace monitoring \
     --set service.type=ClusterIP \
     --set service.name=node-exporter \
