@@ -3,9 +3,9 @@ provider "cloudflare" {
 }
 
 resource "cloudflare_record" "domain" {
-  count   = length([var.binderhub_domain, var.grafana_subdomain, var.prometheus_subdomain])
+  count   = length([var.binderhub_subdomain, var.grafana_subdomain, var.prometheus_subdomain])
   zone_id = var.cloudflare_zone_id
-  name    = [var.binderhub_domain, var.grafana_subdomain, var.prometheus_subdomain][count.index]
+  name    = [var.binderhub_subdomain, var.grafana_subdomain, var.prometheus_subdomain][count.index]
   content = var.ip
   type    = "A"
   proxied = true
@@ -121,6 +121,14 @@ data "template_file" "prometheus_ingress" {
   }
 }
 
+data "template_file" "grafana_ingress" {
+  template = file("${path.module}/grafana/grafana-ingress.yaml.tpl")
+  vars = {
+    grafana_subdomain = var.grafana_subdomain
+    binderhub_domain  = var.binderhub_domain
+  }
+}
+
 resource "terraform_data" "binderhub" {
 
 connection {
@@ -170,7 +178,7 @@ provisioner "file" {
 }
 
 provisioner "file" {
-  source      = "${path.module}/grafana/grafana-ingress.yaml"
+  content     = data.template_file.grafana_ingress.rendered
   destination = "/home/${var.admin_user}/grafana-ingress.yaml"
 }
 
@@ -203,11 +211,6 @@ provisioner "file" {
     source      = "${path.module}/prometheus/prometheus-service.yaml"
     destination = "/home/${var.admin_user}/prometheus-service.yaml"
   }
-
-provisioner "file" {
-  source      = "${path.module}/prometheus/prometheus-exporters.yaml"
-  destination = "/home/${var.admin_user}/prometheus-exporters.yaml"
-}
 
 provisioner "file" {
   source      = "${path.module}/assets/install-monitoring.sh"

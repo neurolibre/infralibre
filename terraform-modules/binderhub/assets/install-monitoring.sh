@@ -32,7 +32,6 @@ apply_resource grafana-ingress.yaml grafana
 apply_resource prometheus-deploy.yaml monitoring
 apply_resource prometheus-ingress.yaml monitoring
 apply_resource prometheus-service.yaml monitoring
-apply_resource prometheus-exporters.yaml monitoring
 apply_resource prometheus-configmap.yaml monitoring
 
 echo "Monitoring stack installation complete!"
