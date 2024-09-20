@@ -1,28 +1,33 @@
 variable "image" {
     description = "Name of glance image to use"
-    default = "coreos"
+    type = string
 }
 
 variable "project_name" {
     description = "prefix of openstack resources"
-    default = "example"
+    default = "neurolibre"
+    type = string
 }
 
 variable "instance_count" {
     description = "Number of servers to run.  If you change this you will need to set up some sort of data replication for the registry files."
     default = 1
+    type = number
 }
 
 variable "cc_private_network" {
     default = "internal"
+    type = string
 }
 
 variable "public_network" {
     default = "external"
+    type = string
 }
 
 variable "flavor" {
-    default = "m1.small"
+    description = "Flavor of the instance (see openstack flavors)"
+    type = string
 }
 
 variable "ssh_user" {
@@ -31,10 +36,14 @@ variable "ssh_user" {
 
 variable "docker_registry_user" {
   description = "Username for docker registry"
+  type = string
+  sensitive = true
 }
 
 variable "docker_registry_password" {
   description = "Password for docker registry"
+  type = string
+  sensitive = true
 }
 
 variable "existing_keypair_name" {
@@ -47,14 +56,19 @@ variable "existing_secgroup_name" {
 
 variable "cloudflare_api_token" {
   description = "Cloudflare API token"
+  type = string
+  sensitive = true
 }
 
 variable "server_domain" {
   description = "Domain name of the server"
+  type = string
 }
 
 variable "cloudflare_zone_id" {
   description = "Cloudflare zone ID"
+  type = string
+  sensitive = true
 } 
 
 variable "host_src_path" {
@@ -85,16 +99,24 @@ variable "instance_volume_size" {
 
 variable "new_relic_api" {
   description = "New Relic API key"
+  type = string
+  sensitive = true
 }
 
 variable "new_relic_account" {
   description = "New Relic account ID"
+  type = string
+  sensitive = true
 }
 
 variable "new_relic_license" {
   description = "New Relic license key"
+  type = string
+  sensitive = true
 }
 
 variable "admin_email" {
   description = "Admin email for newrelic alerts"
+  type = string
+  sensitive = true
 }

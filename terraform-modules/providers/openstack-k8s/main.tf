@@ -98,6 +98,10 @@ resource "openstack_blockstorage_volume_v3" "mastervolume" {
   image_id    = data.openstack_images_image_v2.ubuntu.id
 }
 
+data "local_sensitive_file" "node_ssh" {
+  filename = "${var.ssh_private_key_path}/${var.ssh_private_key_name}"
+}
+
 # Create the master node
 resource "openstack_compute_instance_v2" "master" {
   name            = "${var.project_name}-master"
@@ -105,6 +109,13 @@ resource "openstack_compute_instance_v2" "master" {
   key_pair        = openstack_compute_keypair_v2.keypair.name
   security_groups = [openstack_networking_secgroup_v2.common.id,
                     data.openstack_networking_secgroup_v2.neurolibre_sftp_secgroup.id]
+
+  provisioner "file" {
+    content = data.local_sensitive_file.node_ssh.content
+    destination = "/tmp/${var.ssh_private_key_name}"
+  }
+
+  # Cloud init config for master node
   user_data       = data.template_cloudinit_config.master_config.rendered
 
   block_device {
@@ -192,6 +203,7 @@ data "template_file" "kubeadm_master" {
     docker_registry = var.docker_registry
     docker_id       = var.docker_id
     docker_password = var.docker_password
+    ssh_private_key_name = var.ssh_private_key_name
   }
 }
 
@@ -201,7 +213,7 @@ data "template_file" "kubeadm_node" {
   vars = {
     master_ip       = openstack_compute_instance_v2.master.access_ip_v4
     sftp_ip         = var.sftp_ip_address
-    sftp_dir         = var.sftp_mnt_dir
+    sftp_dir        = var.sftp_mnt_dir
     admin_user      = var.admin_user
     docker_registry = var.docker_registry
     docker_id       = var.docker_id
@@ -216,38 +228,3 @@ data "template_file" "kubeadm_common" {
     ssh_authorized_keys = indent(2, join("\n", formatlist("- %s", var.ssh_authorized_keys)))
   }
 }
-
-
-# # ================================================== OpenNebula attemps
-# # Define a network, only if not using Compute Canada
-# resource "openstack_networking_subnet_v2" "subnet" {
-#   count = var.is_computecanada ? 0 : 1
-
-#   name        = "subnet"
-#   network_id  = openstack_networking_network_v2.network_1[0].id
-#   ip_version  = 4
-#   cidr        = "10.0.1.0/24"
-#   enable_dhcp = true
-# }
-
-# # Define a subnet within the network, only if not using Compute Canada
-# resource "openstack_networking_network_v2" "network_1" {
-#   count = var.is_computecanada ? 0 : 1
-#   name = "${var.project_name}-network"
-# }
-
-# # Define a router, only if not using Compute Canada
-# resource "openstack_networking_router_v2" "router_1" {
-#   count = var.is_computecanada ? 0 : 1
-
-#   name                = "${var.project_name}-router"
-#   external_network_id = data.openstack_networking_network_v2.ext_network.id
-# }
-
-# # Attach the subnet to the router, only if not using Compute Canada
-# resource "openstack_networking_router_interface_v2" "router_interface_1" {
-#   count = var.is_computecanada ? 0 : 1
-#   router_id = openstack_networking_router_v2.router_1[0].id
-#   subnet_id = openstack_networking_subnet_v2.subnet[0].id
-# }
-# # ==================================================

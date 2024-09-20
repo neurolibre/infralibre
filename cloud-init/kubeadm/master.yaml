@@ -4,6 +4,8 @@ packages:
 
 runcmd:
   # Mount SFTP to /DATA directory
+  - mv /tmp/${ssh_private_key_name} /home/${admin_user}/.ssh/${ssh_private_key_name}
+  - chmod 600 /home/${admin_user}/.ssh/${ssh_private_key_name}
   - mkdir -p ${sftp_dir}
   - echo "${sftp_ip}:${sftp_dir}      ${sftp_dir}      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
   - mount -a
@@ -19,7 +21,14 @@ runcmd:
   - su ${admin_user} -c "/tmp/install.sh"
   # Share the join command with all the nodes 
   - kubeadm token create --print-join-command > /shared/kubeadm-join.bash
-  - kubectl label nodes `hostname` type=production  
+  - chmod +x /shared/kubeadm-join.bash
+  # Share the join command with all the nodes using scp
+  - |
+    for i in $(seq 1 ${nb_nodes}); do
+      node_name=${project_name}-node${i}
+      scp -o StrictHostKeyChecking=no -i /home/${admin_user}/.ssh/${ssh_private_key_name} /shared/kubeadm-join.bash ${admin_user}@$node_name:/tmp/
+    done
+  - kubectl label nodes `hostname` type=production
   # k8s commands
   - cat /tmp/kubeadm-bootstrap/.bashrc >> /home/${admin_user}/.bashrc
   # ssh config for nodes
