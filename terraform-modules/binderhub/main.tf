@@ -115,7 +115,7 @@ data "template_file" "prometheus_ingress" {
 }
 
 data "template_file" "grafana_ingress" {
-  template = file("${path.module}/grafana/grafana-ingress.yaml.tpl")
+  template = file("${path.module}/grafana/grafana-ingress.yaml")
   vars = {
     grafana_subdomain = var.grafana_subdomain
     binderhub_domain  = var.binderhub_domain
