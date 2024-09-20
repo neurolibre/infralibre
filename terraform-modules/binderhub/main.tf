@@ -3,9 +3,9 @@ provider "cloudflare" {
 }
 
 resource "cloudflare_record" "domain" {
-  count   = length([var.grafana_subdomain, var.prometheus_subdomain])
+  count   = length([var.binderhub_domain, var.grafana_subdomain, var.prometheus_subdomain])
   zone_id = var.cloudflare_zone_id
-  name    = [var.grafana_subdomain, var.prometheus_subdomain][count.index]
+  name    = [var.binderhub_domain, var.grafana_subdomain, var.prometheus_subdomain][count.index]
   content = var.ip
   type    = "A"
   proxied = true
@@ -19,7 +19,7 @@ resource "random_id" "token" {
 data "template_file" "config" {
   template = file("${path.module}/assets/config.yaml")
   vars = {
-    domain          = var.domain
+    domain          = var.binderhub_domain
     TLS_name        = var.TLS_name
     cpu_alloc       = var.cpu_alloc
     mem_alloc       = var.mem_alloc_gb
@@ -31,7 +31,7 @@ data "template_file" "config" {
 data "template_file" "prod_config" {
   template = file("${path.module}/assets/prod-config.yaml")
   vars = {
-    domain          = var.domain
+    domain          = var.binderhub_domain
     TLS_name        = var.TLS_name
     cpu_alloc       = var.cpu_alloc
     mem_alloc       = var.mem_alloc_gb
@@ -57,7 +57,7 @@ data "template_file" "secrets" {
 data "template_file" "production-binderhub-issuer" {
   template = file("${path.module}/assets/production-binderhub-issuer.yaml")
   vars = {
-    domain    = var.domain
+    domain    = var.binderhub_domain
     TLS_email = var.TLS_email
   }
 }
@@ -65,7 +65,7 @@ data "template_file" "production-binderhub-issuer" {
 data "template_file" "staging-binderhub-issuer" {
   template = file("${path.module}/assets/staging-binderhub-issuer.yaml")
   vars = {
-    domain    = var.domain
+    domain    = var.binderhub_domain
     TLS_email = var.TLS_email
   }
 }
@@ -101,7 +101,7 @@ data "template_file" "grafana_ingress" {
   template = file("${path.module}/grafana/grafana-ingress.yaml")
   vars = {
     grafana_subdomain = var.grafana_subdomain
-    binderhub_domain  = var.domain
+    binderhub_domain  = var.binderhub_domain
   }
 }
 
@@ -109,7 +109,7 @@ data "template_file" "prometheus_configmap" {
   template = file("${path.module}/prometheus/prometheus-configmap.yaml")
   vars = {
     binderhub_subdomain = var.binderhub_subdomain
-    binderhub_domain    = var.domain
+    binderhub_domain    = var.binderhub_domain
   }
 }
 
@@ -117,7 +117,7 @@ data "template_file" "prometheus_ingress" {
   template = file("${path.module}/prometheus/prometheus-ingress.yaml")
   vars = {
     prometheus_subdomain = var.prometheus_subdomain
-    binderhub_domain     = var.domain
+    binderhub_domain     = var.binderhub_domain
   }
 }
 
