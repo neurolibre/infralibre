@@ -48,11 +48,11 @@ jupyterhub:
         mountPath: /home/jovyan/data  # where each user can reach shared data
         readOnly : true
     memory:
-       guarantee: 4G
-       limit: 8G
+       guarantee: 1536Mi
+       limit: 3G
     cpu:
-       guarantee: 1
-       limit: 2
+       guarantee: 0.5
+       limit: 1
     startTimeout: 3600 #1h
     #for repo2data https://zero-to-jupyterhub.readthedocs.io/en/latest/resources/reference.html#singleuser-initcontainers
     # https://zero-to-jupyterhub.readthedocs.io/en/latest/jupyterhub/customizing/user-environment.html#about-user-storage-and-adding-files-to-it
@@ -69,7 +69,7 @@ jupyterhub:
 # BinderHub config
 config:
   Launcher:
-    launch_timeout: 3600 #1h
+    launch_timeout: 600 #10min
     retries: 10
   GitHubRepoProvider:
     banned_specs:
@@ -85,7 +85,7 @@ config:
     image_prefix: binder-registry.conp.cloud/binder-registry.conp.cloud/binder-
     cors_allow_origin: '*'
     banner_message: |
-      <div style="text-align:center;"><img src="https://github.com/neurolibre/brand/blob/main/png/roboneuro_leaf.png?raw=true" style="height: 200px;"></img><p>Reserved for published neurolibre.org preprints.</p></div>
+      <div style="text-align:center;"><img src="https://github.com/neurolibre/brand/blob/main/png/roboneuro_leaf.png?raw=true" style="height: 200px;"></img><p>Reserved for published neurolibre.org preprints. Requests from non-neurolibre repositories are rejected (please use test.conp.cloud for testing).</p></div>
 
 service:
   type: NodePort
