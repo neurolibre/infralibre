@@ -4,9 +4,9 @@ packages:
 runcmd:
   # NFS
   - mkdir -p /shared
-  - echo "${master_ip}:/shared      /shared      nfs rw,noatime,nolock,hard,tcp,vers=4 0 0" >> /etc/fstab
+  - echo "${master_ip}:/shared      /shared      nfs4 rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
   - mkdir -p ${sftp_dir}
-  - echo "${sftp_ip}:${sftp_dir}      ${sftp_dir}      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
+  - echo "${sftp_ip}:${sftp_dir}      ${sftp_dir}      nfs4 rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
   - sudo mount -av
   # Kubeadm  
   - echo "while [ ! -f /tmp/kubeadm-join.bash ]; do sleep 1; done; sudo bash /tmp/kubeadm-join.bash" >> /tmp/install.sh
