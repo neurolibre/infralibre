@@ -25,6 +25,8 @@ data "template_file" "config" {
     mem_alloc       = var.mem_alloc_gb
     docker_registry = var.docker_registry
     docker_id       = var.docker_id
+    binderhub_subdomain = var.binderhub_subdomain
+    binderhub_domain = var.binderhub_domain
   }
 }
 
