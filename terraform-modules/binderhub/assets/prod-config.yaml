@@ -48,7 +48,7 @@ jupyterhub:
         mountPath: /home/jovyan/data  # where each user can reach shared data
         readOnly : true
     memory:
-       guarantee: 1536Mi
+       guarantee: 2G
        limit: 3G
     cpu:
        guarantee: 0.5
