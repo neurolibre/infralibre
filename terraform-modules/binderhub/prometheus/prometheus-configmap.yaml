@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+    scrape_configs:
+      - job_name: 'binderhub'
+        scheme: https
+        static_configs:
+          - targets: ['${binderhub_subdomain}.${binderhub_domain}']
+      - job_name: 'jupyterhub'
+        scheme: https
+        metrics_path: '/jupyter/hub/metrics'
+        static_configs:
+          - targets: ['${binderhub_subdomain}.${binderhub_domain}']
+      - job_name: 'node-exporter'
+        static_configs:
+          - targets: ['node-exporter.monitoring.svc.cluster.local:9100']

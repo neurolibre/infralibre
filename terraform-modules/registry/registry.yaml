@@ -1,0 +1,55 @@
+#cloud-config
+
+packages:
+  - git
+  - curl
+  - gnupg
+  - software-properties-common
+  - apt-transport-https
+  - ca-certificates
+  - gpg
+  - lsb-release
+  - apache2-utils
+
+package_reboot_if_required: false
+manage_resolv_conf: true
+
+# Install dockerm configure to use /mnt
+# 
+runcmd:
+  - echo "127.0.0.1 $(hostname)" | sudo tee -a /etc/hosts
+  - mkdir -p ${registry_local_volume} # Mount the volume
+  - |
+    if [ -z "${use_existing_volume}" ]; then
+        if ! blkid "${volume_device}"; then
+            mkfs.ext4 "${volume_device}"
+        fi
+    fi  
+  - echo "${volume_device} ${registry_local_volume} ext4 defaults 0 2" | tee -a /etc/fstab
+  - mount -a
+  - install -m 0755 -d /etc/apt/keyrings # Install docker
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  - chmod a+r /etc/apt/keyrings/docker.asc
+  - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+  - apt-get update
+  - VERSION_DOCKER=$(apt-cache madison docker-ce | awk '{ print $3 }' | sort -V | head -n 1)
+  - VERSION_CONTAINERD=$(apt-cache madison containerd.io | awk '{ print $3 }' | sort -V | head -n 1)
+  - apt install -y containerd.io=$VERSION_CONTAINERD docker-ce=$VERSION_DOCKER docker-ce-cli=$VERSION_DOCKER
+  - groupadd docker
+  - usermod -aG docker ubuntu
+  - newgrp docker
+  - curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  - chmod +x /usr/local/bin/docker-compose
+  - mkdir -p ${host_src_path}/auth
+  - echo "${docker_registry_password}" > ${host_src_path}/auth/.htpasswd_tmp
+  - sudo htpasswd -i -Bc ${host_src_path}/auth/htpasswd ${docker_registry_user} < ${host_src_path}/auth/.htpasswd_tmp
+  - echo "${docker_registry_password}" | sudo htpasswd -i -Bbc ${host_src_path}/auth/htpasswd "${docker_registry_user}"
+  - sudo docker swarm init
+  - rm ${host_src_path}/auth/.htpasswd_tmp
+  - mkdir -p ${host_src_path}/registry
+  - mkdir -p ${host_src_path}/redis
+  - mkdir -p ${host_src_path}/traefik/conf.d
+
+disable_ec2_metadata: true
+timezone: "America/Montreal"
+output: { all: "| tee -a /var/log/cloud-init-output.log" }

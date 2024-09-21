@@ -18,3 +18,7 @@ output "docker_password" {
   value = var.docker_password
 }
 
+output "project_name" {
+  value = var.project_name
+}
+

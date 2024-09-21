@@ -1,43 +1,41 @@
-# Additionnal optimizations
-#https://alan-turing-institute.github.io/hub23-deploy/advanced/optimising-jupyterhub.html#labelling-nodes-for-core-purpose
-#https://github.com/alan-turing-institute/hub23-deploy/blob/main/deploy/prod.yaml#L56
-
-# add additionnal buttons https://binderhub.readthedocs.io/en/latest/cors.html#adjusting-binderhub-config-to-enable-cors
-
 jupyterhub:
   ingress:
     enabled: true
     hosts:
-      - test.conp.cloud
+      - ${binderhub_subdomain}.${binderhub_domain}
     annotations:
       kubernetes.io/ingress.class: nginx
       kubernetes.io/tls-acme: "true"
       cert-manager.io/issuer: letsencrypt-production
     tls:
-      - secretName: binder-conp-cloud-tls
+      - secretName: ${project_name}-secret-tls
         hosts:
-          - test.conp.cloud
+          - ${binderhub_subdomain}.${binderhub_domain}
   #https://discourse.jupyter.org/t/pre-building-images-on-binderhub/4325/4
   prePuller:
     continuous:
       enabled: true
   hub:
     baseUrl: /jupyter/
-    image:
-      name: quay.io/jupyterhub/k8s-hub
-      tag: "3.3.5"
-    config: 
+    extraConfig:
+      noAuthMetrics: |
+        c.JupyterHub.authenticate_prometheus = False
+    config:
       BinderSpawner:
         cors_allow_origin: '*'
+    service:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/hub/metrics"
+
   proxy:
     service:
       type: NodePort
   cull:
-    timeout: 900 #15min
+    timeout: 1800 #30min
     every: 30
     concurrency: 5 #to avoid Hub slow down, 5 concurrent processes
-    maxAge: 7200 #2h
-  # https://z2jh.jupyter.org/en/latest/resources/reference.html#singleuser  
+    maxAge: 28800 #8h
   singleuser:
     storage:
       type: none
@@ -50,34 +48,44 @@ jupyterhub:
         mountPath: /home/jovyan/data  # where each user can reach shared data
         readOnly : true
     memory:
-       guarantee: 4G
-       limit: 8G
+       guarantee: 2G
+       limit: 3G
     cpu:
-       guarantee: 1
+       guarantee: 0.5
+       limit: 1
     startTimeout: 3600 #1h
+    #for repo2data https://zero-to-jupyterhub.readthedocs.io/en/latest/resources/reference.html#singleuser-initcontainers
     # https://zero-to-jupyterhub.readthedocs.io/en/latest/jupyterhub/customizing/user-environment.html#about-user-storage-and-adding-files-to-it
+  #schedule binderhub core pods just on master
+  #https://github.com/alan-turing-institute/hub23-deploy/blob/main/deploy/prod.yaml#L56
+  scheduling:
+    corePods:
+      nodeAffinity:
+        matchNodePurpose: require
+    userPods:
+      nodeAffinity:
+        matchNodePurpose: prefer
 
 # BinderHub config
 config:
   Launcher:
-    launch_timeout: 3601 #1h
+    launch_timeout: 600 #10min
     retries: 10
-    retry_delay: 1
   GitHubRepoProvider:
     banned_specs:
-      # - ^(?!neurolibre\/.*).*
+      - ^(?!roboneurolibre\/.*).*
       - ^ines/spacy-binder.*
       - ^soft4voip/rak.*
       - ^hmharshit/cn-ait.*
       - ^shishirchoudharygic/mltraining.*
       - ^hmharshit/mltraining.*
   BinderHub:
-    cors_allow_origin: '*'
-    hub_url: https://test.conp.cloud/jupyter
+    hub_url: https://${binderhub_subdomain}.${binderhub_domain}/jupyter
     use_registry: true
     image_prefix: binder-registry.conp.cloud/binder-registry.conp.cloud/binder-
+    cors_allow_origin: '*'
     banner_message: |
-      <div style="text-align:center;"><p>NeuroLibre BinderHub: Preview reproducible preprints</p></div>
+      <div style="text-align:center;"><img src="https://github.com/neurolibre/brand/blob/main/png/roboneuro_leaf.png?raw=true" style="height: 200px;"></img><p>Reserved for published neurolibre.org preprints. Requests from non-neurolibre repositories are rejected (please use test.conp.cloud for testing).</p></div>
 
 service:
   type: NodePort
@@ -85,7 +93,7 @@ service:
 ingress:
   enabled: true
   hosts:
-    - test.conp.cloud
+    - ${binderhub_subdomain}.${binderhub_domain}
   annotations:
     kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
@@ -94,6 +102,6 @@ ingress:
     enabled: true
     type: nginx
   tls:
-    - secretName: binder-conp-cloud-tls
-      hosts: 
-        - test.conp.cloud
+    - secretName: ${project_name}-secret-tls
+      hosts:
+        - ${binderhub_subdomain}.${binderhub_domain}

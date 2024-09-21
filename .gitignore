@@ -1,0 +1,6 @@
+*.tfvars
+*.tfvars.json
+.terraform/
+.env/
+.env
+.DS_Store
