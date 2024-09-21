@@ -18,7 +18,13 @@ resource "cloudflare_record" "domain" {
   name    = [var.traefik_subdomain, var.docker_subdomain][count.index]
   content = openstack_networking_floatingip_v2.fip_1.address
   type    = "A"
-  proxied = count.index == 0 ? true : false
+  # DO NOT PROXY THESE RECORDS, OTHERWISE CLOUDFLARE WILL TRY TO CACHE THEM AND
+  # CERTAINLY FAIL TO DO SO CORRECTLY. DOCKER IMAGE LAYERS CAN BE LARGE AND
+  # WE ARE NOT A BILLION DOLLAR COMPANY TO AFFORD TO USE CLOUDFLARE PROXY
+  # FOR GIGANTIC FILE CHUNKS.
+  # THIS STACK USES REDIS TO CACHE IMAGE LAYERS.
+  #https://github.com/opencontainers/distribution-spec/issues/485#issuecomment-1952426028
+  proxied = false
 }
 
 data "openstack_networking_network_v2" "ext_network" {
