@@ -65,6 +65,7 @@ data "template_cloudinit_config" "registry_config" {
 data "template_file" "registry_config" {
   template = file("${path.module}/registry.yaml")
   vars = {
+    use_existing_volume = var.existing_volume_uuid
     host_src_path = var.host_src_path
     docker_registry_user = var.docker_registry_user
     docker_registry_password = var.docker_registry_password
