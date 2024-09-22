@@ -23,9 +23,9 @@ jupyterhub:
       enabled: true
   hub:
     baseUrl: /jupyter/
-    image:
-      name: quay.io/jupyterhub/k8s-hub
-      tag: "3.3.5"
+    # image:
+    #   name: quay.io/jupyterhub/k8s-hub
+    #   tag: "3.3.5"
     config: 
       BinderSpawner:
         cors_allow_origin: '*'
