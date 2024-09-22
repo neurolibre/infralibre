@@ -13,4 +13,5 @@ When BindeHub runs into 500, just start by checking the pod logs from hub and bi
 
 If they look normal, then go for svc, certs, ingress, etc.
 
-Latest binderhub prod: 0.1.0-0.dev.git.244.h1e88014
+Latest binderhub prod: 1.0.0-0.dev.git.3475.h19b6aca
+Latest binderhub preview: 1.0.0-0.dev.git.3475.h19b6aca

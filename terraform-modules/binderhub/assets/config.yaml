@@ -88,8 +88,6 @@ config:
     hub_url: https://${binderhub_subdomain}.${binderhub_domain}/jupyter
     use_registry: true
     image_prefix: binder-registry.conp.cloud/binder-registry.conp.cloud/binder-
-    banner_message: |
-      <div style="text-align:center;"><p>NeuroLibre BinderHub: Preview reproducible preprints</p></div>
 
 service:
   type: NodePort
