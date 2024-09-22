@@ -113,4 +113,21 @@ variable "api_password" {
   type        = string
   sensitive   = true
   }
-  
+
+variable "new_relic_api" {
+  description = "New Relic API key."
+  type        = string
+  sensitive   = true
+}
+
+variable "new_relic_account" {
+  description = "New Relic account ID."
+  type        = string
+  sensitive   = true
+}
+
+variable "new_relic_license" {
+  description = "New Relic license key."
+  type        = string
+  sensitive   = true
+}

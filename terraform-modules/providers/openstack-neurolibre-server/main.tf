@@ -2,6 +2,11 @@ provider "cloudflare" {
   api_token = var.cloudflare_api_token
 }
 
+provider "newrelic" {
+  api_key = var.new_relic_api
+  account_id = var.new_relic_account
+}
+
 # Grab information about the image name 
 # provided in the local (not version ctrld) main.tf
 data "openstack_images_image_v2" "ubuntu" {
@@ -182,6 +187,14 @@ resource "null_resource" "wait_for_cloud_init" {
   provisioner "remote-exec" {
     inline = [
       "#!/bin/bash",
+      "echo 'Waiting for cloud-init to complete...'",
+      "cloud-init status --wait >> /dev/null"
+    ]
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "#!/bin/bash",
       "sudo mkdir -p /etc/ssl",
       "while [ ! -f /home/ubuntu/certificate.pem.base64 ]; do sleep 1; done",
       "while [ ! -f /home/ubuntu/private_key.pem.base64 ]; do sleep 1; done",
@@ -192,15 +205,79 @@ resource "null_resource" "wait_for_cloud_init" {
       "sudo chown root:root /home/ubuntu/${var.server_domain}.pem",
       "sudo chown root:root /home/ubuntu/${var.server_domain}.key",
       "sudo mv /home/ubuntu/${var.server_domain}.key /etc/ssl/${var.server_domain}.key",
-      "sudo mv /home/ubuntu/${var.server_domain}.pem /etc/ssl/${var.server_domain}.pem"
+      "sudo mv /home/ubuntu/${var.server_domain}.pem /etc/ssl/${var.server_domain}.pem",
+      "sudo systemctl enable neurolibre-${server_flavor}.service",
+      "sudo systemctl start neurolibre-${server_flavor}.service",
+      "echo 'Started neurolibre-${server_flavor}'",
+      "sudo systemctl enable neurolibre-celery.service",
+      "sudo systemctl start neurolibre-celery.service",
+      "echo 'Started neurolibre-celery'",
+      "sudo systemctl restart nginx.service",
+      "echo 'Started nginx'",
+      "echo 'Installing New Relic Infrastructure Agent'",
+      "echo \"license_key: ${var.new_relic_license}\" | sudo tee -a /etc/newrelic-infra.yml",
+      "curl -fsSL https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/newrelic-infra.gpg",
+      "echo \"deb https://download.newrelic.com/infrastructure_agent/linux/apt/ noble main\" | sudo tee -a /etc/apt/sources.list.d/newrelic-infra.list",
+      "sudo apt-get update",
+      "sudo apt-get install newrelic-infra -y"
     ]
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "#!/bin/bash",
-      "echo 'Waiting for cloud-init to complete...'",
-      "cloud-init status --wait >> /dev/null"
-    ]
+}
+
+resource "newrelic_alert_policy" "high_cpu_policy" {
+  name = "High CPU Policy"
+}
+
+resource "newrelic_alert_policy" "high_memory_policy" {
+  name = "High Memory Policy"
+}
+
+resource "newrelic_nrql_alert_condition" "cpu_condition" {
+  policy_id = newrelic_alert_policy.high_cpu_policy.id
+  name      = "CPU Usage High"
+  type      = "static"
+
+  nrql {
+    query = "SELECT average(cpuPercent) FROM SystemSample WHERE hostname LIKE '%'"
   }
+
+  critical {
+    operator              = "above"
+    threshold             = 90
+    threshold_duration    = 300
+    threshold_occurrences = "all"
+  }
+}
+
+resource "newrelic_nrql_alert_condition" "memory_condition" {
+  policy_id = newrelic_alert_policy.high_memory_policy.id
+  name      = "Memory Usage High"
+  type      = "static"
+
+  nrql {
+    query = "SELECT average(memoryUsedPercent) FROM SystemSample WHERE hostname LIKE '%'"
+  }
+
+  critical {
+    operator              = "above"
+    threshold             = 90
+    threshold_duration    = 300
+    threshold_occurrences = "all"
+  }
+}
+
+resource "newrelic_alert_channel" "email_channel" {
+  name = "Admin Email"
+  type = "email"
+
+  config {
+    recipients              =  var.admin_email
+    include_json_attachment = "false"
+  }
+}
+
+resource "newrelic_alert_policy_channel" "email_policy" {
+  policy_id   = newrelic_alert_policy.high_cpu_policy.id
+  channel_ids = [newrelic_alert_channel.email_channel.id]
 }

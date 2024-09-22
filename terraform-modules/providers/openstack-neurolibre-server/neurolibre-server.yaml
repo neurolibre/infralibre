@@ -116,19 +116,6 @@ write_files:
       touch /tmp/nginx_setup_completed
       echo "Nginx setup completed successfully"
 
-  - path: /tmp/start_neurolibre_server.sh
-    permissions: '0755'
-    content: |
-      #!/bin/bash
-      set -e
-      systemctl enable neurolibre-${server_flavor}.service
-      systemctl start neurolibre-${server_flavor}.service
-      echo "Started neurolibre-${server_flavor}"
-      systemctl enable neurolibre-celery.service
-      systemctl start neurolibre-celery.service
-      echo "Started neurolibre-celery"
-      systemctl restart nginx.service
-
 # Install dockerm configure to use /mnt
 # Install redis 
 runcmd:
@@ -172,7 +159,6 @@ runcmd:
   - while [ ! -f /tmp/server_setup_completed ]; do sleep 1; done;
   - echo "${api_password}" | sudo htpasswd -i -c /etc/nginx/.htpasswd "${api_username}"
   - chmod 600 /etc/nginx/.htpasswd
-  - systemctl restart nginx
   - touch /tmp/cloud_init_completed
 
 ssh_authorized_keys:
