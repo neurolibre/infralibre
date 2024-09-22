@@ -48,13 +48,18 @@ variable "nfs_secgroup_name" {
   type = string
 }
 
-variable "nfs_ip_address" {
+variable "nfs_server_ip" {
   description = "Internal IP address of the NFS instance on openstack."
   type = string
 }
 
+variable "nfs_source_dir" {
+  description = "Directory on the NFS server that will be mounted on the neurolibre server."
+  type = string
+}
+
 variable "nfs_mnt_dir" {
-  description = "Directory on the node where NFS will be mounted."
+  description = "Directory on the neurolibre server where NFS will be mounted."
   type = string
 }
 
@@ -128,6 +133,12 @@ variable "new_relic_account" {
 
 variable "new_relic_license" {
   description = "New Relic license key."
+  type        = string
+  sensitive   = true
+}
+
+variable "admin_email" {
+  description = "Admin email for Newrelic."
   type        = string
   sensitive   = true
 }

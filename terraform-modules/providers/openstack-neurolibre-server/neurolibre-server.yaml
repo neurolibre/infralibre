@@ -123,7 +123,10 @@ runcmd:
   - mkdir -p ${volume_mount_point} # Mount the volume
   - if ! blkid ${volume_device}; then mkfs.ext4 ${volume_device}; fi
   - echo "${volume_device} ${volume_mount_point} ext4 defaults 0 2" | tee -a /etc/fstab
-  - mount -a
+  - mkdir -p ${nfs_mnt_dir}
+  - chmod 755 ${nfs_mnt_dir}
+  - echo "${nfs_server_ip}:${nfs_source_dir}      ${nfs_mnt_dir}      nfs4 rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
+  - mount -av
   - install -m 0755 -d /etc/apt/keyrings # Install docker
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
   - chmod a+r /etc/apt/keyrings/docker.asc
