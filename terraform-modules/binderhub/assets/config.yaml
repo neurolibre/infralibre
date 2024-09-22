@@ -8,7 +8,7 @@ jupyterhub:
   ingress:
     enabled: true
     hosts:
-      - test.conp.cloud
+      - ${binderhub_subdomain}.${binderhub_domain}
     annotations:
       kubernetes.io/ingress.class: nginx
       kubernetes.io/tls-acme: "true"
@@ -16,7 +16,7 @@ jupyterhub:
     tls:
       - secretName: ${project_name}-secret-tls
         hosts:
-          - test.conp.cloud
+          - ${binderhub_subdomain}.${binderhub_domain}
   #https://discourse.jupyter.org/t/pre-building-images-on-binderhub/4325/4
   prePuller:
     continuous:
@@ -33,7 +33,7 @@ jupyterhub:
     service:
       type: NodePort
   cull:
-    timeout: 600 #15min
+    timeout: 600 #10min
     every: 60
     concurrency: 5
     maxAge: 1800 #30min
@@ -55,7 +55,13 @@ jupyterhub:
     cpu:
        guarantee: 0.5
     startTimeout: 3600 #1h
-    # https://zero-to-jupyterhub.readthedocs.io/en/latest/jupyterhub/customizing/user-environment.html#about-user-storage-and-adding-files-to-it
+  scheduling:
+    corePods:
+      nodeAffinity:
+        matchNodePurpose: require
+    userPods:
+      nodeAffinity:
+        matchNodePurpose: prefer
 
 # BinderHub config
 config:

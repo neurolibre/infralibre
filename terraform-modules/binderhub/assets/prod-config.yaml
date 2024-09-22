@@ -32,10 +32,10 @@ jupyterhub:
     service:
       type: NodePort
   cull:
-    timeout: 1800 #30min
-    every: 30
+    timeout: 600 #10min
+    every: 60
     concurrency: 5 #to avoid Hub slow down, 5 concurrent processes
-    maxAge: 28800 #8h
+    maxAge: 1800 #30min
   singleuser:
     storage:
       type: none
