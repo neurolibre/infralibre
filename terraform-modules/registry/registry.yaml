@@ -24,7 +24,11 @@ runcmd:
         if ! blkid "${volume_device}"; then
             mkfs.ext4 "${volume_device}"
         fi
-    fi  
+    fi
+  # TODO: This convention needs to be double checked, probably it is a better idea to mount
+  # the block storage volume outside the OS file system. Curretly, the volume is mounted
+  # on the OS file system and the mount point is /var/lib/docker-registry, which has access
+  # to the large block storage volume.
   - echo "${volume_device} ${registry_local_volume} ext4 defaults 0 2" | tee -a /etc/fstab
   - mount -a
   - install -m 0755 -d /etc/apt/keyrings # Install docker

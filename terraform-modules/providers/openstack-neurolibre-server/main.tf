@@ -84,13 +84,13 @@ resource "openstack_compute_instance_v2" "server" {
                     data.openstack_networking_secgroup_v2.neurolibre_nfs_secgroup.id]
   user_data       = data.template_cloudinit_config.server_config.rendered
 
-  block_device {
-    uuid                  = var.existing_volume_uuid != "" ? var.existing_volume_uuid : openstack_blockstorage_volume_v3.servervolume[0].id
-    source_type           = "volume"
-    destination_type      = "volume"
-    boot_index            = 0
-    delete_on_termination = true
-  }
+  # block_device {
+  #   uuid                  = var.existing_volume_uuid != "" ? var.existing_volume_uuid : openstack_blockstorage_volume_v3.servervolume[0].id
+  #   source_type           = "volume"
+  #   destination_type      = "volume"
+  #   boot_index            = 0
+  #   delete_on_termination = true
+  # }
 
   network {
     port = openstack_networking_port_v2.server.id
@@ -98,6 +98,10 @@ resource "openstack_compute_instance_v2" "server" {
 }
 # =====================================================  SERVER VM END
 
+resource "openstack_compute_volume_attach_v2" "attached" {
+  instance_id = openstack_compute_instance_v2.server.id
+  volume_id   = var.existing_volume_uuid != "" ? var.existing_volume_uuid : openstack_blockstorage_volume_v3.servervolume[0].id
+}
 
 # Create a floating IP in the external network pool
 resource "openstack_networking_floatingip_v2" "fip_1" {
