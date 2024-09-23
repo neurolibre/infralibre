@@ -154,6 +154,7 @@ data "template_file" "neurolibre_server" {
     api_password        = var.api_password
     server_domain       = var.server_domain
     server_subdomain    = var.server_subdomain
+    use_existing_volume = var.existing_volume_uuid
   }
 }
 
