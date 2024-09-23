@@ -155,6 +155,9 @@ data "template_file" "neurolibre_server" {
     server_domain       = var.server_domain
     server_subdomain    = var.server_subdomain
     use_existing_volume = var.existing_volume_uuid
+    nfs_mnt_dir         = var.nfs_mnt_dir
+    nfs_source_dir      = var.nfs_source_dir
+    nfs_server_ip       = var.nfs_server_ip
   }
 }
 
