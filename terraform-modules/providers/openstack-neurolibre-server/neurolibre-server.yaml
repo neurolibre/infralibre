@@ -121,11 +121,11 @@ write_files:
 runcmd:
   - echo "127.0.0.1 $(hostname)" | sudo tee -a /etc/hosts
   - mkdir -p ${volume_mount_point} # Mount the volume
-    - |
+  - |
     if [ -z "${use_existing_volume}" ]; then
-        if ! blkid "${volume_device}"; then
-            mkfs.ext4 "${volume_device}"
-        fi
+      if ! blkid "${volume_device}"; then
+          mkfs.ext4 "${volume_device}"
+      fi
     fi
   - echo "${volume_device} ${volume_mount_point} ext4 defaults 0 2" | tee -a /etc/fstab
   - mkdir -p ${nfs_mnt_dir}

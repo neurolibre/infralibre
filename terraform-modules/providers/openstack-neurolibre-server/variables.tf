@@ -4,6 +4,11 @@ variable "project_name" {
 }
 
 variable "instance_volume_size" {
+  description = "Volume size that will be attached to the var.volume_point_dir on this server."
+  type        = number
+}
+
+variable "external_volume_size" {
   description = "Volume size that will be attached to the var.volume_point_dir on this server. This will not be used if var.existing_volume_uuid is set."
   type        = number
 }

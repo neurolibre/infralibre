@@ -66,13 +66,18 @@ resource "openstack_networking_port_v2" "server" {
 # =====================================================  SERVER VM START
 resource "openstack_blockstorage_volume_v3" "servervolume" {
   count       = var.existing_volume_uuid == "" ? 1 : 0
-  name        = "${var.project_name}-${var.server_flavor}-volume"
-  size        = var.instance_volume_size
-  image_id    = data.openstack_images_image_v2.ubuntu.id
+  name        = "${var.project_name}-${var.server_flavor}-ext-volume"
+  size        = var.external_volume_size
 }
 
 data "openstack_compute_keypair_v2" "existing_keypair" {
   name = var.existing_keypair_name
+}
+
+resource "openstack_blockstorage_volume_v3" "mainvolume" {
+  name        = "${var.project_name}-${var.server_flavor}-main-volume"
+  size        = var.instance_volume_size
+  image_id    = data.openstack_images_image_v2.ubuntu.id
 }
 
 resource "openstack_compute_instance_v2" "server" {
@@ -84,13 +89,13 @@ resource "openstack_compute_instance_v2" "server" {
                     data.openstack_networking_secgroup_v2.neurolibre_nfs_secgroup.id]
   user_data       = data.template_cloudinit_config.server_config.rendered
 
-  # block_device {
-  #   uuid                  = var.existing_volume_uuid != "" ? var.existing_volume_uuid : openstack_blockstorage_volume_v3.servervolume[0].id
-  #   source_type           = "volume"
-  #   destination_type      = "volume"
-  #   boot_index            = 0
-  #   delete_on_termination = true
-  # }
+  block_device {
+    uuid                  = openstack_blockstorage_volume_v3.mainvolume.id
+    source_type           = "volume"
+    destination_type      = "volume"
+    boot_index            = 0
+    delete_on_termination = true
+  }
 
   network {
     port = openstack_networking_port_v2.server.id
