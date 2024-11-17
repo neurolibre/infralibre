@@ -166,7 +166,6 @@ runcmd:
   - /bin/bash /tmp/setup_server_service.sh
   - while [ ! -f /tmp/server_setup_completed ]; do sleep 1; done;
   - echo "${api_password}" | sudo htpasswd -i -c /etc/nginx/.htpasswd "${api_username}"
-  - chmod 600 /etc/nginx/.htpasswd
   - touch /tmp/cloud_init_completed
 
 ssh_authorized_keys:
