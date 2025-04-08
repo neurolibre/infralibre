@@ -36,14 +36,14 @@ resource "openstack_compute_keypair_v2" "keypair" {
 
 # Create a PORT under the internal network which will be attached to 
 # the master node with the security groups defined here.
-# resource "openstack_networking_port_v2" "master" {
-#   name               = "${var.cluster_name}-master"
-#   admin_state_up     = "true"
-#   network_id         = data.openstack_networking_network_v2.subnet.id
-#   security_group_ids = [
-#     openstack_networking_secgroup_v2.k8s_secgroup.id
-#     ]
-# }
+resource "openstack_networking_port_v2" "master" {
+  name               = "${var.cluster_name}-master"
+  admin_state_up     = "true"
+  network_id         = data.openstack_networking_network_v2.subnet.id
+  security_group_ids = [
+    openstack_networking_secgroup_v2.k8s_secgroup.id
+    ]
+}
 
 # Master node
 resource "openstack_compute_instance_v2" "master" {
@@ -61,8 +61,8 @@ resource "openstack_compute_instance_v2" "master" {
   EOF
 
   network {
-    # port = openstack_networking_port_v2.master.id
-    uuid = data.openstack_networking_network_v2.subnet.id
+    port = openstack_networking_port_v2.master.id
+    #uuid = data.openstack_networking_network_v2.subnet.id
   }
 
   metadata = {
