@@ -196,26 +196,40 @@ resource "local_file" "prometheus_values" {
   filename = "${path.module}/../helm-charts/prometheus-values.yaml"
 }
 
+resource "null_resource" "wait_for_cloud_init" {
+  depends_on = [
+    openstack_compute_instance_v2.master,
+    openstack_compute_floatingip_associate_v2.master_fip_associate
+  ]
+
+  connection {
+    type        = "ssh"
+    user        = var.admin_user
+    host        = openstack_networking_floatingip_v2.master_fip.address
+    timeout     = "10m"
+  }
+
+  # Check if cloud-init has completed
+  provisioner "remote-exec" {
+    inline = [
+      "echo 'Waiting for cloud-init to complete on master node...'",
+      "cloud-init status --wait >> /dev/null",
+      "echo 'Cloud-init completed successfully'",
+    ]
+  }
+}
 
 # Deploy Kubernetes with Kubespray
 resource "null_resource" "deploy_kubernetes" {
   depends_on = [
     local_file.kubespray_inventory,
     local_file.k8s_cluster_vars,
-    openstack_compute_instance_v2.master,
-    openstack_compute_instance_v2.worker,
-    openstack_compute_floatingip_associate_v2.master_fip_associate
+    null_resource.wait_for_cloud_init
   ]
 
   provisioner "local-exec" {
     working_dir = "${path.module}/.."
     command = <<-EOT
-      # Wait for cloud-init to complete on master node
-      echo "Waiting for cloud-init to complete on master node..."
-      ssh -o StrictHostKeyChecking=no -i ${var.ssh_private_key_path}/${var.ssh_key_name} \
-        ubuntu@${openstack_networking_floatingip_v2.master_fip.address} \
-        "cloud-init status --wait > /dev/null"
-
       # Clone Kubespray if not already present
       if [ ! -d "kubespray/kubespray" ]; then
         mkdir -p kubespray

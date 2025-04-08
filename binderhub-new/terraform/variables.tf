@@ -118,3 +118,8 @@ variable "email_contact" {
   type        = string
   default     = "conp.dev@gmail.com"  # You might want to change this default or require it to be set
 }
+
+variable "admin_user" {
+  description = "Username for the admin user"
+  type = string
+}

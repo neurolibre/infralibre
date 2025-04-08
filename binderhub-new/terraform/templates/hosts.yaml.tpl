@@ -4,21 +4,21 @@ all:
       ansible_host: ${master_ip}
       ip: ${master_private_ip}
       access_ip: ${master_private_ip}
-    %{ for i, ip in worker_private_ips ~}
+%{ for i, ip in worker_private_ips ~}
     worker-${i}:
       ansible_host: ${ip}
       ip: ${ip}
       access_ip: ${ip}
-    %{ endfor ~}
+%{ endfor ~}
   children:
     kube_control_plane:
       hosts:
         master:
     kube_node:
       hosts:
-        %{ for i, ip in worker_private_ips ~}
+%{ for i, ip in worker_private_ips ~}
         worker-${i}:
-        %{ endfor ~}
+%{ endfor ~}
     etcd:
       hosts:
         master:

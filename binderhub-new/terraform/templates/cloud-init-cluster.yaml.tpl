@@ -7,6 +7,11 @@ packages:
   - htop
   - iotop
   - tcpdump
+  - software-properties-common
+  - python3.10
+  - python3.10-venv
+  - python3.10-dev
+  - python3-pip
 
 package_reboot_if_required: false
 manage_resolv_conf: true
@@ -37,6 +42,11 @@ runcmd:
   - echo "* hard nofile 1000000" >> /etc/security/limits.conf
   - echo "* soft nproc 65535" >> /etc/security/limits.conf
   - echo "* hard nproc 65535" >> /etc/security/limits.conf
+  # Set Python 3.10 as default python3
+  - update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
+  - update-alternatives --set python3 /usr/bin/python3.10
+  # Create symlink for python command
+  - ln -sf /usr/bin/python3 /usr/bin/python
 
 ssh_authorized_keys:
   ${ssh_authorized_keys}
