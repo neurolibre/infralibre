@@ -45,6 +45,22 @@ resource "openstack_networking_port_v2" "master" {
     ]
 }
 
+data "template_file" "cloud_init_cluster" {
+  template = file("${path.module}/templates/cloud-init-cluster.yaml.tpl")
+  vars = {
+    ssh_authorized_keys = indent(2, join("\n", formatlist("- %s", var.ssh_authorized_keys)))
+  }
+}
+
+data "template_cloudinit_config" "cluster_config" {
+  part {
+    filename     = "cluster.yaml"
+    merge_type   = "list(append)+dict(recurse_array)+str()"
+    content_type = "text/cloud-config"
+    content      = data.template_file.cloud_init_cluster.rendered
+  }
+}
+
 # Master node
 resource "openstack_compute_instance_v2" "master" {
   name            = "${var.cluster_name}-master"
@@ -54,30 +70,14 @@ resource "openstack_compute_instance_v2" "master" {
   security_groups = [openstack_networking_secgroup_v2.k8s_secgroup.name]
 
   # Add all SSH keys to the instance via cloud-init
-  user_data = <<-EOF
-    #cloud-config
-    ssh_authorized_keys:
-      ${join("\n      ", [for key in var.ssh_authorized_keys : key])}
-  EOF
+  user_data = data.template_cloudinit_config.cluster_config.rendered
 
   network {
     port = openstack_networking_port_v2.master.id
-    #uuid = data.openstack_networking_network_v2.subnet.id
   }
 
   metadata = {
     role = "master"
-  }
-
-  # Wait for cloud-init to complete
-  provisioner "remote-exec" {
-    inline = ["echo 'Waiting for cloud-init to complete...'", "cloud-init status --wait  > /dev/null"]
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = file("${var.ssh_private_key_path}/${var.ssh_key_name}")
-      host        = openstack_networking_floatingip_v2.master_fip.address
-    }
   }
 }
 
@@ -91,11 +91,7 @@ resource "openstack_compute_instance_v2" "worker" {
   security_groups = [openstack_networking_secgroup_v2.k8s_secgroup.name]
 
   # Add all SSH keys to the instance via cloud-init
-  user_data = <<-EOF
-    #cloud-config
-    ssh_authorized_keys:
-      ${join("\n      ", [for key in var.ssh_authorized_keys : key])}
-  EOF
+  user_data = data.template_cloudinit_config.cluster_config.rendered
 
   network {
     uuid = data.openstack_networking_network_v2.subnet.id
@@ -103,17 +99,6 @@ resource "openstack_compute_instance_v2" "worker" {
 
   metadata = {
     role = "worker"
-  }
-
-  # Wait for cloud-init to complete
-  provisioner "remote-exec" {
-    inline = ["echo 'Waiting for cloud-init to complete...'", "cloud-init status --wait  > /dev/null"]
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = file("${var.ssh_private_key_path}/${var.ssh_key_name}")
-      host        = openstack_compute_instance_v2.master.network.0.fixed_ip_v4
-    }
   }
 }
 
@@ -211,6 +196,55 @@ resource "local_file" "prometheus_values" {
   filename = "${path.module}/../helm-charts/prometheus-values.yaml"
 }
 
+
+# Deploy Kubernetes with Kubespray
+resource "null_resource" "deploy_kubernetes" {
+  depends_on = [
+    local_file.kubespray_inventory,
+    local_file.k8s_cluster_vars,
+    openstack_compute_instance_v2.master,
+    openstack_compute_instance_v2.worker,
+    openstack_compute_floatingip_associate_v2.master_fip_associate
+  ]
+
+  provisioner "local-exec" {
+    working_dir = "${path.module}/.."
+    command = <<-EOT
+      # Wait for cloud-init to complete on master node
+      echo "Waiting for cloud-init to complete on master node..."
+      ssh -o StrictHostKeyChecking=no -i ${var.ssh_private_key_path}/${var.ssh_key_name} \
+        ubuntu@${openstack_networking_floatingip_v2.master_fip.address} \
+        "cloud-init status --wait > /dev/null"
+
+      # Clone Kubespray if not already present
+      if [ ! -d "kubespray/kubespray" ]; then
+        mkdir -p kubespray
+        git clone https://github.com/kubernetes-sigs/kubespray.git kubespray/kubespray
+        cd kubespray/kubespray
+        git checkout release-2.27
+        pip install -r requirements.txt
+        cd ../..
+      fi
+
+      # Run Kubespray
+      cd kubespray
+      ansible-playbook -i inventory/hosts.yaml kubespray/cluster.yml -b -v \
+        --private-key=${var.ssh_private_key_path}/${var.ssh_key_name} \
+        -e ansible_user=ubuntu
+    EOT
+  }
+
+  # Fetch kubeconfig
+  provisioner "local-exec" {
+    command = <<-EOT
+      mkdir -p ${path.module}/../.kube
+      scp -o StrictHostKeyChecking=no -i ${var.ssh_private_key_path}/${var.ssh_key_name} \
+        ubuntu@${openstack_networking_floatingip_v2.master_fip.address}:/etc/kubernetes/admin.conf \
+        ${path.module}/../.kube/config
+    EOT
+  }
+}
+
 # Create Cloudflare API token secret for cert-manager
 resource "null_resource" "create_cloudflare_secret" {
   depends_on = [
@@ -234,48 +268,6 @@ resource "null_resource" "create_cloudflare_secret" {
       
       # Apply the cert-manager issuer
       kubectl apply -f helm-charts/production-binderhub-issuer.yaml
-    EOT
-  }
-}
-
-# Deploy Kubernetes with Kubespray
-resource "null_resource" "deploy_kubernetes" {
-  depends_on = [
-    local_file.kubespray_inventory,
-    local_file.k8s_cluster_vars,
-    openstack_compute_instance_v2.master,
-    openstack_compute_instance_v2.worker,
-    openstack_compute_floatingip_associate_v2.master_fip_associate
-  ]
-
-  provisioner "local-exec" {
-    working_dir = "${path.module}/.."
-    command = <<-EOT
-      # Clone Kubespray if not already present
-      if [ ! -d "kubespray/kubespray" ]; then
-        mkdir -p kubespray
-        git clone https://github.com/kubernetes-sigs/kubespray.git kubespray/kubespray
-        cd kubespray/kubespray
-        git checkout v2.23.1
-        pip install -r requirements.txt
-        cd ../..
-      fi
-
-      # Run Kubespray
-      cd kubespray
-      ansible-playbook -i inventory/hosts.yaml kubespray/cluster.yml -b -v \
-        --private-key=${var.ssh_private_key_path}/${var.ssh_key_name} \
-        -e ansible_user=ubuntu
-    EOT
-  }
-
-  # Fetch kubeconfig
-  provisioner "local-exec" {
-    command = <<-EOT
-      mkdir -p ${path.module}/../.kube
-      scp -o StrictHostKeyChecking=no -i ${var.ssh_private_key_path}/${var.ssh_key_name} \
-        ubuntu@${openstack_networking_floatingip_v2.master_fip.address}:/etc/kubernetes/admin.conf \
-        ${path.module}/../.kube/config
     EOT
   }
 }
