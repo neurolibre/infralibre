@@ -219,6 +219,34 @@ resource "null_resource" "wait_for_cloud_init" {
   }
 }
 
+resource "null_resource" "wait_for_worker_cloud_init" {
+  count = var.worker_count
+  
+  depends_on = [
+    openstack_compute_instance_v2.worker,
+    null_resource.wait_for_cloud_init
+  ]
+
+  connection {
+    type        = "ssh"
+    user        = var.admin_user
+    host        = openstack_compute_instance_v2.worker[count.index].network.0.fixed_ip_v4
+    timeout     = "10m"
+    bastion_host = openstack_networking_floatingip_v2.master_fip.address
+    bastion_user = var.admin_user
+  }
+
+  # Check if cloud-init has completed
+  provisioner "remote-exec" {
+    inline = [
+      "echo 'Waiting for cloud-init to complete on worker node ${count.index}...'",
+      "cloud-init status --wait >> /dev/null",
+      "echo 'Cloud-init completed successfully on worker node ${count.index}'",
+    ]
+  }
+}
+
+
 # Generate custom ansible.cfg
 resource "local_file" "ansible_config" {
   content = templatefile("${path.module}/templates/ansible.cfg.tpl", {})
@@ -237,7 +265,8 @@ resource "null_resource" "deploy_kubernetes" {
     local_file.kubespray_inventory,
     local_file.k8s_cluster_vars,
     local_file.ansible_config,
-    null_resource.wait_for_cloud_init
+    null_resource.wait_for_cloud_init,
+    null_resource.wait_for_worker_cloud_init
   ]
 
   provisioner "local-exec" {
