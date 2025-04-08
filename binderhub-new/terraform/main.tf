@@ -90,7 +90,7 @@ resource "openstack_compute_instance_v2" "worker" {
   count           = var.worker_count
   name            = "${var.cluster_name}-worker-${count.index}"
   image_name      = var.image_name
-  flavor_name     = var.worker_flavor_name
+  flavor_name     = var.flavor_worker
   key_pair        = openstack_compute_keypair_v2.keypair[0].name
   security_groups = [openstack_networking_secgroup_v2.k8s_secgroup.name]
 
