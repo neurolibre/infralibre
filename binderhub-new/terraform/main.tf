@@ -246,6 +246,18 @@ resource "null_resource" "wait_for_worker_cloud_init" {
   }
 }
 
+# Generate bastion host configuration for Ansible
+resource "local_file" "ansible_bastion_config" {
+  content = templatefile("${path.module}/templates/bastion.yml.tpl", {
+    bastion_host = openstack_networking_floatingip_v2.master_fip.address
+    admin_user = var.admin_user
+  })
+  filename = "${path.module}/../kubespray/inventory/group_vars/all/bastion.yml"
+
+  depends_on = [
+    local_file.kubespray_inventory
+  ]
+}
 
 # Generate custom ansible.cfg
 resource "local_file" "ansible_config" {
@@ -258,6 +270,30 @@ resource "local_file" "ansible_config" {
   ]
 }
 
+# Ensure SSH keys are properly set up
+resource "null_resource" "prepare_ssh_environment" {
+  depends_on = [
+    null_resource.wait_for_cloud_init,
+    null_resource.wait_for_worker_cloud_init
+  ]
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      # Add master to known hosts
+      ssh-keyscan -H ${openstack_networking_floatingip_v2.master_fip.address} >> ~/.ssh/known_hosts
+      
+      # Test SSH to master
+      ssh -o StrictHostKeyChecking=no -i ${var.ssh_private_key_path}/${var.ssh_key_name} ${var.admin_user}@${openstack_networking_floatingip_v2.master_fip.address} echo "SSH to master successful"
+      
+      # Test SSH to workers through master
+      for ip in ${join(" ", [for worker in openstack_compute_instance_v2.worker : worker.network.0.fixed_ip_v4])}; do
+        echo "Testing SSH to worker $ip through master..."
+        ssh -o StrictHostKeyChecking=no -i ${var.ssh_private_key_path}/${var.ssh_key_name} -o ProxyCommand="ssh -i ${var.ssh_private_key_path}/${var.ssh_key_name} -W %h:%p ${var.admin_user}@${openstack_networking_floatingip_v2.master_fip.address}" ${var.admin_user}@$ip echo "SSH to worker $ip successful"
+      done
+    EOT
+  }
+}
+
 
 # Deploy Kubernetes with Kubespray
 resource "null_resource" "deploy_kubernetes" {
@@ -265,8 +301,10 @@ resource "null_resource" "deploy_kubernetes" {
     local_file.kubespray_inventory,
     local_file.k8s_cluster_vars,
     local_file.ansible_config,
+    local_file.ansible_bastion_config,
     null_resource.wait_for_cloud_init,
-    null_resource.wait_for_worker_cloud_init
+    null_resource.wait_for_worker_cloud_init,
+    null_resource.prepare_ssh_environment
   ]
 
   provisioner "local-exec" {

@@ -12,7 +12,7 @@ callbacks_enabled = profile_tasks,ara_default
 roles_path = kubespray/kubespray/roles:kubespray/roles
 deprecation_warnings = False
 inventory_ignore_extensions = ~, .orig, .bak, .ini, .cfg, .retry, .pyc, .pyo, .creds, .gpg
-timeout = 30
+timeout = 60
 
 [ssh_connection]
 pipelining = True
