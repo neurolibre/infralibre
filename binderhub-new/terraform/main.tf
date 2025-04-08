@@ -1,8 +1,3 @@
-# Use environment variables from sourced OpenRC file
-provider "openstack" {
-  # No explicit credentials needed - will use environment variables
-}
-
 provider "cloudflare" {
   api_token = var.cloudflare_token
 }
