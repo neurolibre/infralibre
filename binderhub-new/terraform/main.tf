@@ -240,6 +240,9 @@ resource "null_resource" "deploy_kubernetes" {
         cd ../..
       fi
 
+      # WARNING: Set the ANSIBLE_ROLES_PATH environment variable
+      export ANSIBLE_ROLES_PATH="$(pwd)/kubespray/roles:$ANSIBLE_ROLES_PATH"
+
       # Run Kubespray
       cd kubespray
       ansible-playbook -i inventory/hosts.yaml kubespray/cluster.yml -b -v \
