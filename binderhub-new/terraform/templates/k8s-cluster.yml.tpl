@@ -27,7 +27,8 @@ ingress_publish_status_address: ""
 cert_manager_enabled: true
 
 # OpenStack Cloud Provider
-cloud_provider: openstack
+cloud_provider: external
+external_cloud_provider: openstack
 external_openstack_auth_url: "${openstack_auth_url}"
 external_openstack_username: "${openstack_username}"
 external_openstack_password: "${openstack_password}"
