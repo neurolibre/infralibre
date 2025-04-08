@@ -4,6 +4,12 @@ variable "cluster_name" {
   type        = string
 }
 
+variable "worker_count" {
+  description = "Number of worker nodes to create"
+  type        = number
+  default     = 1
+}
+
 variable "ssh_key_name" {
   description = "Name of the SSH key pair to use"
   type        = string
@@ -105,4 +111,10 @@ variable "binderhub_version" {
   description = "Version of BinderHub Helm chart to deploy"
   type        = string
   default     = "1.0.0-0.dev.git.3213.h6a5a5a0"
+}
+
+variable "email_contact" {
+  description = "Email address for Let's Encrypt notifications and Cloudflare configuration"
+  type        = string
+  default     = "conp.dev@gmail.com"  # You might want to change this default or require it to be set
 }
