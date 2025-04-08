@@ -219,11 +219,24 @@ resource "null_resource" "wait_for_cloud_init" {
   }
 }
 
+# Generate custom ansible.cfg
+resource "local_file" "ansible_config" {
+  content = templatefile("${path.module}/templates/ansible.cfg.tpl", {})
+  filename = "${path.module}/../kubespray/ansible.cfg"
+
+  depends_on = [
+    local_file.kubespray_inventory,
+    local_file.k8s_cluster_vars
+  ]
+}
+
+
 # Deploy Kubernetes with Kubespray
 resource "null_resource" "deploy_kubernetes" {
   depends_on = [
     local_file.kubespray_inventory,
     local_file.k8s_cluster_vars,
+    local_file.ansible_config,
     null_resource.wait_for_cloud_init
   ]
 
@@ -239,9 +252,6 @@ resource "null_resource" "deploy_kubernetes" {
         pip install -r requirements.txt
         cd ../..
       fi
-
-      # WARNING: Set the ANSIBLE_ROLES_PATH environment variable
-      export ANSIBLE_ROLES_PATH="$(pwd)/kubespray/roles:$ANSIBLE_ROLES_PATH"
 
       # Run Kubespray
       cd kubespray
