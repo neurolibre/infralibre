@@ -75,7 +75,7 @@ resource "openstack_compute_instance_v2" "master" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      private_key = "${var.ssh_private_key_path}/${var.ssh_key_name}"
+      private_key = file("${var.ssh_private_key_path}/${var.ssh_key_name}")
       host        = openstack_networking_floatingip_v2.master_fip.address
     }
   }
@@ -111,7 +111,7 @@ resource "openstack_compute_instance_v2" "worker" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      private_key = "${var.ssh_private_key_path}/${var.ssh_key_name}"
+      private_key = file("${var.ssh_private_key_path}/${var.ssh_key_name}")
       host        = openstack_compute_instance_v2.master.network.0.fixed_ip_v4
     }
   }
@@ -264,7 +264,7 @@ resource "null_resource" "deploy_kubernetes" {
       # Run Kubespray
       cd kubespray
       ansible-playbook -i inventory/hosts.yaml kubespray/cluster.yml -b -v \
-        --private-key=private_key = ${var.ssh_private_key_path}/${var.ssh_key_name} \
+        --private-key=${var.ssh_private_key_path}/${var.ssh_key_name} \
         -e ansible_user=ubuntu
     EOT
   }
