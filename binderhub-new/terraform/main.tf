@@ -160,7 +160,7 @@ resource "local_file" "k8s_cluster_vars" {
     openstack_domain_name        = data.external.openstack_env.result["OS_USER_DOMAIN_NAME"]
     openstack_project_id         = data.external.openstack_env.result["OS_PROJECT_ID"]
     openstack_region             = data.external.openstack_env.result["OS_REGION_NAME"]
-    openstack_subnet_id          = data.openstack_networking_subnet_v2.subnet.id
+    openstack_subnet_id          = data.openstack_networking_network_v2.subnet.id
     openstack_external_network_id = data.openstack_networking_network_v2.network.id
   })
   filename = "${path.module}/../kubespray/inventory/group_vars/k8s_cluster/k8s-cluster.yml"
@@ -337,8 +337,8 @@ output "master_ip" {
   value = openstack_networking_floatingip_v2.master_fip.address
 }
 
-output "worker_private_ip" {
-  value = openstack_compute_instance_v2.worker.network.0.fixed_ip_v4
+output "worker_private_ips" {
+  value = [for worker in openstack_compute_instance_v2.worker : worker.network.0.fixed_ip_v4]
 }
 
 output "master_private_ip" {
