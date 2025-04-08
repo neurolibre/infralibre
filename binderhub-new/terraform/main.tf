@@ -179,6 +179,7 @@ resource "local_file" "binderhub_values" {
     registry_username  = var.registry_username
     registry_password  = var.registry_password
     binderhub_version  = var.binderhub_version
+    cluster_name       = var.cluster_name
   })
   filename = "${path.module}/../helm-charts/binderhub-values.yaml"
 }
