@@ -91,7 +91,7 @@ resource "openstack_compute_instance_v2" "worker" {
   name            = "${var.cluster_name}-worker-${count.index}"
   image_name      = var.image_name
   flavor_name     = var.worker_flavor_name
-  key_pair        = openstack_compute_keypair_v2.keypair.name
+  key_pair        = openstack_compute_keypair_v2.keypair[0].name
   security_groups = [openstack_networking_secgroup_v2.k8s_secgroup.name]
 
   # Add all SSH keys to the instance via cloud-init
@@ -170,6 +170,11 @@ resource "local_file" "k8s_cluster_vars" {
   ]
 }
 
+resource "random_id" "token" {
+  count       = 2
+  byte_length = 32
+}
+
 # Generate BinderHub values
 resource "local_file" "binderhub_values" {
   content = templatefile("${path.module}/templates/binderhub-values.yaml.tpl", {
@@ -180,6 +185,8 @@ resource "local_file" "binderhub_values" {
     registry_password  = var.registry_password
     binderhub_version  = var.binderhub_version
     cluster_name       = var.cluster_name
+    api_token       = random_id.token[0].hex
+    secret_token    = random_id.token[1].hex
   })
   filename = "${path.module}/../helm-charts/binderhub-values.yaml"
 }
