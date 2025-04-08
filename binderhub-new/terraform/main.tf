@@ -79,7 +79,7 @@ resource "openstack_compute_instance_v2" "master" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      private_key = file(var.ssh_private_key_path)
+      private_key = "${var.ssh_private_key_path}/${var.ssh_key_name}"
       host        = openstack_networking_floatingip_v2.master_fip.address
     }
   }
@@ -115,11 +115,8 @@ resource "openstack_compute_instance_v2" "worker" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      private_key = file(var.ssh_private_key_path)
+      private_key = "${var.ssh_private_key_path}/${var.ssh_key_name}"
       host        = openstack_compute_instance_v2.master.network.0.fixed_ip_v4
-      bastion_host = openstack_networking_floatingip_v2.master_fip.address
-      bastion_user = "ubuntu"
-      bastion_private_key = file(var.ssh_private_key_path)
     }
   }
 }
@@ -263,7 +260,7 @@ resource "null_resource" "deploy_kubernetes" {
       # Run Kubespray
       cd kubespray
       ansible-playbook -i inventory/hosts.yaml kubespray/cluster.yml -b -v \
-        --private-key=${var.ssh_private_key_path} \
+        --private-key=private_key = ${var.ssh_private_key_path}/${var.ssh_key_name} \
         -e ansible_user=ubuntu
     EOT
   }
@@ -272,7 +269,7 @@ resource "null_resource" "deploy_kubernetes" {
   provisioner "local-exec" {
     command = <<-EOT
       mkdir -p ${path.module}/../.kube
-      scp -o StrictHostKeyChecking=no -i ${var.ssh_private_key_path} \
+      scp -o StrictHostKeyChecking=no -i ${var.ssh_private_key_path}/${var.ssh_key_name} \
         ubuntu@${openstack_networking_floatingip_v2.master_fip.address}:/etc/kubernetes/admin.conf \
         ${path.module}/../.kube/config
     EOT
