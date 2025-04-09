@@ -1,8 +1,17 @@
 #!/bin/bash
 set -e
 
+# Add OpenStack cloud to Juju
+echo "Adding OpenStack cloud to Juju..."
+juju add-cloud --client -f /home/${admin_user}/juju/config.yaml openstack
+
+# Add OpenStack credentials to Juju
+echo "Adding OpenStack credentials to Juju..."
+juju add-credential --client -f /home/${admin_user}/juju/config.yaml openstack
+
 # Bootstrap Juju controller
-juju bootstrap openstack ${cluster_name}-controller --config-file=/home/${admin_user}/juju/config.yaml
+echo "Bootstrapping Juju controller..."
+juju bootstrap openstack ${cluster_name}-controller
 
 # Add Kubernetes model
 juju add-model k8s
