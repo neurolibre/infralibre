@@ -33,8 +33,8 @@ juju deploy etcd --to $MASTER_MACHINE_ID
 juju deploy openstack-integrator --to $MASTER_MACHINE_ID
 
 # Place worker components on worker nodes
-for i in "${!WORKER_MACHINE_IDS[@]}"; do
-  juju deploy kubernetes-worker --to ${WORKER_MACHINE_IDS[$i]}
+for i in "$${!WORKER_MACHINE_IDS[@]}"; do
+  juju deploy kubernetes-worker --to $${WORKER_MACHINE_IDS[$i]}
 done
 
 # Add relations
