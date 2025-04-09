@@ -12,7 +12,7 @@ packages:
   - python3-setuptools
 
 ssh_authorized_keys:
-${ssh_authorized_keys}
+  ${ssh_authorized_keys}
 
 runcmd:
   # Install Juju

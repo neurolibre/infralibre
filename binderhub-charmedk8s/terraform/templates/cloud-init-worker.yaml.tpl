@@ -10,7 +10,7 @@ packages:
   - software-properties-common
 
 ssh_authorized_keys:
-${ssh_authorized_keys}
+  ${ssh_authorized_keys}
 
 runcmd:
   # Set up SSH for Juju
