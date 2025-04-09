@@ -2,9 +2,7 @@ clouds:
   openstack:
     type: openstack
     auth-types: [userpass]
-    regions:
-      ${openstack_region}:
-        endpoint: ${openstack_auth_url}
+    endpoint: ${openstack_auth_url}
 
 credentials:
   openstack:
