@@ -158,7 +158,7 @@ resource "random_id" "token" {
 
 # Generate BinderHub values
 resource "local_file" "binderhub_values" {
-  content = templatefile("${path.module}/templates/binderhub-values.yaml.tpl", {
+  content = templatefile("${path.module}/templates/deploy/binderhub-values.yaml.tpl", {
     binderhub_domain   = var.binderhub_domain
     binderhub_subdomain = var.binderhub_subdomain
     registry_url       = var.registry_url
@@ -174,7 +174,7 @@ resource "local_file" "binderhub_values" {
 
 # Generate BinderHub issuer configuration
 resource "local_file" "binderhub_issuer" {
-  content = templatefile("${path.module}/templates/production-binderhub-issuer.yaml.tpl", {
+  content = templatefile("${path.module}/templates/deploy/production-binderhub-issuer.yaml.tpl", {
     email_contact = var.email_contact
   })
   filename = "${path.module}/../helm-charts/production-binderhub-issuer.yaml"
@@ -182,13 +182,13 @@ resource "local_file" "binderhub_issuer" {
 
 # Generate Nginx Ingress configuration
 resource "local_file" "nginx_ingress" {
-  content = templatefile("${path.module}/templates/nginx-ingress.yaml.tpl", {})
+  content = templatefile("${path.module}/templates/deploy/nginx-ingress.yaml.tpl", {})
   filename = "${path.module}/../helm-charts/nginx-ingress.yaml"
 }
 
 # Generate Prometheus and Grafana configuration
 resource "local_file" "prometheus_values" {
-  content = templatefile("${path.module}/templates/prometheus-values.yaml.tpl", {
+  content = templatefile("${path.module}/templates/deploy/prometheus-values.yaml.tpl", {
     grafana_subdomain = var.grafana_subdomain
     grafana_domain = var.grafana_domain
     prometheus_subdomain = var.prometheus_subdomain
