@@ -1,5 +1,5 @@
 # Kubernetes configuration
-kube_version: v1.32.2
+kube_version: v1.31.4
 kube_network_plugin: calico
 kube_proxy_mode: iptables
 container_manager: containerd
