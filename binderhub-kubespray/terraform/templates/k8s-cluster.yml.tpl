@@ -1,6 +1,6 @@
 # Kubernetes configuration
 kube_version: v1.31.4
-kube_network_plugin: calico
+kube_network_plugin: flannel
 kube_proxy_mode: iptables
 container_manager: containerd
 etcd_deployment_type: host
@@ -17,6 +17,8 @@ helm_enabled: true
 
 # Configure metrics-server
 metrics_server_enabled: true
+
+remove_master_taints: true
 
 # Configure ingress
 ingress_nginx_enabled: true
