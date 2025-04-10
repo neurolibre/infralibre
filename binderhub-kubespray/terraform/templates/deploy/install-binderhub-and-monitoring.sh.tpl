@@ -8,7 +8,7 @@ cd /home/${admin_user}/deploy
 kubectl create namespace binderhub --dry-run=client -o yaml | kubectl apply -f -
 
 # Create Cloudflare API token secret
-kubectl create secret generic cloudflare-api-token-secret --namespace binderhub --from-literal=api-token=${var.cloudflare_token} --dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret generic cloudflare-api-token-secret --namespace binderhub --from-literal=api-token=${cloudflare_token} --dry-run=client -o yaml | kubectl apply -f -
 
 # Apply the cert-manager issuer
 kubectl apply -f production-binderhub-issuer.yaml
