@@ -15,9 +15,14 @@ external_openstack_network_ipv6_disabled: false
 external_openstack_network_internal_networks: []
 external_openstack_network_public_networks: []
 external_openstack_metadata_search_order: "configDrive,metadataService"
-external_openstack_application_credential_name: "${openstack_username}"
-external_openstack_application_credential_id: "${openstack_project_id}"
-external_openstack_application_credential_secret: "${openstack_password}"
+
+external_openstack_auth_url: "${openstack_auth_url}"
+external_openstack_username: "${openstack_username}"
+external_openstack_password: "${openstack_password}"
+external_openstack_region: "${openstack_region}"
+external_openstack_tenant_id: "${openstack_project_id}"
+external_openstack_tenant_name: "${openstack_project_name}"
+external_openstack_domain_name: "${openstack_domain_name}"
 
 cinder_csi_enabled: true
 cinder_topology: true

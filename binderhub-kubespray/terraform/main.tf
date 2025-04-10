@@ -148,6 +148,10 @@ resource "local_file" "openstack_vars" {
     openstack_username           = data.external.openstack_env.result["OS_USERNAME"]
     openstack_password           = data.external.openstack_env.result["OS_PASSWORD"]
     openstack_project_id         = data.external.openstack_env.result["OS_PROJECT_ID"]
+    openstack_auth_url           = data.external.openstack_env.result["OS_AUTH_URL"]
+    openstack_region             = data.external.openstack_env.result["OS_REGION_NAME"]
+    openstack_project_name       = data.external.openstack_env.result["OS_PROJECT_NAME"]
+    openstack_domain_name        = data.external.openstack_env.result["OS_USER_DOMAIN_NAME"]
     openstack_subnet_id          = data.openstack_networking_network_v2.subnet.id
     openstack_external_network_id = data.openstack_networking_network_v2.network.id
   })
@@ -262,16 +266,6 @@ resource "local_file" "all_vars" {
   ]
 }
 
-# Generate custom ansible.cfg
-resource "local_file" "ansible_config" {
-  content = templatefile("${path.module}/templates/ansible.cfg.tpl", {})
-  filename = "${path.module}/../kubespray/ansible.cfg"
-
-  depends_on = [
-    local_file.kubespray_inventory,
-    local_file.k8s_cluster_vars
-  ]
-}
 
 # Ensure SSH keys are properly set up
 resource "null_resource" "prepare_ssh_environment" {
@@ -297,13 +291,11 @@ resource "null_resource" "prepare_ssh_environment" {
   }
 }
 
-
 # Deploy Kubernetes with Kubespray
 resource "null_resource" "deploy_kubernetes" {
   depends_on = [
     local_file.kubespray_inventory,
     local_file.k8s_cluster_vars,
-    local_file.ansible_config,
     null_resource.wait_for_cloud_init,
     null_resource.wait_for_worker_cloud_init,
     null_resource.prepare_ssh_environment
