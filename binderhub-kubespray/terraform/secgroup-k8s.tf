@@ -1,7 +1,7 @@
 # Security groups
 resource "openstack_networking_secgroup_v2" "k8s_secgroup" {
   name        = "${var.cluster_name}-secgroup"
-  description = "Security group for Kubernetes cluster"
+  description = "Security group for Kubernetes cluster and binderhub"
 }
 
 resource "openstack_networking_secgroup_rule_v2" "k8s_secgroup_rule_ssh" {
@@ -17,7 +17,7 @@ resource "openstack_networking_secgroup_rule_v2" "k8s_secgroup_rule_ssh" {
 resource "openstack_networking_secgroup_rule_v2" "k8s_secgroup_rule_internal" {
   direction         = "ingress"
   ethertype         = "IPv4"
-  remote_ip_prefix  = "192.168.0.0/24"
+  remote_ip_prefix  = "192.168.73.0/24"
   security_group_id = openstack_networking_secgroup_v2.k8s_secgroup.id
 }
 

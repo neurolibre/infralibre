@@ -46,7 +46,7 @@ resource "openstack_networking_port_v2" "master" {
 }
 
 data "template_file" "cloud_init_cluster" {
-  template = file("${path.module}/templates/cloud-init-cluster.yaml.tpl")
+  template = file("${path.module}/templates/cloud-init-cluster.yml.tpl")
   vars = {
     ssh_authorized_keys = indent(2, join("\n", formatlist("- %s", var.ssh_authorized_keys)))
   }
@@ -115,12 +115,13 @@ resource "openstack_compute_floatingip_associate_v2" "master_fip_associate" {
 
 # Generate Kubespray inventory
 resource "local_file" "kubespray_inventory" {
-  content = templatefile("${path.module}/templates/hosts.yaml.tpl", {
+  content = templatefile("${path.module}/templates/inventory.ini.tpl", {
     master_ip          = openstack_networking_floatingip_v2.master_fip.address
     master_private_ip  = openstack_compute_instance_v2.master.network.0.fixed_ip_v4
     worker_private_ips = [for worker in openstack_compute_instance_v2.worker : worker.network.0.fixed_ip_v4]
+    admin_user = var.admin_user
   })
-  filename = "${path.module}/../kubespray/inventory/hosts.yaml"
+  filename = "${path.module}/../kubespray/inventory/binderhub/inventory.ini"
 
   depends_on = [
     openstack_compute_floatingip_associate_v2.master_fip_associate,
@@ -134,17 +135,23 @@ data "external" "openstack_env" {
 }
 
 resource "local_file" "k8s_cluster_vars" {
-  content = templatefile("${path.module}/templates/k8s-cluster.yml.tpl", {
-    openstack_auth_url           = data.external.openstack_env.result["OS_AUTH_URL"]
+  content = templatefile("${path.module}/templates/k8s-cluster.yml.tpl", { })
+  filename = "${path.module}/../kubespray/inventory/binderhub/group_vars/k8s_cluster/k8s-cluster.yml"
+
+  depends_on = [
+    local_file.kubespray_inventory
+  ]
+}
+
+resource "local_file" "openstack_vars" {
+  content = templatefile("${path.module}/templates/openstack.yml.tpl", {
     openstack_username           = data.external.openstack_env.result["OS_USERNAME"]
     openstack_password           = data.external.openstack_env.result["OS_PASSWORD"]
-    openstack_domain_name        = data.external.openstack_env.result["OS_USER_DOMAIN_NAME"]
     openstack_project_id         = data.external.openstack_env.result["OS_PROJECT_ID"]
-    openstack_region             = data.external.openstack_env.result["OS_REGION_NAME"]
     openstack_subnet_id          = data.openstack_networking_network_v2.subnet.id
     openstack_external_network_id = data.openstack_networking_network_v2.network.id
   })
-  filename = "${path.module}/../kubespray/inventory/group_vars/k8s_cluster/k8s-cluster.yml"
+  filename = "${path.module}/../kubespray/inventory/binderhub/group_vars/k8s_cluster/openstack.yml"
 
   depends_on = [
     local_file.kubespray_inventory
@@ -246,13 +253,9 @@ resource "null_resource" "wait_for_worker_cloud_init" {
   }
 }
 
-# Generate bastion host configuration for Ansible
-resource "local_file" "ansible_bastion_config" {
-  content = templatefile("${path.module}/templates/bastion.yml.tpl", {
-    bastion_host = openstack_networking_floatingip_v2.master_fip.address
-    admin_user = var.admin_user
-  })
-  filename = "${path.module}/../kubespray/inventory/group_vars/all/bastion.yml"
+resource "local_file" "all_vars" {
+  content = templatefile("${path.module}/templates/all.yml.tpl", {})
+  filename = "${path.module}/../kubespray/inventory/binderhub/group_vars/all/all.yml"
 
   depends_on = [
     local_file.kubespray_inventory
@@ -317,12 +320,16 @@ resource "null_resource" "deploy_kubernetes" {
         cd kubespray/kubespray
         git checkout release-2.27
         pip install -r requirements.txt
+
+        mkdir -p inventory/binderhub
+        cp -r ../inventory/binderhub/* inventory/binderhub/
+
         cd ../..
       fi
 
       # Run Kubespray
-      cd kubespray
-      ansible-playbook -i inventory/hosts.yaml kubespray/cluster.yml -b -v \
+      cd kubespray/kubespray
+      ansible-playbook -i inventory/binderhub/ cluster.yml -b -v \
         --private-key=${var.ssh_private_key_path}/${var.ssh_key_name} \
         -e ansible_user=ubuntu
     EOT
