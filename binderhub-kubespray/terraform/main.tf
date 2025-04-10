@@ -116,6 +116,7 @@ resource "openstack_compute_floatingip_associate_v2" "master_fip_associate" {
 # Generate Kubespray inventory
 resource "local_file" "kubespray_inventory" {
   content = templatefile("${path.module}/templates/inventory.ini.tpl", {
+    cluster_name       = var.cluster_name
     master_ip          = openstack_networking_floatingip_v2.master_fip.address
     master_private_ip  = openstack_compute_instance_v2.master.network.0.fixed_ip_v4
     worker_private_ips = [for worker in openstack_compute_instance_v2.worker : worker.network.0.fixed_ip_v4]

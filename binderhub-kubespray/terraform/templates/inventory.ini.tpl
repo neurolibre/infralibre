@@ -5,15 +5,15 @@ worker-${i} ansible_host=${ip} ip=${ip} access_ip=${ip} ansible_user=${admin_use
 %{ endfor ~}
 
 [kube_control_plane]
-master
+${cluster_name}-master
 
 [kube_node]
 %{ for i, ip in worker_private_ips ~}
-worker-${i}
+${cluster_name}-worker-${i}
 %{ endfor ~}
 
 [etcd]
-master
+${cluster_name}-master
 
 [k8s_cluster:children]
 kube_control_plane
