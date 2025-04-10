@@ -320,7 +320,7 @@ resource "null_resource" "deploy_kubernetes" {
 
       # Run Kubespray
       cd kubespray/kubespray
-      ansible-playbook -i inventory/binderhub/ cluster.yml -b -v \
+      ansible-playbook -i inventory/binderhub/inventory.ini cluster.yml -b -v \
         --private-key=${var.ssh_private_key_path}/${var.ssh_key_name} \
         -e ansible_user=ubuntu
     EOT
