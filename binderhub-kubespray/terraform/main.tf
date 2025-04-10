@@ -380,7 +380,7 @@ resource "terraform_data" "deploy_applications" {
   }
 
   provisioner "file" {
-    source = "${path.module}/templates/deploy/production-binderhub-issuer.yaml"
+    source = "${path.module}/../helm-charts/production-binderhub-issuer.yaml"
     destination = "/home/${var.admin_user}/deploy/production-binderhub-issuer.yaml"
   }
 
