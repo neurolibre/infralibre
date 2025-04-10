@@ -1,12 +1,18 @@
 jupyterhub:
+  proxy:
+    secretToken: "${secret_token}"
+#    chp:
+#      extraPodSpec:
+#        priorityClassName: binderhub-core
+#      resources:
+#        requests:
+#          cpu: "1"
+#        limits:
+#          cpu: "1"
   ingress:
     enabled: true
     hosts:
       - ${binderhub_subdomain}.${binderhub_domain}
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      kubernetes.io/tls-acme: "true"
-      cert-manager.io/issuer: letsencrypt-production
     tls:
       - secretName: ${cluster_name}-secret-tls
         hosts:
@@ -23,10 +29,6 @@ jupyterhub:
     services:
       binder:
         apiToken: "${api_token}"
-  proxy:
-    secretToken: "${secret_token}"
-    service:
-      type: NodePort
   cull:
     timeout: 600 #10min
     every: 60
@@ -62,58 +64,40 @@ config:
       - ^shishirchoudharygic/mltraining.*
       - ^hmharshit/mltraining.*
   BinderHub:
-    template_path: /etc/binderhub/custom/templates
-    extra_static_path: /etc/binderhub/custom/static
-    extra_static_url_prefix: /extra_static/
-    template_variables:
-        EXTRA_STATIC_URL_PREFIX: "/extra_static/"
+#    template_path: /etc/binderhub/custom/templates
+#    extra_static_path: /etc/binderhub/custom/static
+#    extra_static_url_prefix: /extra_static/
+#    template_variables:
+#        EXTRA_STATIC_URL_PREFIX: "/extra_static/"
     hub_url: https://${binderhub_subdomain}.${binderhub_domain}/jupyter
     cors_allow_origin: '*'
-    hub_url: https://${binderhub_subdomain}.${binderhub_domain}/jupyter
+#    badge_base_url: https://${binderhub_subdomain}.${binderhub_domain}
     use_registry: true
     image_prefix: binder-registry.conp.cloud/binder-registry.conp.cloud/binder-
 
+replicas: 1
+
 service:
-  type: NodePort
+  type: LoadBalancer
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
 
 ingress:
   enabled: true
   hosts:
     - ${binderhub_subdomain}.${binderhub_domain}
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    kubernetes.io/tls-acme: "true"
-    cert-manager.io/issuer: letsencrypt-production
-  https:
-    enabled: true
-    type: nginx
-  tls:
-    - secretName: ${cluster_name}-secret-tls
-      hosts: 
-        - ${binderhub_subdomain}.${binderhub_domain}
+#  annotations:
+#    kubernetes.io/ingress.class: nginx
+#    kubernetes.io/tls-acme: "true"
+#    cert-manager.io/issuer: letsencrypt-production
+#  https:
+#    enabled: true
+#    type: nginx
+#  tls:
+#    - secretName: ${cluster_name}-secret-tls
+#      hosts: 
+#        - ${binderhub_subdomain}.${binderhub_domain}
 
-initContainers:
-  - name: git-clone-templates
-    image: alpine/git
-    args:
-      - clone
-      - --single-branch
-      - --branch=preview
-      - --depth=1
-      - --
-      - https://github.com/neurolibre/binder-template
-      - /etc/binderhub/custom
-    securityContext:
-      runAsUser: 0
-    volumeMounts:
-      - name: custom-templates
-        mountPath: /etc/binderhub/custom
-extraVolumes:
-  - name: custom-templates
-    emptyDir: {}
-extraVolumeMounts:
-  - name: custom-templates
-    mountPath: /etc/binderhub/custom
 
 # Image registry configuration
 registry:
