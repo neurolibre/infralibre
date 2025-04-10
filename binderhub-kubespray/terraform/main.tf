@@ -304,7 +304,6 @@ resource "null_resource" "deploy_kubernetes" {
     local_file.kubespray_inventory,
     local_file.k8s_cluster_vars,
     local_file.ansible_config,
-    local_file.ansible_bastion_config,
     null_resource.wait_for_cloud_init,
     null_resource.wait_for_worker_cloud_init,
     null_resource.prepare_ssh_environment
