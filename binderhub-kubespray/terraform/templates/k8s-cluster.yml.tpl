@@ -49,6 +49,9 @@ kube_network_plugin_multus: false
 kube_service_addresses: 10.233.0.0/18
 kube_pods_subnet: 10.233.64.0/18
 
+# MANUALLY SET AS ANSIBLE WAS COMPLAINING ABOUT THE SERVICE SUBNETS
+kube_service_subnets: 10.233.0.0/18
+
 kube_network_node_prefix: 24
 
 
