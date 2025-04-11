@@ -7,6 +7,8 @@ cd /home/${admin_user}/deploy
 # Create namespace if it doesn't exist
 kubectl create namespace binderhub --dry-run=client -o yaml | kubectl apply -f -
 
+kubectl create -f pv-cinder.yaml
+
 # Create Cloudflare API token secret
 kubectl create secret generic cloudflare-api-token-secret --namespace binderhub --from-literal=api-token=${cloudflare_token} --dry-run=client -o yaml | kubectl apply -f -
 

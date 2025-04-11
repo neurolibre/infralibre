@@ -170,7 +170,6 @@ resource "random_id" "token" {
 
 data "openstack_images_image_v2" "ubuntu" {
   name        = var.image_name
-  most_recent = true
 }
 
 # https://jupyterhub.readthedocs.io/en/latest/explanation/database.html
@@ -178,7 +177,8 @@ data "openstack_images_image_v2" "ubuntu" {
 resource "openstack_blockstorage_volume_v3" "hub_db_volume" {
   name        = "${var.cluster_name}-hub-db"
   size        = 1
-  image_id    = data.openstack_images_image_v2.ubuntu.id
+  description = "Cinder volume to be bound by the JupyterHub pod"
+  availability_zone = var.cinder_zone
 }
 
 resource "local_file" "cinder_pv" {
@@ -397,7 +397,13 @@ resource "terraform_data" "configure_kubectl_copy_files" {
 # Deploy BinderHub and monitoring stack
 resource "terraform_data" "deploy_applications" {
   depends_on = [
-    terraform_data.configure_kubectl_copy_files
+    terraform_data.configure_kubectl_copy_files,
+    local_file.cinder_pv,
+    local_file.binderhub_values,
+    local_file.binderhub_issuer,
+    local_file.nginx_ingress,
+    local_file.prometheus_values,
+    local_file.install_binderhub_and_monitoring
   ]
 
   connection {
