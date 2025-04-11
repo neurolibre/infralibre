@@ -168,6 +168,11 @@ resource "random_id" "token" {
   byte_length = 32
 }
 
+data "openstack_images_image_v2" "ubuntu" {
+  name        = var.image_name
+  most_recent = true
+}
+
 # https://jupyterhub.readthedocs.io/en/latest/explanation/database.html
 # Cinder volume to be bound by the JupyterHub pod
 resource "openstack_blockstorage_volume_v3" "hub_db_volume" {
