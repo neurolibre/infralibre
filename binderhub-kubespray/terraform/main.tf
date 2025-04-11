@@ -323,8 +323,10 @@ resource "terraform_data" "deploy_kubernetes" {
         git checkout release-2.27
         pip install -r requirements.txt
 
+        echo "Copying inventory to cloned Kubespray"
         mkdir -p inventory/binderhub
         cp -r ../inventory/binderhub/* inventory/binderhub/
+        echo "Inventory copied"
 
         cd ../..
       fi
