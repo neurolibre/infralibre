@@ -10,7 +10,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  volumeMode: Filesystem\
+  volumeMode: Filesystem
   # NOTE: The cinder CSI driver is enabled in openstack.yml.tpl
   # The Kubernetes cluster provisioned with Kubespray uses the cinder CSI driver
   # for OpenStack integration, leveraging the native cloud provider capabilities.
