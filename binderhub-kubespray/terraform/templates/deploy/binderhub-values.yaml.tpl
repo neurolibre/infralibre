@@ -34,13 +34,23 @@ jupyterhub:
     every: 60
     concurrency: 5
     maxAge: 1800 #30min
-
+  singleuser:
     memory:
        guarantee: 1G
        limit: 3G
     cpu:
        guarantee: 0.5
     startTimeout: 3600 #1h
+    extraPodConfig:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: topology.cinder.csi.openstack.org/zone
+                    operator: In
+                    values:
+                      - ${cinder_zone} 
   scheduling:
     corePods:
       nodeAffinity:

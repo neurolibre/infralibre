@@ -168,6 +168,26 @@ resource "random_id" "token" {
   byte_length = 32
 }
 
+# https://jupyterhub.readthedocs.io/en/latest/explanation/database.html
+# Cinder volume to be bound by the JupyterHub pod
+resource "openstack_blockstorage_volume_v3" "hub_db_volume" {
+  name        = "${var.cluster_name}-hub-db"
+  size        = 1
+  image_id    = data.openstack_images_image_v2.ubuntu.id
+}
+
+resource "local_file" "cinder_pv" {
+  depends_on = [
+    openstack_blockstorage_volume_v3.hub_db_volume
+  ]
+
+  content = templatefile("${path.module}/templates/deploy/pv-cinder.yaml.tpl", {
+    cinder_zone = var.cinder_zone
+    cinder_db_volume_id = openstack_blockstorage_volume_v3.hub_db_volume.id
+  })
+  filename = "${path.module}/../helm-charts/pv-cinder.yaml"
+}
+
 # Generate BinderHub values
 resource "local_file" "binderhub_values" {
   content = templatefile("${path.module}/templates/deploy/binderhub-values.yaml.tpl", {
@@ -178,6 +198,7 @@ resource "local_file" "binderhub_values" {
     registry_password  = var.registry_password
     binderhub_version  = var.binderhub_version
     cluster_name       = var.cluster_name
+    cinder_zone        = var.cinder_zone
     api_token       = random_id.token[0].hex
     secret_token    = random_id.token[1].hex
   })
@@ -379,6 +400,11 @@ resource "terraform_data" "deploy_applications" {
     user        = var.admin_user
     host        = openstack_networking_floatingip_v2.master_fip.address
     timeout     = "10m"
+  }
+
+  provisioner "file" {
+    source = "${path.module}/../helm-charts/pv-cinder.yaml"
+    destination = "/home/${var.admin_user}/deploy/pv-cinder.yaml"
   }
 
   provisioner "file" {

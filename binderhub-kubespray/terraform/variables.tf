@@ -123,3 +123,9 @@ variable "admin_user" {
   description = "Username for the admin user"
   type = string
 }
+
+variable "cinder_zone" {
+  description = "Cinder zone"
+  type        = string
+  default     = "nova"
+}

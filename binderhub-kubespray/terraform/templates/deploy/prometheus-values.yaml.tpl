@@ -1,31 +1,33 @@
 # Prometheus and Grafana configuration
 grafana:
   adminPassword: admin
-  service:
-    type: ClusterIP
   ingress:
-    enabled: true
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      cert-manager.io/cluster-issuer: letsencrypt-production
     hosts:
       - ${grafana_subdomain}.${grafana_domain}
     tls:
       - secretName: grafana-tls
         hosts:
           - ${grafana_subdomain}.${grafana_domain}
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: prometheus
+          orgId: 1
+          type: prometheus
+          url: ${prometheus_subdomain}.${grafana_domain} 
+          access: direct
+          isDefault: true
+          editable: false
 
 prometheus:
-  service:
-    type: ClusterIP
-  ingress:
-    enabled: true
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      cert-manager.io/cluster-issuer: letsencrypt-production
-    hosts:
-      - ${prometheus_subdomain}.${grafana_domain}
-    tls:
-      - secretName: prometheus-tls
-        hosts:
-          - ${prometheus_subdomain}.${grafana_domain} 
+  server:
+    persistentVolume:
+      size: 1Gi
+    ingress:
+      hosts:
+        - ${prometheus_subdomain}.${grafana_domain}
+      tls:
+        - secretName: prometheus-tls
+          hosts:
+            - ${prometheus_subdomain}.${grafana_domain} 

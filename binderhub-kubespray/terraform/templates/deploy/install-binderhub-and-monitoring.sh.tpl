@@ -22,4 +22,4 @@ sudo helm repo update
 
 sudo helm install binderhub jupyterhub/binderhub --version=${binderhub_version} --namespace=binderhub -f binderhub-values.yaml
 
-sudo helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring -f prometheus-values.yaml
+helm install observability prometheus-community/kube-prometheus-stack --namespace monitoring -f prometheus-values.yaml
