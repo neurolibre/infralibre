@@ -49,13 +49,11 @@ variable "subnet_name" {
 
 variable "binderhub_domain" {
   description = "Domain for BinderHub"
-  default     = "evidencepub.io"
   type        = string
 }
 
 variable "grafana_domain" {
   description = "Domain for Grafana"
-  default     = "evidencepub.io"
   type        = string
 }
 
