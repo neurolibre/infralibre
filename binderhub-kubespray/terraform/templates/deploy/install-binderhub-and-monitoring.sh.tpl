@@ -16,10 +16,10 @@ kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f 
 
 kubectl label nodes ${cluster_name}-master hub.jupyter.org/node-purpose=core
 
-sudo helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-sudo helm repo update
+helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
+# helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
 
-sudo helm install binderhub jupyterhub/binderhub --version=${binderhub_version} --namespace=binderhub -f binderhub-values.yaml
+helm install binderhub jupyterhub/binderhub --version=${binderhub_version} --namespace=binderhub -f binderhub-values.yaml
 
-helm install observability prometheus-community/kube-prometheus-stack --namespace monitoring -f prometheus-values.yaml
+# helm install observability prometheus-community/kube-prometheus-stack --namespace monitoring -f prometheus-values.yaml
