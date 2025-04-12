@@ -48,6 +48,11 @@ jupyterhub:
     corePods:
       nodeAffinity:
         matchNodePurpose: require
+      # Allow on tainted nodes
+      tolerations: 
+        - key: "node-role.kubernetes.io/control-plane"
+          operator: "Exists"
+          effect: "NoSchedule"
     userPods:
       nodeAffinity:
         matchNodePurpose: prefer

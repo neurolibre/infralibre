@@ -5,9 +5,6 @@ helm_enabled: true
 # Configure metrics-server
 metrics_server_enabled: true
 
-# Poverty....
-remove_master_taints: true
-
 # Configure ingress
 # ingress_nginx_enabled: true
 # ingress_nginx_host_network: true
