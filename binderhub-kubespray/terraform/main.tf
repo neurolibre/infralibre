@@ -377,7 +377,7 @@ resource "terraform_data" "deploy_kubernetes" {
       cd kubespray/kubespray
       ansible-playbook -i inventory/binderhub/inventory.ini cluster.yml -b -v \
         --private-key=${var.ssh_private_key_path}/${var.ssh_key_name} \
-        -e ansible_user=ubuntu | tee ansible-logfile.log
+        -e ansible_user=ubuntu | tee ../../ansible-logfile.log
       
       echo "DONE with Kubespray"
     EOT
