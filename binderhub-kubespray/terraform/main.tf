@@ -233,7 +233,9 @@ resource "local_file" "binderhub_issuer" {
 
 # Generate Nginx Ingress configuration
 resource "local_file" "nginx_ingress" {
-  content = templatefile("${path.module}/templates/deploy/nginx-ingress.yaml.tpl", {})
+  content = templatefile("${path.module}/templates/deploy/nginx-ingress.yaml.tpl", {
+    load_balancer_ip = openstack_networking_floatingip_v2.master_fip.address
+  })
   filename = "${path.module}/../helm-charts/nginx-ingress.yaml"
 }
 
