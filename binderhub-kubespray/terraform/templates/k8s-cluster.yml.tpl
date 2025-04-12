@@ -169,35 +169,3 @@ kubeadm_patches: []
 
 # Set to true to remove the role binding to anonymous users created by kubeadm
 remove_anonymous_access: false
-
-# Configure Helm
-helm_enabled: true
-
-# Configure metrics-server
-metrics_server_enabled: true
-
-remove_master_taints: true
-
-# Configure ingress
-ingress_nginx_enabled: true
-ingress_nginx_host_network: false
-ingress_publish_status_address: ""
-
-# Configure cert-manager
-cert_manager_enabled: true
-
-metallb_enabled: true
-metallb_speaker_enabled: true
-
-metallb_config:
-
-  address_pools:
-
-    production:
-      ip_range:
-        - ${load_balancer_ip}-${load_balancer_ip}
-      auto_assign: false
-
-    default:
-      ip_range:
-        - 192.168.144.0/20

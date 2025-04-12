@@ -1,11 +1,11 @@
 ---
-
 # Configure Helm
 helm_enabled: true
 
 # Configure metrics-server
 metrics_server_enabled: true
 
+# Poverty....
 remove_master_taints: true
 
 # Configure ingress
