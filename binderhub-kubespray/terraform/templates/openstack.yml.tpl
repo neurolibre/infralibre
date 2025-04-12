@@ -25,12 +25,9 @@ external_openstack_tenant_name: "${openstack_project_name}"
 external_openstack_domain_name: "${openstack_domain_name}"
 
 cinder_csi_enabled: true
-cinder_topology: false
+cinder_topology: true
 
-# Set above true only if you have a multi-zone OpenStack deployment with custom namespace
-# Arbutus has nova only. 
-# Set Cinder topology zones (can be multiple zones, default not set)
-# cinder_topology_zones:
-#   - nova
+cinder_topology_zones:
+  - ${cinder_zone}
 
 cinder_csi_ignore_volume_az: true

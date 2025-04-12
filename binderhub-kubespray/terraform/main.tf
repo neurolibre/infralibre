@@ -136,7 +136,9 @@ data "external" "openstack_env" {
 }
 
 resource "local_file" "k8s_cluster_vars" {
-  content = templatefile("${path.module}/templates/k8s-cluster.yml.tpl", { })
+  content = templatefile("${path.module}/templates/k8s-cluster.yml.tpl", { 
+    load_balancer_ip = openstack_networking_floatingip_v2.master_fip.address
+  })
   filename = "${path.module}/../kubespray/inventory/binderhub/group_vars/k8s_cluster/k8s-cluster.yml"
 
   depends_on = [
@@ -155,6 +157,7 @@ resource "local_file" "openstack_vars" {
     openstack_domain_name        = data.external.openstack_env.result["OS_USER_DOMAIN_NAME"]
     openstack_subnet_id          = data.openstack_networking_network_v2.subnet.id
     openstack_external_network_id = data.openstack_networking_network_v2.network.id
+    cinder_zone                  = var.cinder_zone
   })
   filename = "${path.module}/../kubespray/inventory/binderhub/group_vars/k8s_cluster/openstack.yml"
 
@@ -206,6 +209,7 @@ resource "local_file" "binderhub_values" {
     cinder_zone        = var.cinder_zone
     api_token       = random_id.token[0].hex
     secret_token    = random_id.token[1].hex
+    load_balancer_ip = openstack_networking_floatingip_v2.master_fip.address
   })
   filename = "${path.module}/../helm-charts/binderhub-values.yaml"
 }

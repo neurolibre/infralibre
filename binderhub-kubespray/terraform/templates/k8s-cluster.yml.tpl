@@ -185,3 +185,19 @@ ingress_publish_status_address: ""
 
 # Configure cert-manager
 cert_manager_enabled: true
+
+metallb_enabled: true
+metallb_speaker_enabled: true
+
+metallb_config:
+
+  address_pools:
+
+    production:
+      ip_range:
+        - ${load_balancer_ip}-${load_balancer_ip}
+      auto_assign: false
+
+    default:
+      ip_range:
+        - 192.168.144.0/20

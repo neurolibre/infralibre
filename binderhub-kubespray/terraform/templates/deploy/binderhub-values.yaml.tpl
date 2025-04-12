@@ -1,15 +1,9 @@
 jupyterhub:
   proxy:
     secretToken: "${secret_token}"
-#    chp:
-#      extraPodSpec:
-#        priorityClassName: binderhub-core
-#      resources:
-#        requests:
-#          cpu: "1"
-#        limits:
-#          cpu: "1"
   ingress:
+    annotations:
+      cert-manager.io/issuer: "letsencrypt-production"
     enabled: true
     hosts:
       - ${binderhub_subdomain}.${binderhub_domain}
@@ -85,28 +79,26 @@ config:
     use_registry: true
     image_prefix: binder-registry.conp.cloud/binder-registry.conp.cloud/binder-
 
-replicas: 1
-
-service:
-  type: LoadBalancer
-  annotations:
-    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+ingress-nginx:
+  controller:
+    replicas: 1
+    scope:
+      enabled: true
+    service:
+      loadBalancerIP: ${load_balancer_ip}
+      annotations:
+        metallb.universe.tf/address-pool: production
 
 ingress:
   enabled: true
+  annotations:
+    cert-manager.io/issuer: "letsencrypt-production"
   hosts:
     - ${binderhub_subdomain}.${binderhub_domain}
-#  annotations:
-#    kubernetes.io/ingress.class: nginx
-#    kubernetes.io/tls-acme: "true"
-#    cert-manager.io/issuer: letsencrypt-production
-#  https:
-#    enabled: true
-#    type: nginx
-#  tls:
-#    - secretName: ${cluster_name}-secret-tls
-#      hosts: 
-#        - ${binderhub_subdomain}.${binderhub_domain}
+  tls:
+    - secretName: ${cluster_name}-secret-tls
+      hosts: 
+        - ${binderhub_subdomain}.${binderhub_domain}
 
 
 # Image registry configuration
