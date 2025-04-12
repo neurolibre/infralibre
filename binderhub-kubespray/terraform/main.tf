@@ -186,11 +186,12 @@ data "openstack_images_image_v2" "ubuntu" {
 
 # https://jupyterhub.readthedocs.io/en/latest/explanation/database.html
 # Cinder volume to be bound by the JupyterHub pod
+# HARDCODED AVAILABILITY ZONE: nova
 resource "openstack_blockstorage_volume_v3" "hub_db_volume" {
   name        = "${var.cluster_name}-hub-db"
   size        = 1
   description = "Cinder volume to be bound by the JupyterHub pod"
-  availability_zone = var.cinder_zone
+  availability_zone = "nova"
 }
 
 resource "local_file" "cinder_pv" {
