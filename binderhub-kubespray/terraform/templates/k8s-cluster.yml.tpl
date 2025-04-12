@@ -62,9 +62,9 @@ kube_apiserver_insecure_port: 0
 
 # configure arp_ignore and arp_announce to avoid answering ARP queries from kube-ipvs0 interface
 # must be set to true for MetalLB to work
-kube_proxy_strict_arp: false
+kube_proxy_strict_arp: true
 
-kube_proxy_mode: iptables
+kube_proxy_mode: ipvs
 
 # A string slice of values which specify the addresses to use for NodePorts.
 # Values may be valid IP blocks (e.g. 1.2.3.0/24, 1.2.3.4/32).
@@ -112,7 +112,9 @@ skydns_server: "{{ kube_service_subnets.split(',') | first | ansible.utils.ipadd
 skydns_server_secondary: "{{ kube_service_subnets.split(',') | first | ansible.utils.ipaddr('net') | ansible.utils.ipaddr(4) | ansible.utils.ipaddr('address') }}"
 dns_domain: "{{ cluster_name }}"
 
-container_manager: containerd
+# container_manager: containerd
+
+container_manager: docker
 
 # Additional container runtimes
 kata_containers_enabled: false
