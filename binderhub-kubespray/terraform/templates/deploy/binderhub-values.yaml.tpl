@@ -4,7 +4,6 @@ jupyterhub:
   ingress:
     annotations:
       cert-manager.io/issuer: "letsencrypt-production"
-    enabled: true
     hosts:
       - ${binderhub_subdomain}.${binderhub_domain}
     tls:
@@ -79,18 +78,7 @@ config:
     use_registry: true
     image_prefix: binder-registry.conp.cloud/binder-registry.conp.cloud/binder-
 
-ingress-nginx:
-  controller:
-    replicas: 1
-    scope:
-      enabled: true
-    service:
-      loadBalancerIP: ${load_balancer_ip}
-      annotations:
-        metallb.universe.tf/address-pool: production
-
 ingress:
-  enabled: true
   annotations:
     cert-manager.io/issuer: "letsencrypt-production"
   hosts:

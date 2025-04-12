@@ -136,10 +136,19 @@ data "external" "openstack_env" {
 }
 
 resource "local_file" "k8s_cluster_vars" {
-  content = templatefile("${path.module}/templates/k8s-cluster.yml.tpl", { 
+  content = templatefile("${path.module}/templates/k8s-cluster.yml.tpl", { })
+  filename = "${path.module}/../kubespray/inventory/binderhub/group_vars/k8s_cluster/k8s-cluster.yml"
+
+  depends_on = [
+    local_file.kubespray_inventory
+  ]
+}
+
+resource "local_file" "addons" {
+  content = templatefile("${path.module}/templates/addons.yml.tpl", {
     load_balancer_ip = openstack_networking_floatingip_v2.master_fip.address
   })
-  filename = "${path.module}/../kubespray/inventory/binderhub/group_vars/k8s_cluster/k8s-cluster.yml"
+  filename = "${path.module}/../kubespray/inventory/binderhub/group_vars/k8s_cluster/addons.yml"
 
   depends_on = [
     local_file.kubespray_inventory

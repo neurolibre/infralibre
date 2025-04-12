@@ -1,10 +1,11 @@
-rbac:
-  create: true
 controller:
+  serviceAccount:
+    create: true
+  rbac:
+    create: true
   service:
-    type: ClusterIP
-  kind: DaemonSet
-  hostNetwork: true
-  config:
-    # Allow POSTs of upto 64MB, for large notebook support.
-    proxy-body-size: 64m 
+    loadBalancerIP: ${load_balancer_ip}
+    hostNetwork: true
+    type: LoadBalancer
+    annotations:
+      metallb.universe.tf/address-pool: production
