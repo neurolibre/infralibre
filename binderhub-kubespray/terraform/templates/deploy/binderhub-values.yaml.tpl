@@ -9,9 +9,6 @@ jupyterhub:
       kubernetes.io/ingress.class: nginx
       kubernetes.io/tls-acme: "true"
       cert-manager.io/cluster-issuer: letsencrypt-production
-      https:
-        enabled: true
-        type: nginx
     hosts:
       - ${jupyterhub_subdomain}.${binderhub_domain}
     tls:
@@ -22,7 +19,7 @@ jupyterhub:
     continuous:
       enabled: true
   hub:
-    config: 
+    config:
       BinderSpawner:
         cors_allow_origin: '*'
     services:
@@ -49,13 +46,13 @@ jupyterhub:
                   - key: topology.cinder.csi.openstack.org/zone
                     operator: In
                     values:
-                      - ${cinder_zone} 
+                      - ${cinder_zone}
   scheduling:
     corePods:
       nodeAffinity:
         matchNodePurpose: require
       # Allow on tainted nodes
-      tolerations: 
+      tolerations:
         - key: "node-role.kubernetes.io/control-plane"
           operator: "Exists"
           effect: "NoSchedule"
@@ -97,18 +94,18 @@ ingress:
     kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: letsencrypt-production
-    https:
-      enabled: true
-      type: nginx
+  https:
+    enabled: true
+    type: nginx
   hosts:
     - ${binderhub_subdomain}.${binderhub_domain}
   tls:
     - secretName: ${binderhub_subdomain}-secret-tls
-      hosts: 
+      hosts:
         - ${binderhub_subdomain}.${binderhub_domain}
 
 # Image registry configuration
 registry:
   url: ${registry_url}
   username: ${registry_username}
-  password: ${registry_password} 
+  password: ${registry_password}

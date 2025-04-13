@@ -13,7 +13,8 @@ kubectl create namespace metallb-system --dry-run=client -o yaml | kubectl apply
 kubectl create -f pv-cinder.yaml
 
 # Create Cloudflare API token secret
-kubectl create secret generic cloudflare-api-token-secret --namespace binderhub --from-literal=api-token=${cloudflare_token} --dry-run=client -o yaml | kubectl apply -f -
+# Kubespray creates the cert-manager namespace
+kubectl create secret generic cloudflare-api-token-secret --namespace cert-manager --from-literal=api-token=${cloudflare_token} --dry-run=client -o yaml | kubectl apply -f -
 
 # Apply the cert-manager issuer
 kubectl apply -f production-binderhub-issuer.yaml
