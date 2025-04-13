@@ -4,9 +4,9 @@ provider "cloudflare" {
 
 # Cloudflare DNS records
 resource "cloudflare_record" "domain" {
-  count   = length([var.binderhub_subdomain, var.grafana_subdomain, var.prometheus_subdomain])
+  count   = length([var.binderhub_subdomain, var.jupyterhub_subdomain, var.grafana_subdomain, var.prometheus_subdomain])
   zone_id = var.cloudflare_zone_id
-  name    = [var.binderhub_subdomain, var.grafana_subdomain, var.prometheus_subdomain][count.index]
+  name    = [var.binderhub_subdomain, var.jupyterhub_subdomain, var.grafana_subdomain, var.prometheus_subdomain][count.index]
   content   = openstack_networking_floatingip_v2.master_fip.address
   type    = "A"
   proxied = true
@@ -194,6 +194,18 @@ resource "openstack_blockstorage_volume_v3" "hub_db_volume" {
   availability_zone = "nova"
 }
 
+resource "local_file" "metallb_ipaddresspool" {
+  content = templatefile("${path.module}/templates/deploy/metallb_ipaddresspool.yaml.tpl", {
+    load_balancer_ip = openstack_networking_floatingip_v2.master_fip.address
+  })
+  filename = "${path.module}/../helm-charts/metallb_ipaddresspool.yaml"
+}
+
+resource "local_file" "metallb_l2advertisement" {
+  content = templatefile("${path.module}/templates/deploy/metallb_l2advertisement.yaml.tpl", {})
+  filename = "${path.module}/../helm-charts/metallb_l2advertisement.yaml"
+}
+
 resource "local_file" "cinder_pv" {
   depends_on = [
     openstack_blockstorage_volume_v3.hub_db_volume
@@ -211,6 +223,7 @@ resource "local_file" "binderhub_values" {
   content = templatefile("${path.module}/templates/deploy/binderhub-values.yaml.tpl", {
     binderhub_domain   = var.binderhub_domain
     binderhub_subdomain = var.binderhub_subdomain
+    jupyterhub_subdomain = var.jupyterhub_subdomain
     registry_url       = var.registry_url
     registry_username  = var.registry_username
     registry_password  = var.registry_password
@@ -452,6 +465,16 @@ resource "terraform_data" "deploy_applications" {
   provisioner "file" {
     source = "${path.module}/../helm-charts/prometheus-values.yaml"
     destination = "/home/${var.admin_user}/deploy/prometheus-values.yaml"
+  }
+
+  provisioner "file" {
+    source = "${path.module}/../helm-charts/metallb_ipaddresspool.yaml"
+    destination = "/home/${var.admin_user}/deploy/metallb_ipaddresspool.yaml"
+  }
+  
+  provisioner "file" {
+    source = "${path.module}/../helm-charts/metallb_l2advertisement.yaml"
+    destination = "/home/${var.admin_user}/deploy/metallb_l2advertisement.yaml"
   }
 
   provisioner "file" {

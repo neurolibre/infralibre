@@ -1,21 +1,27 @@
 jupyterhub:
   proxy:
     secretToken: "${secret_token}"
+    service:
+      type: ClusterIP
   ingress:
+    enabled: true
     annotations:
-      cert-manager.io/issuer: "letsencrypt-production"
+      kubernetes.io/ingress.class: nginx
+      kubernetes.io/tls-acme: "true"
+      cert-manager.io/cluster-issuer: letsencrypt-production
+      https:
+        enabled: true
+        type: nginx
     hosts:
-      - ${binderhub_subdomain}.${binderhub_domain}
+      - ${jupyterhub_subdomain}.${binderhub_domain}
     tls:
-      - secretName: ${cluster_name}-secret-tls
+      - secretName: ${jupyterhub_subdomain}-secret-tls
         hosts:
-          - ${binderhub_subdomain}.${binderhub_domain}
-  #https://discourse.jupyter.org/t/pre-building-images-on-binderhub/4325/4
+          - ${jupyterhub_subdomain}.${binderhub_domain}
   prePuller:
     continuous:
       enabled: true
   hub:
-    baseUrl: /jupyter/
     config: 
       BinderSpawner:
         cors_allow_origin: '*'
@@ -83,16 +89,23 @@ config:
     use_registry: true
     image_prefix: binder-registry.conp.cloud/binder-registry.conp.cloud/binder-
 
+service:
+  type: ClusterIP
+
 ingress:
   annotations:
-    cert-manager.io/issuer: "letsencrypt-production"
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    https:
+      enabled: true
+      type: nginx
   hosts:
     - ${binderhub_subdomain}.${binderhub_domain}
   tls:
-    - secretName: ${cluster_name}-secret-tls
+    - secretName: ${binderhub_subdomain}-secret-tls
       hosts: 
         - ${binderhub_subdomain}.${binderhub_domain}
-
 
 # Image registry configuration
 registry:

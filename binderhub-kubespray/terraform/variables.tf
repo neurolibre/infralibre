@@ -62,6 +62,11 @@ variable "binderhub_subdomain" {
   default     = "binder"
 }
 
+variable "jupyterhub_subdomain" {
+  description = "Subdomain for JupyterHub"
+  default     = "hub"
+}
+
 variable "grafana_subdomain" {
   description = "Subdomain for Grafana"
   default     = "grafana"

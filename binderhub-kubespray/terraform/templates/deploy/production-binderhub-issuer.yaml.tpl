@@ -1,15 +1,12 @@
 apiVersion: cert-manager.io/v1
-kind: Issuer
+kind: ClusterIssuer
 metadata:
   name: letsencrypt-production
-  namespace: binderhub
 spec:
   acme:
-    # Email address for Let's Encrypt notifications
     email: ${email_contact}
     server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
-      # Secret resource used to store the account's private key
       name: letsencrypt-production
     solvers:
     - dns01:
