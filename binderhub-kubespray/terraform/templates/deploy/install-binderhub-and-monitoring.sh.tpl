@@ -23,7 +23,7 @@ kubectl label nodes ${cluster_name}-master hub.jupyter.org/node-purpose=core
 
 # Label worker nodes as user nodes
 for i in $(seq 0 $((${worker_count} - 1))); do
-  kubectl label nodes ${cluster_name}-worker-${i} hub.jupyter.org/node-purpose=user
+  kubectl label nodes ${cluster_name}-worker-\${i} hub.jupyter.org/node-purpose=user
 done
 
 helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
