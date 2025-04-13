@@ -269,6 +269,7 @@ resource "local_file" "install_binderhub_and_monitoring" {
     binderhub_version = var.binderhub_version
     cluster_name = var.cluster_name
     admin_user = var.admin_user
+    worker_count = var.worker_count
   })
   filename = "${path.module}/../scripts/install-binderhub-and-monitoring.sh"
 }

@@ -22,7 +22,7 @@ kubectl apply -f production-binderhub-issuer.yaml
 kubectl label nodes ${cluster_name}-master hub.jupyter.org/node-purpose=core
 
 # Label worker nodes as user nodes
-for i in $(seq 0 $((worker_count - 1))); do
+for i in $(seq 0 $((${worker_count} - 1))); do
   kubectl label nodes ${cluster_name}-worker-${i} hub.jupyter.org/node-purpose=user
 done
 
