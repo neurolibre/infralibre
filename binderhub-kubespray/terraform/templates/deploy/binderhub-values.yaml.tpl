@@ -80,7 +80,7 @@ config:
 #    extra_static_url_prefix: /extra_static/
 #    template_variables:
 #        EXTRA_STATIC_URL_PREFIX: "/extra_static/"
-    hub_url: https://${binderhub_subdomain}.${binderhub_domain}/jupyter
+    hub_url: https://${jupyterhub_subdomain}.${binderhub_domain}
     cors_allow_origin: '*'
 #    badge_base_url: https://${binderhub_subdomain}.${binderhub_domain}
     use_registry: true
@@ -90,6 +90,7 @@ service:
   type: ClusterIP
 
 ingress:
+  enabled: true
   annotations:
     kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"

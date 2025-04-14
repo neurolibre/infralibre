@@ -36,11 +36,22 @@ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/confi
 # helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 
-helm install metallb metallb/metallb -n metallb-system
+helm install metallb metallb/metallb -n metallb-system --set nodeSelector."kubernetes\.io/hostname"="${cluster_name}-master"
+
+kubectl rollout status deployment metallb-controller -n metallb-system
+kubectl rollout status deployment metallb-speaker -n metallb-system
+
 kubectl apply -f metallb_ipaddresspool.yaml
 kubectl apply -f metallb_l2advertisement.yaml
 
-helm install binderhub-proxy ingress-nginx/ingress-nginx --namespace=binderhub -f nginx-ingress.yaml
+helm install binderhub-proxy ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace -f nginx-ingress.yaml
 helm install binderhub jupyterhub/binderhub --version=${binderhub_version} --namespace=binderhub -f binderhub-values.yaml
 
 # helm install observability prometheus-community/kube-prometheus-stack --namespace monitoring -f prometheus-values.yaml
+
+kubectl wait --namespace binderhub \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=120s
+
+kubectl get services --namespace binderhub binderhub-proxy-ingress-nginx-controller
