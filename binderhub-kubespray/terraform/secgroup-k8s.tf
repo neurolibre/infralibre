@@ -61,7 +61,7 @@ resource "openstack_networking_secgroup_rule_v2" "k8s_pod_subnet" {
   port_range_min    = 0
   port_range_max    = 0
   security_group_id = openstack_networking_secgroup_v2.k8s_secgroup.id
-  remote_ip_prefix  = "10.233.64.0/188"
+  remote_ip_prefix  = "10.233.64.0/18"
 }
 
 resource "openstack_networking_secgroup_rule_v2" "tcp_specific" {
