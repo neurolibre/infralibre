@@ -16,6 +16,7 @@
 #external_openstack_network_public_networks: []
 external_openstack_metadata_search_order: "configDrive,metadataService"
 
+openstack_lbaas_enabled: false
 external_openstack_auth_url: "${openstack_auth_url}"
 external_openstack_username: "${openstack_username}"
 external_openstack_password: "${openstack_password}"

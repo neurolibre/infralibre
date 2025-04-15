@@ -44,6 +44,26 @@ resource "openstack_networking_secgroup_rule_v2" "icmp_specific" {
   remote_ip_prefix  = "192.168.73.30/32"
 }
 
+resource "openstack_networking_secgroup_rule_v2" "k8s_service_subnet" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 0
+  port_range_max    = 0
+  security_group_id = openstack_networking_secgroup_v2.k8s_secgroup.id
+  remote_ip_prefix  = "10.233.0.0/18"
+}
+
+resource "openstack_networking_secgroup_rule_v2" "k8s_pod_subnet" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 0
+  port_range_max    = 0
+  security_group_id = openstack_networking_secgroup_v2.k8s_secgroup.id
+  remote_ip_prefix  = "10.233.64.0/188"
+}
+
 resource "openstack_networking_secgroup_rule_v2" "tcp_specific" {
   direction         = "ingress"
   ethertype         = "IPv4"

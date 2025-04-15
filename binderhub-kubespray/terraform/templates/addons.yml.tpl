@@ -9,13 +9,10 @@ metrics_server_enabled: true
 cert_manager_enabled: true
 
 metallb_enabled: true
+metallb_version: v0.14.9
 metallb_namespace: "metallb-system"
 metallb_speaker_enabled: true
-kube_proxy_strict_arp: true
-metallb_config:
-  address_pools:
-    primary:
-      ip_range:
-        - "${load_balancer_ip}/32"
-  layer2:
-    - primary
+metallb_ip_range:
+  - "${load_balancer_ip}/32"
+metallb_protocol: "layer2"
+metallb_pool_name: "default"
