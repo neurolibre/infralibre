@@ -10,7 +10,7 @@ kubectl create namespace binderhub --dry-run=client -o yaml | kubectl apply -f -
 kubectl create namespace metallb-system --dry-run=client -o yaml | kubectl apply -f -
 
 # Create persistent volume for jupyterhub database.
-kubectl create -f pv-cinder.yaml
+kubectl apply -f pv-cinder.yaml
 
 # Create Cloudflare API token secret
 # Kubespray creates the cert-manager namespace
@@ -30,28 +30,39 @@ done
 helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 helm repo add metallb https://metallb.github.io/metallb
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-
-
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
 # helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
 helm repo update
 
-helm install metallb metallb/metallb -n metallb-system --set nodeSelector."kubernetes\.io/hostname"="${cluster_name}-master"
+# echo "Installing MetalLB using Helm..."
+helm install metallb metallb/metallb -n metallb-system
 
-kubectl rollout status deployment metallb-controller -n metallb-system
-kubectl rollout status deployment metallb-speaker -n metallb-system
+echo "Waiting for MetalLB controller..."
+kubectl rollout status deployment metallb-controller \
+  -n metallb-system --timeout=180s
+
+echo "Waiting for MetalLB speaker..."
+kubectl rollout status daemonset metallb-speaker \
+  -n metallb-system --timeout=180s
 
 kubectl apply -f metallb_ipaddresspool.yaml
 kubectl apply -f metallb_l2advertisement.yaml
 
-helm install binderhub-proxy ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace -f nginx-ingress.yaml
+echo "Installing Ingress Nginx..."
+helm install binderhub-proxy ingress-nginx/ingress-nginx --namespace binderhub -f nginx-ingress.yaml
+
+echo "Installing BinderHub..."
 helm install binderhub jupyterhub/binderhub --version=${binderhub_version} --namespace=binderhub -f binderhub-values.yaml
 
 # helm install observability prometheus-community/kube-prometheus-stack --namespace monitoring -f prometheus-values.yaml
 
+echo "Waiting for BinderHub Hub pod..."
 kubectl wait --namespace binderhub \
   --for=condition=ready pod \
   --selector=app.kubernetes.io/component=controller \
   --timeout=120s
 
-kubectl get services --namespace binderhub binderhub-proxy-ingress-nginx-controller
+echo "BinderHub Ingress Service:"
+kubectl get services --namespace binderhub binderhub-proxy-ingress-nginx-controller -o wide
+
+echo "[Binderhub install] end of script"

@@ -5,9 +5,8 @@ jupyterhub:
       type: ClusterIP
   ingress:
     enabled: true
+    ingressClassName: nginx
     annotations:
-      kubernetes.io/ingress.class: nginx
-      kubernetes.io/tls-acme: "true"
       cert-manager.io/cluster-issuer: letsencrypt-production
     hosts:
       - ${jupyterhub_subdomain}.${binderhub_domain}
@@ -36,7 +35,7 @@ jupyterhub:
        limit: 3G
     cpu:
        guarantee: 0.5
-    startTimeout: 3600 #1h
+    startTimeout: 600
     extraPodConfig:
       affinity:
         nodeAffinity:
@@ -91,13 +90,11 @@ service:
 
 ingress:
   enabled: true
+  ingressClassName: nginx
   annotations:
-    kubernetes.io/ingress.class: nginx
-    kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: letsencrypt-production
   https:
     enabled: true
-    type: nginx
   hosts:
     - ${binderhub_subdomain}.${binderhub_domain}
   tls:
