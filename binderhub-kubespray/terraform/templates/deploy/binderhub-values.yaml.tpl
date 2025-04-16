@@ -36,21 +36,19 @@ jupyterhub:
     cpu:
        guarantee: 0.5
     startTimeout: 600
-#    extraPodConfig:
-#      affinity:
-#        nodeAffinity:
-#          requiredDuringSchedulingIgnoredDuringExecution:
-#            nodeSelectorTerms:
-#              - matchExpressions:
-#                  - key: topology.cinder.csi.openstack.org/zone
-#                    operator: In
-#                    values:
-#                      - ${cinder_zone}
+    extraPodConfig:
+      affinity:
+        nodeAffinity:
+          required:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/control-plane
+                operator: Exists
   scheduling:
     corePods:
       nodeAffinity:
         matchNodePurpose: require
-      # Allow on tainted nodes
+      # Tolerate the taint on control plane nodes
       tolerations:
         - key: "node-role.kubernetes.io/control-plane"
           operator: "Exists"

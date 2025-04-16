@@ -77,6 +77,19 @@ variable "prometheus_subdomain" {
   default     = "prometheus"
 }
 
+variable "kube_service_addresses" {
+  description = "Kubernetes service addresses"
+  type        = string
+  default     = "10.233.0.0/18"
+}
+
+variable "kube_pods_subnet" {
+  description = "Kubernetes pods subnet"
+  type        = string
+  default     = "10.233.64.0/18"
+}
+
+
 variable "registry_url" {
   description = "Docker registry URL"
   type        = string

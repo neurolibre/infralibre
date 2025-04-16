@@ -22,8 +22,6 @@ spec:
   nodeAffinity:
     required:
       nodeSelectorTerms:
-        - matchExpressions:
-            - key: topology.cinder.csi.openstack.org/zone
-              operator: In
-              values:
-                - ${cinder_zone}
+      - matchExpressions:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists

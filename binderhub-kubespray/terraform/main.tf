@@ -136,7 +136,10 @@ data "external" "openstack_env" {
 }
 
 resource "local_file" "k8s_cluster_vars" {
-  content = templatefile("${path.module}/templates/k8s-cluster.yml.tpl", { })
+  content = templatefile("${path.module}/templates/k8s-cluster.yml.tpl", {
+    kube_service_addresses = var.kube_service_addresses
+    kube_pods_subnet = var.kube_pods_subnet
+  })
   filename = "${path.module}/../kubespray/inventory/binderhub/group_vars/k8s_cluster/k8s-cluster.yml"
 
   depends_on = [
@@ -166,7 +169,6 @@ resource "local_file" "openstack_vars" {
     openstack_domain_name        = data.external.openstack_env.result["OS_USER_DOMAIN_NAME"]
     openstack_subnet_id          = data.openstack_networking_network_v2.subnet.id
     openstack_external_network_id = data.openstack_networking_network_v2.network.id
-    cinder_zone                  = var.cinder_zone
   })
   filename = "${path.module}/../kubespray/inventory/binderhub/group_vars/k8s_cluster/all/openstack.yml"
 
@@ -191,7 +193,7 @@ resource "openstack_blockstorage_volume_v3" "hub_db_volume" {
   name        = "${var.cluster_name}-hub-db"
   size        = 1
   description = "Cinder volume to be bound by the JupyterHub pod"
-  availability_zone = "nova"
+  availability_zone = var.cinder_zone
 }
 
 resource "local_file" "metallb_ipaddresspool" {
@@ -212,7 +214,6 @@ resource "local_file" "cinder_pv" {
   ]
 
   content = templatefile("${path.module}/templates/deploy/pv-cinder.yaml.tpl", {
-    cinder_zone = var.cinder_zone
     cinder_db_volume_id = openstack_blockstorage_volume_v3.hub_db_volume.id
   })
   filename = "${path.module}/../helm-charts/pv-cinder.yaml"
@@ -229,7 +230,6 @@ resource "local_file" "binderhub_values" {
     registry_password  = var.registry_password
     binderhub_version  = var.binderhub_version
     cluster_name       = var.cluster_name
-    cinder_zone        = var.cinder_zone
     api_token       = random_id.token[0].hex
     secret_token    = random_id.token[1].hex
     load_balancer_ip = openstack_networking_floatingip_v2.master_fip.address
@@ -272,6 +272,20 @@ resource "local_file" "install_binderhub_and_monitoring" {
     worker_count = var.worker_count
   })
   filename = "${path.module}/../scripts/install-binderhub-and-monitoring.sh"
+}
+
+resource "local_file" "allow_pod_pockets" {
+  depends_on = [
+    openstack_networking_secgroup_v2.k8s_secgroup,
+    terraform_data.wait_for_cloud_init,
+    terraform_data.wait_for_worker_cloud_init
+  ]
+  content = templatefile("${path.module}/templates/allow-pod-pockets.sh.tpl", {
+    kube_service_addresses = var.kube_service_addresses
+    kube_pods_subnet = var.kube_pods_subnet
+    security_group_id = openstack_networking_secgroup_v2.k8s_secgroup.id
+  })
+  filename = "${path.module}/../scripts/allow-pod-pockets.sh"
 }
 
 resource "terraform_data" "wait_for_cloud_init" {
@@ -363,6 +377,7 @@ resource "terraform_data" "deploy_kubernetes" {
   depends_on = [
     local_file.kubespray_inventory,
     local_file.k8s_cluster_vars,
+    local_file.allow_pod_pockets,
     terraform_data.wait_for_cloud_init,
     terraform_data.wait_for_worker_cloud_init,
     terraform_data.prepare_ssh_environment
@@ -371,6 +386,9 @@ resource "terraform_data" "deploy_kubernetes" {
   provisioner "local-exec" {
     working_dir = "${path.module}/.."
     command = <<-EOT
+      echo "Allowing pod pockets on all ports within this K8s cluster"
+      chmod +x scripts/allow-pod-pockets.sh
+      bash scripts/allow-pod-pockets.sh
       # Clone Kubespray if not already present
       if [ ! -d "kubespray/kubespray" ]; then
         mkdir -p kubespray
