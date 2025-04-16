@@ -40,8 +40,8 @@ kube_log_level: 2
 credentials_dir: "{{ inventory_dir }}/credentials"
 
 
-kube_network_plugin: flannel
-# kube_network_plugin: calico
+# kube_network_plugin: flannel
+kube_network_plugin: calico
 kube_network_plugin_multus: false
 
 # Check no conflict with CIDR
@@ -49,7 +49,7 @@ kube_service_addresses: ${kube_service_addresses}
 kube_pods_subnet: ${kube_pods_subnet}
 
 # MANUALLY SET AS ANSIBLE WAS COMPLAINING ABOUT THE SERVICE SUBNETS
-# kube_service_subnets: 10.233.0.0/18
+kube_service_subnets: 10.233.0.0/18
 
 kube_network_node_prefix: 24
 
