@@ -67,7 +67,7 @@ resource "openstack_compute_instance_v2" "master" {
   image_name      = var.image_name
   flavor_name     = var.flavor_master
   key_pair        = openstack_compute_keypair_v2.keypair[0].name  # Using the first keypair for OpenStack
-  security_groups = [openstack_networking_secgroup_v2.k8s_secgroup.name]
+  security_groups = [openstack_networking_secgroup_v2.k8s_secgroup.id]
 
   # Add all SSH keys to the instance via cloud-init
   user_data = data.template_cloudinit_config.cluster_config.rendered
@@ -88,7 +88,7 @@ resource "openstack_compute_instance_v2" "worker" {
   image_name      = var.image_name
   flavor_name     = var.flavor_worker
   key_pair        = openstack_compute_keypair_v2.keypair[0].name
-  security_groups = [openstack_networking_secgroup_v2.k8s_secgroup.name]
+  security_groups = [openstack_networking_secgroup_v2.k8s_secgroup.id]
 
   # Add all SSH keys to the instance via cloud-init
   user_data = data.template_cloudinit_config.cluster_config.rendered
