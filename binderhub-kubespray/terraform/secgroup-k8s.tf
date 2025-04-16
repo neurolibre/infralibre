@@ -1,7 +1,7 @@
 # Security groups
 resource "openstack_networking_secgroup_v2" "k8s_secgroup" {
   name        = "${var.cluster_name}-secgroup"
-  description = "Security group for Kubernetes cluster and binderhub"
+  description = "${formatdate("YYYY-MM-DD", timestamp())} Security group for Kubernetes cluster and binderhub"
 }
 
 resource "openstack_networking_secgroup_rule_v2" "icmp_self" {
