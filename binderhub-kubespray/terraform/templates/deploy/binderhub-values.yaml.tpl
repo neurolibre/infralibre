@@ -36,16 +36,16 @@ jupyterhub:
     cpu:
        guarantee: 0.5
     startTimeout: 600
-    extraPodConfig:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: topology.cinder.csi.openstack.org/zone
-                    operator: In
-                    values:
-                      - ${cinder_zone}
+#    extraPodConfig:
+#      affinity:
+#        nodeAffinity:
+#          requiredDuringSchedulingIgnoredDuringExecution:
+#            nodeSelectorTerms:
+#              - matchExpressions:
+#                  - key: topology.cinder.csi.openstack.org/zone
+#                    operator: In
+#                    values:
+#                      - ${cinder_zone}
   scheduling:
     corePods:
       nodeAffinity:

@@ -6,13 +6,6 @@ bin_dir: /usr/local/bin
 cloud_provider: external
 external_cloud_provider: openstack
 
-## Local loadbalancer should use this port
-## And must be set port 6443
-loadbalancer_apiserver_port: 6443
-
-## If loadbalancer_apiserver_healthcheck_port variable defined, enables proxy liveness check for nginx.
-loadbalancer_apiserver_healthcheck_port: 8081
-
 ## Since workers are included in the no_proxy variable by default, docker engine will be restarted on all nodes (all
 ## pods will restart) when adding or removing workers.  To override this behaviour by only including control plane nodes
 ## in the no_proxy variable, set below to true:

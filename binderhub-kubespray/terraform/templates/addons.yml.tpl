@@ -7,3 +7,6 @@ metrics_server_enabled: true
 
 # Configure cert-manager
 cert_manager_enabled: true
+
+# Installed using helm
+ingress_nginx_enabled: false

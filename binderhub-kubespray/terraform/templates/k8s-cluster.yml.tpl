@@ -40,8 +40,8 @@ kube_log_level: 2
 credentials_dir: "{{ inventory_dir }}/credentials"
 
 
-# kube_network_plugin: flannel
-kube_network_plugin: calico
+kube_network_plugin: flannel
+# kube_network_plugin: calico
 kube_network_plugin_multus: false
 
 # Check no conflict with CIDR
@@ -64,7 +64,7 @@ kube_apiserver_insecure_port: 0
 kube_proxy_strict_arp: true
 
 kube_proxy_mode: ipvs
-#kube_proxy_mode: iptables
+# kube_proxy_mode: iptables
 
 # A string slice of values which specify the addresses to use for NodePorts.
 # Values may be valid IP blocks (e.g. 1.2.3.0/24, 1.2.3.4/32).

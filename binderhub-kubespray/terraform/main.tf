@@ -168,7 +168,7 @@ resource "local_file" "openstack_vars" {
     openstack_external_network_id = data.openstack_networking_network_v2.network.id
     cinder_zone                  = var.cinder_zone
   })
-  filename = "${path.module}/../kubespray/inventory/binderhub/group_vars/k8s_cluster/openstack.yml"
+  filename = "${path.module}/../kubespray/inventory/binderhub/group_vars/k8s_cluster/all/openstack.yml"
 
   depends_on = [
     local_file.kubespray_inventory
