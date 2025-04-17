@@ -43,6 +43,7 @@ credentials_dir: "{{ inventory_dir }}/credentials"
 # kube_network_plugin: flannel
 kube_network_plugin: calico
 kube_network_plugin_multus: false
+calico_network_backend: bird
 
 
 # Check no conflict with CIDR

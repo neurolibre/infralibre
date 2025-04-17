@@ -94,6 +94,16 @@ resource "openstack_networking_secgroup_rule_v2" "tcp_22" {
   remote_ip_prefix  = "0.0.0.0/0"
 }
 
+resource "openstack_networking_secgroup_rule_v2" "tcp_179" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 179
+  port_range_max    = 179
+  security_group_id = openstack_networking_secgroup_v2.k8s_secgroup.id
+  remote_ip_prefix  = "0.0.0.0/0"
+}
+
 resource "openstack_networking_secgroup_rule_v2" "tcp_443" {
   direction         = "ingress"
   ethertype         = "IPv4"

@@ -147,6 +147,7 @@ resource "local_file" "k8s_cluster_vars" {
   ]
 }
 
+
 resource "local_file" "addons" {
   content = templatefile("${path.module}/templates/addons.yml.tpl", {
     load_balancer_ip = openstack_networking_floatingip_v2.master_fip.address
@@ -207,6 +208,14 @@ resource "local_file" "metallb_l2advertisement" {
   content = templatefile("${path.module}/templates/deploy/metallb_l2advertisement.yaml.tpl", {})
   filename = "${path.module}/../helm-charts/metallb_l2advertisement.yaml"
 }
+
+resource "local_file" "metallb_bgp" {
+  content = templatefile("${path.module}/templates/deploy/metallb-bgp.yaml.tpl", {
+    load_balancer_ip = openstack_networking_floatingip_v2.master_fip.address
+    bgp_peer_address = openstack_compute_instance_v2.master.network.0.fixed_ip_v4
+  })
+  filename = "${path.module}/../helm-charts/metallb-bgp.yaml"
+} 
 
 resource "local_file" "cinder_pv" {
   depends_on = [

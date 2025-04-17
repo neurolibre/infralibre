@@ -47,6 +47,7 @@ sudo helm repo update
 
 # kubectl apply -f metallb_ipaddresspool.yaml
 # kubectl apply -f metallb_l2advertisement.yaml
+kubectl apply -f metallb-bgp.yaml
 
 echo "Installing Ingress Nginx..."
 sudo helm install binderhub-proxy ingress-nginx/ingress-nginx --namespace binderhub -f nginx-ingress.yaml
