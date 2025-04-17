@@ -26,7 +26,7 @@ local_release_dir: "/tmp/releases"
 # Random shifts for retrying failed ops like pushing/downloading
 retry_stagger: 5
 
-# This is the user that owns tha cluster installation.
+# This is the user that owns the cluster installation.
 kube_owner: kube
 
 # This is the group that the cert creation scripts chgrp the
@@ -63,8 +63,8 @@ kube_apiserver_insecure_port: 0
 # must be set to true for MetalLB to work
 kube_proxy_strict_arp: true
 
-kube_proxy_mode: ipvs
-# kube_proxy_mode: iptables
+# kube_proxy_mode: ipvs
+kube_proxy_mode: iptables
 
 # A string slice of values which specify the addresses to use for NodePorts.
 # Values may be valid IP blocks (e.g. 1.2.3.0/24, 1.2.3.4/32).
