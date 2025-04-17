@@ -2,7 +2,7 @@ jupyterhub:
   proxy:
     secretToken: "${secret_token}"
     service:
-      type: ClusterIP
+      type: NodePort
   ingress:
     enabled: true
     ingressClassName: nginx
@@ -84,7 +84,7 @@ config:
     image_prefix: binder-registry.conp.cloud/binder-registry.conp.cloud/binder-
 
 service:
-  type: ClusterIP
+  type: NodePort
 
 ingress:
   enabled: true

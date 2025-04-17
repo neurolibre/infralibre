@@ -6,7 +6,7 @@ metadata:
 spec:
   peerAddress: ${bgp_peer_address}
   peerASN: 64512
-  myASN: 64513
+  myASN: 64512
 ---
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
