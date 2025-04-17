@@ -10,3 +10,5 @@ cert_manager_enabled: true
 
 # Installed using helm
 ingress_nginx_enabled: false
+
+metallb_enabled: true

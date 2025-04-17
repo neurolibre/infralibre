@@ -8,8 +8,7 @@ for PORT_ID in $PORT_IDS; do
   echo "Updating port: $PORT_ID"
   openstack port set "$PORT_ID" \
     --allowed-address ip-address=${kube_service_addresses} \
-    --allowed-address ip-address=${kube_pods_subnet} \
-    --allowed-address ip-address=${load_balancer_ip}
+    --allowed-address ip-address=${kube_pods_subnet}
   openstack port show "$PORT_ID" -f value -c allowed_address_pairs
 done
 

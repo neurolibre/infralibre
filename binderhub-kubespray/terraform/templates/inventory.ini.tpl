@@ -15,6 +15,12 @@ ${cluster_name}-worker-${i}
 [etcd]
 ${cluster_name}-master
 
+[bastion]
+bastion ansible_host=${master_ip} ansible_user=${admin_user}
+
+[calico_rr]
+
 [k8s_cluster:children]
 kube_control_plane
 kube_node
+calico_rr

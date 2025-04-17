@@ -44,6 +44,7 @@ credentials_dir: "{{ inventory_dir }}/credentials"
 kube_network_plugin: calico
 kube_network_plugin_multus: false
 
+
 # Check no conflict with CIDR
 kube_service_addresses: ${kube_service_addresses}
 kube_pods_subnet: ${kube_pods_subnet}
