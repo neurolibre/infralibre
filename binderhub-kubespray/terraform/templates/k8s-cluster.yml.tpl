@@ -18,7 +18,7 @@ kube_token_dir: "{{ kube_config_dir }}/tokens"
 kube_api_anonymous_auth: true
 
 # Kubernetes configuration
-kube_version: v1.31.4
+kube_version: v1.31.7
 
 # Where the binaries will be downloaded.
 # Note: ensure that you've enough disk space (about 1G)
@@ -65,7 +65,6 @@ kube_apiserver_insecure_port: 0
 kube_proxy_strict_arp: true
 
 kube_proxy_mode: ipvs
-# kube_proxy_mode: iptables
 
 # A string slice of values which specify the addresses to use for NodePorts.
 # Values may be valid IP blocks (e.g. 1.2.3.0/24, 1.2.3.4/32).
