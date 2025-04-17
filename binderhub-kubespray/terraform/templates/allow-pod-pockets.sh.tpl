@@ -10,6 +10,7 @@ for PORT_ID in $PORT_IDS; do
     --allowed-address ip-address=${kube_service_addresses} \
     --allowed-address ip-address=${kube_pods_subnet} \
     --allowed-address ip-address=${load_balancer_ip}
+  openstack port show "$PORT_ID" -f value -c allowed_address_pairs
 done
 
 echo "✅ All matching ports updated."
