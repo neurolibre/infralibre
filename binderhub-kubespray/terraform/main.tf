@@ -284,6 +284,7 @@ resource "local_file" "allow_pod_pockets" {
     kube_service_addresses = var.kube_service_addresses
     kube_pods_subnet = var.kube_pods_subnet
     security_group_id = openstack_networking_secgroup_v2.k8s_secgroup.id
+    load_balancer_ip = openstack_networking_floatingip_v2.master_fip.address
   })
   filename = "${path.module}/../scripts/allow-pod-pockets.sh"
 }
