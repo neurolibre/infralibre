@@ -12,3 +12,8 @@ cert_manager_enabled: true
 ingress_nginx_enabled: false
 
 metallb_enabled: true
+metallb_namespace: metallb-system
+metallb_config_file: metallb_config.yaml
+metallb_protocol: "layer2"
+metallb_ip_range: 
+  - ${load_balancer_ip}/32

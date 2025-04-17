@@ -7,7 +7,7 @@ cd /home/${admin_user}/deploy
 # Create namespaces
 kubectl create namespace binderhub --dry-run=client -o yaml | kubectl apply -f -
 #kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
-kubectl create namespace metallb-system --dry-run=client -o yaml | kubectl apply -f -
+# kubectl create namespace metallb-system --dry-run=client -o yaml | kubectl apply -f -
 
 # Create persistent volume for jupyterhub database.
 kubectl apply -f pv-cinder.yaml
@@ -28,25 +28,25 @@ for i in $(seq 0 $((${worker_count} - 1))); do
 done
 
 sudo helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
-sudo helm repo add metallb https://metallb.github.io/metallb
+# sudo helm repo add metallb https://metallb.github.io/metallb
 sudo helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 # helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 
 sudo helm repo update
 
 # echo "Installing MetalLB using Helm..."
-sudo helm install metallb metallb/metallb -n metallb-system
+#sudo helm install metallb metallb/metallb -n metallb-system
 
-echo "Waiting for MetalLB controller..."
-kubectl rollout status deployment metallb-controller \
-    -n metallb-system --timeout=180s
+# echo "Waiting for MetalLB controller..."
+# kubectl rollout status deployment metallb-controller \
+#     -n metallb-system --timeout=180s
 
-echo "Waiting for MetalLB speaker..."
-kubectl rollout status daemonset metallb-speaker \
-    -n metallb-system --timeout=180s
+# echo "Waiting for MetalLB speaker..."
+# kubectl rollout status daemonset metallb-speaker \
+#     -n metallb-system --timeout=180s
 
-kubectl apply -f metallb_ipaddresspool.yaml
-kubectl apply -f metallb_l2advertisement.yaml
+# kubectl apply -f metallb_ipaddresspool.yaml
+# kubectl apply -f metallb_l2advertisement.yaml
 
 echo "Installing Ingress Nginx..."
 sudo helm install binderhub-proxy ingress-nginx/ingress-nginx --namespace binderhub -f nginx-ingress.yaml
