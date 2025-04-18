@@ -42,13 +42,8 @@ variable "subnet_name" {
   type        = string
 }
 
-variable "binderhub_domain" {
-  description = "Domain for BinderHub"
-  type        = string
-}
-
-variable "grafana_domain" {
-  description = "Domain for Grafana"
+variable "main_domain" {
+  description = "Main domain to be used for the BinderHub, JupyterHub, Grafana, and Prometheus services."
   type        = string
 }
 
