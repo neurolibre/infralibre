@@ -10,11 +10,6 @@ output "master_private_ip" {
   value = openstack_compute_instance_v2.master.network[0].fixed_ip_v4
 }
 
-output "master_floating_ip" {
-  description = "Public floating IP address associated with the master node."
-  value       = openstack_networking_floatingip_v2.master_fip.address
-}
-
 output "worker_instance_ids" {
   description = "List of IDs of the worker compute instances."
   value       = [for worker in openstack_compute_instance_v2.worker : worker.id]

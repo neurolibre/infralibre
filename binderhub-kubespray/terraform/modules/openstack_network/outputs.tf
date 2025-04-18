@@ -1,16 +1,16 @@
 output "public_network_id" {
   description = "ID of the public network."
-  value       = data.openstack_networking_network_v2.public.id
+  value       = data.openstack_networking_network_v2.public_network.id
 }
 
 output "public_network_name" {
   description = "Name of the public network."
-  value       = data.openstack_networking_network_v2.public.name
+  value       = data.openstack_networking_network_v2.public_network.name
 }
 
 output "internal_network_id" {
   description = "ID of the internal network."
-  value       = data.openstack_networking_network_v2.internal.id
+  value       = data.openstack_networking_network_v2.internal_network.id
 }
 
 output "k8s_sg_id" {
