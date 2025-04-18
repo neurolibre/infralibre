@@ -30,13 +30,13 @@ variable "flavor_worker" {
   type        = string
 }
 
-variable "network_name" {
+variable "public_network_name" {
   description = "Name of the existing public network"
   default     = "Public-Network"
   type        = string
 }
 
-variable "subnet_name" {
+variable "internal_network_name" {
   description = "Name of the existing subnet"
   default     = "def-xxx-xxx"
   type        = string
@@ -96,7 +96,7 @@ variable "registry_password" {
   sensitive   = true
 }
 
-variable "cloudflare_token" {
+variable "cloudflare_api_token" {
   description = "Cloudflare API token"
   type        = string
   sensitive   = true

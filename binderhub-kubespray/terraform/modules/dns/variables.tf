@@ -1,4 +1,4 @@
-variable "cloudflare_token" {
+variable "cloudflare_api_token" {
     description = "Cloudflare API Token"
     type        = string
     sensitive   = true
@@ -30,7 +30,7 @@ variable "prometheus_subdomain" {
     type        = string  
 }
 
-variable "ip" {
+variable "floating_ip" {
     description = "IP address of the master node"
     type        = string
 }

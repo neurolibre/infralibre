@@ -27,6 +27,20 @@ write_files:
       net.ipv4.tcp_max_syn_backlog = 4096
       # Optimize for container workloads
       kernel.pid_max = 4194303
+      net.netfilter.nf_conntrack_max = 524288
+      # More aggressive dirty page flushing
+      # Arbutus I/O is choking often and 
+      # percentage approach is not ideal as we attach
+      # large RAM to the nodes. Use bytes instead.
+      # 100MB & 300MB
+      vm.dirty_background_bytes = 104857600    # 100 MB
+      vm.dirty_bytes = 314572800   # 300 MB
+      # TCP SYN flood protection
+      net.ipv4.tcp_syncookies = 1
+      net.ipv4.tcp_synack_retries = 2  
+      # Reduce TIME_WAIT footprint
+      net.ipv4.tcp_fin_timeout = 15
+      net.ipv4.tcp_tw_reuse = 1  
 
 runcmd:
   - echo "127.0.0.1 $(hostname)" | sudo tee -a /etc/hosts
@@ -47,10 +61,15 @@ runcmd:
   - update-alternatives --set python3 /usr/bin/python3.10
   # Create symlink for python command
   - ln -sf /usr/bin/python3 /usr/bin/python
+  - alias k=kubectl
+  - alias "binder-pods"="kubectl get pods -n binderhub"
+  - alias "binder-svc"="kubectl get svc -n binderhub"
+  - alias "binder-ingress"="kubectl get ingress -n binderhub"
+  - alias "binder-issuer"="kubectl get clusterissuer"
+  - alias "binder-certs"="kubectl get certs -n binderhub"
 
 ssh_authorized_keys:
   ${ssh_authorized_keys}
 
-disable_ec2_metadata: true
 timezone: "America/Montreal"
 output: { all: "| tee -a /var/log/cloud-init-output.log" }

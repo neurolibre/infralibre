@@ -1,6 +1,6 @@
 resource "local_file" "install_binderhub_and_monitoring" {
     content = templatefile("${path.module}/../../templates/deploy/install-binderhub-and-monitoring.sh.tpl", {
-    cloudflare_token  = var.cloudflare_token
+    cloudflare_api_token  = var.cloudflare_api_token
     binderhub_version = var.binderhub_version
     cluster_name      = var.cluster_name
     admin_user        = var.admin_user
@@ -28,4 +28,13 @@ resource "local_file" "deploy_kubernetes" {
     })
     filename        = "${path.module}/../../../scripts/deploy_kubernetes.sh"
     file_permission = "0755"                                                 
+}
+
+resource "local_file" "configure_kubectl" {
+  # Use templatefile instead of local variable content
+  content = templatefile("${path.module}/../../templates/configure-kubectl.sh.tpl", {
+    admin_user = var.admin_user
+  })
+  filename        = "${path.module}/../../../scripts/configure-kubectl.sh"
+  file_permission = "0755" # Added file permission for consistency
 }

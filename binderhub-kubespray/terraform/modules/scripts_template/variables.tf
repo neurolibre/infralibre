@@ -1,5 +1,5 @@
     # Vars for install-binderhub-and-monitoring.sh
-    variable "cloudflare_token" {
+    variable "cloudflare_api_token" {
       description = "Cloudflare API token (if needed by script)."
       type        = string
       sensitive   = true

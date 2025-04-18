@@ -1,8 +1,8 @@
 module "dns" {
   source = "./modules/dns"
-  ip = module.openstack_network.floating_ip
+  floating_ip = module.openstack_network.floating_ip
 
-  cloudflare_token = var.cloudflare_token
+  cloudflare_api_token = var.cloudflare_api_token
   cloudflare_zone_id = var.cloudflare_zone_id
   binderhub_subdomain = var.binderhub_subdomain
   jupyterhub_subdomain = var.jupyterhub_subdomain
@@ -16,8 +16,8 @@ module "dns" {
 
 module "openstack_network" {
   source = "./modules/openstack_network"
-  public_network_name = var.network_name
-  internal_network_name = var.subnet_name
+  public_network_name = var.public_network_name
+  internal_network_name = var.internal_network_name
   cluster_name = var.cluster_name
 }
 
@@ -81,7 +81,7 @@ module "helm_config" {
 module "scripts_template" {
   source = "./modules/scripts_template"
 
-  cloudflare_token = var.cloudflare_token
+  cloudflare_api_token = var.cloudflare_api_token # TLS
   binderhub_version = var.binderhub_version
   cluster_name = var.cluster_name
   admin_user = var.admin_user
@@ -120,15 +120,15 @@ resource "terraform_data" "configure_kubectl" {
     timeout     = "10m"
   }
 
+  provisioner "file" {
+    source = module.scripts_template.configure_kubectl_script_filename
+    destination = "/home/${var.admin_user}/deploy/configure-kubectl.sh"
+  }
+
   # Check if cloud-init has completed
   provisioner "remote-exec" {
     inline = [
-      "echo 'Configuring kubectl...'",
-      "mkdir -p $HOME/.kube",
-      "sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config",
-      "sudo chown $(id -u):$(id -g) $HOME/.kube/config",
-      "echo 'kubectl configured successfully'",
-      "mkdir -p $HOME/deploy",
+      "bash /home/${var.admin_user}/deploy/configure-kubectl.sh"
     ]
   }
 }
@@ -138,7 +138,7 @@ resource "terraform_data" "deploy_applications" {
   depends_on = [
     terraform_data.configure_kubectl,
     module.helm_config,
-    local_file.install_binderhub_and_monitoring
+    module.scripts_template
   ]
 
   connection {
@@ -192,10 +192,10 @@ resource "terraform_data" "deploy_applications" {
 
   provisioner "remote-exec" {
     inline = [
-      "echo 'Deploying BinderHub and monitoring stack...'",
+      "echo '============ 🚀 Deploying BinderHub and monitoring stack...'",
       "chmod +x /home/${var.admin_user}/deploy/install-binderhub-and-monitoring.sh",
       "bash /home/${var.admin_user}/deploy/install-binderhub-and-monitoring.sh",
-      "echo 'BinderHub and monitoring stack deployed successfully'"
+      "echo '============= 🎉 END 🎉 ============='"
     ]
   }
 }

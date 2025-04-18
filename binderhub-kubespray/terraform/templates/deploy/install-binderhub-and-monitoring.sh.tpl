@@ -58,7 +58,7 @@ kubectl wait --namespace binderhub \
   --timeout=120s
 
 echo "Installing BinderHub..."
-helm install binderhub jupyterhub/binderhub --version=${binderhub_version} --namespace=binderhub -f binderhub-values.yaml
+helm install binderhub jupyterhub/binderhub --version=${binderhub_version} --namespace=binderhub -f binderhub-values.yaml -f secrets.yaml
 
 # helm install observability prometheus-community/kube-prometheus-stack --namespace monitoring -f prometheus-values.yaml
 
@@ -68,7 +68,15 @@ kubectl wait --namespace binderhub \
   --selector=release=binderhub \
   --timeout=120s
 
-echo "BinderHub Ingress Service:"
-kubectl get services --namespace binderhub binderhub-proxy-ingress-nginx-controller -o wide
+echo "=============== Ingress:"
+kubectl get ingress -n binderhub
 
-echo "[Binderhub install] end of script"
+echo "=============== All resources:"
+kubectl get all -n binderhub
+
+echo "=============== Cluster issuer:"
+kubectl get clusterissuer
+
+echo "=============== Certificates:"
+kubectl get certs -n binderhub
+
