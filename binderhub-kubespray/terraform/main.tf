@@ -9,9 +9,6 @@ module "dns" {
   grafana_subdomain = var.grafana_subdomain
   prometheus_subdomain = var.prometheus_subdomain
 
-  depends_on = [
-    module.openstack_network
-  ]
 }
 
 module "openstack_network" {
