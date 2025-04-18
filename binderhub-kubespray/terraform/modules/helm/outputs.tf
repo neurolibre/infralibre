@@ -4,7 +4,9 @@
     output "metallb_l2advertisement_file_path" {
       value = local_file.metallb_l2advertisement.filename
     }
-    # output "metallb_bgp_file_path" { value = local_file.metallb_bgp.filename } # If using BGP
+    output "metallb_bgp_file_path" {
+      value = local_file.metallb_bgp.filename
+    }
     output "secrets_file_path" {
       value = local_file.secrets.filename
     }

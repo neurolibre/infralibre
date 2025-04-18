@@ -1,6 +1,6 @@
 module "dns" {
   source = "./modules/dns"
-  floating_ip = module.openstack_network.floating_ip
+  floating_ip = module.network.floating_ip
 
   cloudflare_api_token = var.cloudflare_api_token
   cloudflare_zone_id = var.cloudflare_zone_id
@@ -11,21 +11,21 @@ module "dns" {
 
 }
 
-module "openstack_network" {
-  source = "./modules/openstack_network"
+module "network" {
+  source = "./modules/network"
   public_network_name = var.public_network_name
   internal_network_name = var.internal_network_name
   cluster_name = var.cluster_name
 }
 
-module "openstack_compute" {
-  source = "./modules/openstack_compute"
+module "compute" {
+  source = "./modules/compute"
 
-  network_floating_ip = module.openstack_network.floating_ip
-  network_master_port_id = module.openstack_network.master_port_id
-  network_internal_id = module.openstack_network.internal_network_id
-  network_security_group_ids = [module.openstack_network.k8s_sg_id]
-  network_public_pool_name = module.openstack_network.public_network_name
+  network_floating_ip = module.network.floating_ip
+  network_master_port_id = module.network.master_port_id
+  network_internal_id = module.network.internal_network_id
+  network_security_group_ids = [module.network.k8s_sg_id]
+  network_public_pool_name = module.network.public_network_name
   
   cluster_name = var.cluster_name
   image_name = var.image_name
@@ -40,14 +40,14 @@ module "openstack_compute" {
   cinder_volume_size = 1
 }
 
-module "kubespray_config" {
-  source = "./modules/kubespray_config"
+module "kubespray" {
+  source = "./modules/kubespray"
   
-  openstack_internal_network_id = module.openstack_network.internal_network_id
-  openstack_public_network_id = module.openstack_network.public_network_id
-  master_floating_ip = module.openstack_network.floating_ip
-  master_private_ip = module.openstack_compute.master_private_ip  
-  worker_private_ips = module.openstack_compute.worker_private_ips
+  openstack_internal_network_id = module.network.internal_network_id
+  openstack_public_network_id = module.network.public_network_id
+  master_floating_ip = module.network.floating_ip
+  master_private_ip = module.compute.master_private_ip  
+  worker_private_ips = module.compute.worker_private_ips
 
   cluster_name = var.cluster_name
   admin_user = var.admin_user
@@ -55,12 +55,12 @@ module "kubespray_config" {
   kube_pods_subnet = var.kube_pods_subnet
 }
 
-module "helm_config" {
-  source = "./modules/helm_config"
+module "helm" {
+  source = "./modules/helm"
 
-  load_balancer_ip = module.openstack_network.floating_ip
-  master_private_ip = module.openstack_compute.master_private_ip
-  cinder_db_volume_id = module.openstack_compute.hub_db_volume_id
+  load_balancer_ip = module.network.floating_ip
+  master_private_ip = module.compute.master_private_ip
+  cinder_db_volume_id = module.compute.hub_db_volume_id
 
   cluster_name = var.cluster_name
   registry_url = var.registry_url
@@ -75,8 +75,8 @@ module "helm_config" {
   email_contact = var.email_contact
 }
 
-module "scripts_template" {
-  source = "./modules/scripts_template"
+module "bash" {
+  source = "./modules/bash"
 
   cloudflare_api_token = var.cloudflare_api_token # TLS
   binderhub_version = var.binderhub_version
@@ -85,22 +85,22 @@ module "scripts_template" {
   worker_count = var.worker_count
   kube_service_addresses = var.kube_service_addresses
   kube_pods_subnet = var.kube_pods_subnet
-  security_group_id = module.openstack_network.k8s_sg_id
-  load_balancer_ip = module.openstack_network.floating_ip
+  security_group_id = module.network.k8s_sg_id
+  load_balancer_ip = module.network.floating_ip
   ssh_private_key_path = var.ssh_private_key_path
 }
 
 # Deploy Kubernetes with Kubespray
 resource "terraform_data" "deploy_kubernetes" {
   depends_on = [
-    module.kubespray_config,
-    module.scripts_template,
-    module.openstack_compute
+    module.kubespray,
+    module.bash,
+    module.compute
   ]
 
   provisioner "local-exec" {
     working_dir = "${path.module}/.."
-    command = module.scripts_template.deploy_kubernetes_script_filename
+    command = module.bash.deploy_kubernetes_script_filename
   }
   
 }
@@ -113,12 +113,12 @@ resource "terraform_data" "configure_kubectl" {
   connection {
     type        = "ssh"
     user        = var.admin_user
-    host        = module.openstack_network.floating_ip
+    host        = module.network.floating_ip
     timeout     = "10m"
   }
 
   provisioner "file" {
-    source = module.scripts_template.configure_kubectl_script_filename
+    source = module.bash.configure_kubectl_script_filename
     destination = "/home/${var.admin_user}/deploy/configure-kubectl.sh"
   }
 
@@ -134,56 +134,56 @@ resource "terraform_data" "configure_kubectl" {
 resource "terraform_data" "deploy_applications" {
   depends_on = [
     terraform_data.configure_kubectl,
-    module.helm_config,
-    module.scripts_template
+    module.helm,
+    module.bash
   ]
 
   connection {
     type        = "ssh"
     user        = var.admin_user
-    host        = module.openstack_network.floating_ip
+    host        = module.network.floating_ip
     timeout     = "10m"
   }
 
   provisioner "file" {
-    source = module.helm_config.cinder_pv_file_path
+    source = module.helm.cinder_pv_file_path
     destination = "/home/${var.admin_user}/deploy/pv-cinder.yaml"
   }
   provisioner "file" {
-    source = module.helm_config.binderhub_issuer_file_path
+    source = module.helm.binderhub_issuer_file_path
     destination = "/home/${var.admin_user}/deploy/production-binderhub-issuer.yaml"
   }
   provisioner "file" {
-    source = module.helm_config.secrets_file_path
+    source = module.helm.secrets_file_path
     destination = "/home/${var.admin_user}/deploy/secrets.yaml"
   }
   provisioner "file" {
-    source = module.helm_config.metallb_bgp_file_path
+    source = module.helm.metallb_bgp_file_path
     destination = "/home/${var.admin_user}/deploy/metallb-bgp.yaml"
   }
   provisioner "file" {
-    source = module.helm_config.binderhub_values_file_path
+    source = module.helm.binderhub_values_file_path
     destination = "/home/${var.admin_user}/deploy/binderhub-values.yaml"
   }
   provisioner "file" {
-    source = module.helm_config.prometheus_values_file_path
+    source = module.helm.prometheus_values_file_path
     destination = "/home/${var.admin_user}/deploy/prometheus-values.yaml"
   }
   provisioner "file" {
-    source = module.helm_config.metallb_ipaddresspool_file_path
+    source = module.helm.metallb_ipaddresspool_file_path
     destination = "/home/${var.admin_user}/deploy/metallb_ipaddresspool.yaml"
   }
   provisioner "file" {
-    source = module.helm_config.metallb_l2advertisement_file_path
+    source = module.helm.metallb_l2advertisement_file_path
     destination = "/home/${var.admin_user}/deploy/metallb_l2advertisement.yaml"
   }
   provisioner "file" {
-    source = module.helm_config.nginx_ingress_file_path
+    source = module.helm.nginx_ingress_file_path
     destination = "/home/${var.admin_user}/deploy/nginx-ingress.yaml"
   }
 
   provisioner "file" {
-    source = module.scripts_template.install_script_path
+    source = module.bash.install_script_path
     destination = "/home/${var.admin_user}/deploy/install-binderhub-and-monitoring.sh"
   }
 
