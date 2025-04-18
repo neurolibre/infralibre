@@ -1,6 +1,5 @@
 jupyterhub:
   proxy:
-    secretToken: "${secret_token}"
     service:
       type: NodePort
   ingress:
@@ -21,9 +20,6 @@ jupyterhub:
     config:
       BinderSpawner:
         cors_allow_origin: '*'
-    services:
-      binder:
-        apiToken: "${api_token}"
   cull:
     timeout: 600 #10min
     every: 60
@@ -71,6 +67,8 @@ config:
       - ^hmharshit/cn-ait.*
       - ^shishirchoudharygic/mltraining.*
       - ^hmharshit/mltraining.*
+  DockerRegistry:
+    token_url: None
   BinderHub:
 #    template_path: /etc/binderhub/custom/templates
 #    extra_static_path: /etc/binderhub/custom/static
@@ -99,9 +97,3 @@ ingress:
     - secretName: ${binderhub_subdomain}-secret-tls
       hosts:
         - ${binderhub_subdomain}.${binderhub_domain}
-
-# Image registry configuration
-registry:
-  url: ${registry_url}
-  username: ${registry_username}
-  password: ${registry_password}

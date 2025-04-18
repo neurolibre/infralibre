@@ -10,13 +10,8 @@ variable "worker_count" {
   default     = 1
 }
 
-variable "ssh_key_name" {
-  description = "Name of the SSH key pair to use"
-  type        = string
-}
-
 variable "ssh_private_key_path" {
-  description = "Path to the private SSH key for provisioning"
+  description = "Path to the private SSH key (on your local machine) for provisioning"
   type        = string
 }
 
@@ -140,8 +135,9 @@ variable "admin_user" {
   type = string
 }
 
-variable "cinder_zone" {
+variable "db_cinder_zone" {
   description = "Cinder zone"
   type        = string
   default     = "nova"
 }
+

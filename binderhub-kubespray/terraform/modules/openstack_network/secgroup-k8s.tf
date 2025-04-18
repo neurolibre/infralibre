@@ -4,6 +4,7 @@ resource "openstack_networking_secgroup_v2" "k8s_secgroup" {
   description = "${formatdate("YYYY-MM-DD", timestamp())} Security group for Kubernetes cluster and binderhub"
 }
 
+# ICMP specific
 resource "openstack_networking_secgroup_rule_v2" "icmp_self" {
   direction         = "ingress"
   ethertype         = "IPv4"
@@ -14,6 +15,7 @@ resource "openstack_networking_secgroup_rule_v2" "icmp_self" {
   remote_group_id   = openstack_networking_secgroup_v2.k8s_secgroup.id
 }
 
+# TCP specific
 resource "openstack_networking_secgroup_rule_v2" "tcp_self" {
   direction         = "ingress"
   ethertype         = "IPv4"
@@ -24,6 +26,7 @@ resource "openstack_networking_secgroup_rule_v2" "tcp_self" {
   remote_group_id   = openstack_networking_secgroup_v2.k8s_secgroup.id
 }
 
+# UDP specific
 resource "openstack_networking_secgroup_rule_v2" "udp_self" {
   direction         = "ingress"
   ethertype         = "IPv4"
@@ -34,6 +37,7 @@ resource "openstack_networking_secgroup_rule_v2" "udp_self" {
   remote_group_id   = openstack_networking_secgroup_v2.k8s_secgroup.id
 }
 
+# ICMP specific
 resource "openstack_networking_secgroup_rule_v2" "icmp_specific" {
   direction         = "ingress"
   ethertype         = "IPv4"
@@ -44,6 +48,7 @@ resource "openstack_networking_secgroup_rule_v2" "icmp_specific" {
   remote_ip_prefix  = "192.168.73.30/32"
 }
 
+# Service subnet
 resource "openstack_networking_secgroup_rule_v2" "k8s_service_subnet" {
   direction         = "ingress"
   ethertype         = "IPv4"
@@ -54,6 +59,7 @@ resource "openstack_networking_secgroup_rule_v2" "k8s_service_subnet" {
   remote_ip_prefix  = "10.233.0.0/18"
 }
 
+# Pod subnet
 resource "openstack_networking_secgroup_rule_v2" "k8s_pod_subnet" {
   direction         = "ingress"
   ethertype         = "IPv4"
@@ -74,6 +80,7 @@ resource "openstack_networking_secgroup_rule_v2" "tcp_specific" {
   remote_ip_prefix  = "192.168.73.30/32"
 }
 
+# UDP specific
 resource "openstack_networking_secgroup_rule_v2" "udp_specific" {
   direction         = "ingress"
   ethertype         = "IPv4"
@@ -84,6 +91,7 @@ resource "openstack_networking_secgroup_rule_v2" "udp_specific" {
   remote_ip_prefix  = "192.168.73.30/32"
 }
 
+# SSH port
 resource "openstack_networking_secgroup_rule_v2" "tcp_22" {
   direction         = "ingress"
   ethertype         = "IPv4"
@@ -94,6 +102,7 @@ resource "openstack_networking_secgroup_rule_v2" "tcp_22" {
   remote_ip_prefix  = "0.0.0.0/0"
 }
 
+# BGP ports
 resource "openstack_networking_secgroup_rule_v2" "tcp_179" {
   direction         = "ingress"
   ethertype         = "IPv4"
@@ -104,6 +113,7 @@ resource "openstack_networking_secgroup_rule_v2" "tcp_179" {
   remote_ip_prefix  = "0.0.0.0/0"
 }
 
+# HTTP and HTTPS ports
 resource "openstack_networking_secgroup_rule_v2" "tcp_443" {
   direction         = "ingress"
   ethertype         = "IPv4"
