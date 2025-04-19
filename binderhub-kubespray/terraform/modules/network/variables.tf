@@ -8,6 +8,11 @@ variable "internal_network_name" {
   type        = string
 }
 
+variable "internal_subnet_name" {
+  description = "Name of the existing internal OpenStack subnet."
+  type        = string
+}
+
 variable "cluster_name" {
   description = "Name of the cluster, used for naming resources."
   type        = string

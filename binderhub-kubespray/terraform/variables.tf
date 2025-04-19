@@ -37,6 +37,12 @@ variable "public_network_name" {
 }
 
 variable "internal_network_name" {
+  description = "Name of the existing internal network"
+  default     = "def-xxx-xxx"
+  type        = string
+}
+
+variable "internal_subnet_name" {
   description = "Name of the existing subnet"
   default     = "def-xxx-xxx"
   type        = string

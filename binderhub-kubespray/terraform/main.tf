@@ -15,6 +15,7 @@ module "network" {
   source = "./modules/network"
   public_network_name = var.public_network_name
   internal_network_name = var.internal_network_name
+  internal_subnet_name = var.internal_subnet_name
   cluster_name = var.cluster_name
   kube_service_addresses = var.kube_service_addresses
   kube_pods_subnet = var.kube_pods_subnet

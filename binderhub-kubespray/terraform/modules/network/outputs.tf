@@ -10,12 +10,12 @@ output "public_network_name" {
 
 output "internal_network_id" {
   description = "ID of the internal network."
-  value       = data.openstack_networking_subnet_v2.internal_network.id
+  value       = data.openstack_networking_network_v2.internal_network.id
 }
 
-output "internal_network_cidr" {
-  description = "CIDR of the internal network."
-  value       = data.openstack_networking_subnet_v2.internal_network.cidr
+output "internal_subnet_cidr" {
+  description = "CIDR of the internal subnet."
+  value       = data.openstack_networking_subnet_v2.internal_subnet.cidr
 }
 
 output "k8s_sg_id" {
