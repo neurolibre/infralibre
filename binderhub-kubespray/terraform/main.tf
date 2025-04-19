@@ -106,8 +106,7 @@ resource "terraform_data" "deploy_kubernetes" {
   ]
 
   provisioner "local-exec" {
-    working_dir = "${path.module}/.."
-    command = "bash scripts/deploy-kubernetes.sh"
+    command = "bash ${path.module}/../deploy-kubernetes.sh"
   }
   
 }
