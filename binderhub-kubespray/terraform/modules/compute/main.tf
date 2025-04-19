@@ -19,7 +19,7 @@ resource "openstack_compute_keypair_v2" "keypair" {
 # Note: The template file path assumes it stays in the root module's templates dir.
 # If you move the template into this module, change the path accordingly.
 data "template_file" "cloud_init_cluster" {
-  template = file("${path.module}/../../templates/cloud-init-cluster.yml.tpl") # Path relative to this module file
+  template = file("${path.module}/../../templates/compute/cloud-init-cluster.yml.tpl") # Path relative to this module file
   vars = {
     ssh_authorized_keys = indent(2, join("\n", formatlist("- %s", var.ssh_authorized_keys)))
   }

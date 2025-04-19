@@ -16,7 +16,7 @@ data "openstack_networking_subnet_v2" "internal_network" {
 resource "openstack_networking_port_v2" "master_port" {
   name           = "${var.cluster_name}-master-port"
   admin_state_up = "true"
-  network_id     = data.openstack_networking_network_v2.internal_network.id
+  network_id     = data.openstack_networking_subnet_v2.internal_network.id
   security_group_ids = [
     openstack_networking_secgroup_v2.k8s_secgroup.id
   ]

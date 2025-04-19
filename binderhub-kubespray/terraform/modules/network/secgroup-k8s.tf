@@ -71,7 +71,7 @@ resource "openstack_networking_secgroup_rule_v2" "tcp_internal" {
   port_range_min    = 0
   port_range_max    = 0
   security_group_id = openstack_networking_secgroup_v2.k8s_secgroup.id
-  remote_ip_prefix  = var.internal_network_cidr
+  remote_ip_prefix  = data.openstack_networking_subnet_v2.internal_network.cidr
 }
 
 # UDP specific
@@ -82,7 +82,7 @@ resource "openstack_networking_secgroup_rule_v2" "udp_internal" {
   port_range_min    = 0
   port_range_max    = 0
   security_group_id = openstack_networking_secgroup_v2.k8s_secgroup.id
-  remote_ip_prefix  = var.internal_network_cidr
+  remote_ip_prefix  = data.openstack_networking_subnet_v2.internal_network.cidr
 }
 
 # UDP specific
@@ -93,7 +93,7 @@ resource "openstack_networking_secgroup_rule_v2" "icmp_internal" {
   port_range_min    = 0
   port_range_max    = 0
   security_group_id = openstack_networking_secgroup_v2.k8s_secgroup.id
-  remote_ip_prefix  = var.internal_network_cidr
+  remote_ip_prefix  = data.openstack_networking_subnet_v2.internal_network.cidr
 }
 # ================================
 

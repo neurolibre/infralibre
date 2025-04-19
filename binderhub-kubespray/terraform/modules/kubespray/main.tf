@@ -6,7 +6,7 @@
 
     # Generate Kubespray inventory
     resource "local_file" "kubespray_inventory" {
-      content = templatefile("${path.module}/../../templates/inventory.ini.tpl", {
+      content = templatefile("${path.module}/../../templates/kubespray/inventory.ini.tpl", {
         cluster_name       = var.cluster_name
         master_ip          = var.master_floating_ip
         master_private_ip  = var.master_private_ip
@@ -18,7 +18,7 @@
     }
 
     resource "local_file" "k8s_cluster_vars" {
-      content = templatefile("${path.module}/../../templates/k8s-cluster.yml.tpl", {
+      content = templatefile("${path.module}/../../templates/kubespray/k8s-cluster.yml.tpl", {
         kube_service_addresses = var.kube_service_addresses
         kube_pods_subnet       = var.kube_pods_subnet
         k8s_version            = var.k8s_version
@@ -29,7 +29,7 @@
     }
 
     resource "local_file" "addons" {
-      content = templatefile("${path.module}/../../templates/addons.yml.tpl", {
+      content = templatefile("${path.module}/../../templates/kubespray/addons.yml.tpl", {
         load_balancer_ip = var.master_floating_ip
         is_load_balancer = var.is_load_balancer
       })
@@ -39,7 +39,7 @@
     }
 
     resource "local_file" "openstack" {
-      content = templatefile("${path.module}/../../templates/openstack.yml.tpl", {
+      content = templatefile("${path.module}/../../templates/kubespray/openstack.yml.tpl", {
         openstack_username            = data.external.openstack_env.result["OS_USERNAME"]
         openstack_password            = data.external.openstack_env.result["OS_PASSWORD"]
         openstack_project_id          = data.external.openstack_env.result["OS_PROJECT_ID"]
@@ -56,7 +56,7 @@
     }
 
     resource "local_file" "all_vars" {
-      content  = templatefile("${path.module}/../../templates/all.yml.tpl", {})
+      content  = templatefile("${path.module}/../../templates/kubespray/all.yml.tpl", {})
       filename = "${path.module}/../../../kubespray/inventory/binderhub/group_vars/all/all.yml" # Adjusted path
 
       depends_on = [local_file.kubespray_inventory]
