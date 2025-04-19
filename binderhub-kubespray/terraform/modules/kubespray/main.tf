@@ -22,6 +22,7 @@
         kube_service_addresses = var.kube_service_addresses
         kube_pods_subnet       = var.kube_pods_subnet
         k8s_version            = var.k8s_version
+        is_load_balancer       = var.is_load_balancer
       })
       filename = "${path.module}/../../../kubespray/inventory/binderhub/group_vars/k8s_cluster/k8s-cluster.yml" # Adjusted path
 
