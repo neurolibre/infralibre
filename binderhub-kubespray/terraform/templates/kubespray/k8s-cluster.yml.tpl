@@ -56,7 +56,7 @@ global_as_num: 64512
 kube_service_addresses: ${kube_service_addresses}
 kube_pods_subnet: ${kube_pods_subnet}
 # Requires change if dual-stack is used.
-kube_service_subnets: ${kube_service_subnets}
+kube_service_subnets: ${kube_service_addresses}
 
 kube_network_node_prefix: 24
 
