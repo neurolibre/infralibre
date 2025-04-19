@@ -153,44 +153,44 @@ resource "terraform_data" "deploy_applications" {
   }
 
   provisioner "file" {
-    source = module.helm.cinder_pv_file_path
+    source = "${path.module}/../helm-charts/pv-cinder.yaml"
     destination = "/home/${var.admin_user}/deploy/pv-cinder.yaml"
   }
   provisioner "file" {
-    source = module.helm.binderhub_issuer_file_path
+    source = "${path.module}/../helm-charts/binderhub-issuer.yaml"
     destination = "/home/${var.admin_user}/deploy/production-binderhub-issuer.yaml"
   }
   provisioner "file" {
-    source = module.helm.secrets_file_path
+    source = "${path.module}/../helm-charts/secrets.yaml"
     destination = "/home/${var.admin_user}/deploy/secrets.yaml"
   }
   provisioner "file" {
-    source = module.helm.metallb_bgp_file_path
+    source = "${path.module}/../helm-charts/metallb-bgp.yaml"
     destination = "/home/${var.admin_user}/deploy/metallb-bgp.yaml"
   }
   provisioner "file" {
-    source = module.helm.binderhub_values_file_path
+    source = "${path.module}/../helm-charts/binderhub-values.yaml"
     destination = "/home/${var.admin_user}/deploy/binderhub-values.yaml"
   }
   provisioner "file" {
-    source = module.helm.prometheus_values_file_path
+    source = "${path.module}/../helm-charts/prometheus-values.yaml"
     destination = "/home/${var.admin_user}/deploy/prometheus-values.yaml"
   }
   provisioner "file" {
-    source = module.helm.metallb_ipaddresspool_file_path
+    source = "${path.module}/../helm-charts/metallb-ipaddresspool.yaml"
     destination = "/home/${var.admin_user}/deploy/metallb_ipaddresspool.yaml"
   }
   provisioner "file" {
-    source = module.helm.metallb_l2advertisement_file_path
+    source = "${path.module}/../helm-charts/metallb-l2advertisement.yaml"
     destination = "/home/${var.admin_user}/deploy/metallb_l2advertisement.yaml"
   }
   provisioner "file" {
-    source = module.helm.nginx_ingress_file_path
+    source = "${path.module}/../helm-charts/nginx-ingress.yaml"
     destination = "/home/${var.admin_user}/deploy/nginx-ingress.yaml"
   }
 
   provisioner "file" {
-    source = module.bash.install_script_path
+    source = "${path.module}/../scripts/install-binderhub-and-monitoring.sh"
     destination = "/home/${var.admin_user}/deploy/install-binderhub-and-monitoring.sh"
   }
 

@@ -66,7 +66,7 @@ helm install binderhub jupyterhub/binderhub --version=${binderhub_version} --nam
 
 # helm install observability prometheus-community/kube-prometheus-stack --namespace monitoring -f prometheus-values.yaml
 
-echo "Waiting for BinderHub Hub pod..."
+echo "⏲️ Waiting for BinderHub Hub pod..."
 kubectl wait --namespace binderhub \
   --for=condition=ready pod \
   --selector=release=binderhub \

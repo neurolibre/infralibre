@@ -51,7 +51,7 @@
         openstack_subnet_id           = var.openstack_internal_network_id # Check if Kubespray needs network or subnet ID
         openstack_external_network_id = var.openstack_public_network_id
       })
-      filename = "${path.module}/../../../kubespray/inventory/binderhub/group_vars/k8s_cluster/all/openstack.yml" # Adjusted path
+      filename = "${path.module}/../../../kubespray/inventory/binderhub/group_vars/all/openstack.yml" # Adjusted path
 
       depends_on = [local_file.kubespray_inventory]
     }

@@ -111,9 +111,9 @@ resource "terraform_data" "wait_for_cloud_init_master" {
   # Check if cloud-init has completed
   provisioner "remote-exec" {
     inline = [
-      "echo 'Waiting for cloud-init to complete on master node...'",
+      "echo '⏲️ Waiting for cloud-init to complete on master node...'",
       "cloud-init status --wait >> /dev/null",
-      "echo 'Cloud-init completed successfully'",
+      "echo '✅ Cloud-init completed successfully'",
     ]
   }
 }
@@ -138,9 +138,9 @@ resource "terraform_data" "wait_for_workers_cloud_init" {
   # Check if cloud-init has completed
   provisioner "remote-exec" {
     inline = [
-      "echo 'Waiting for cloud-init to complete on worker node ${count.index}...'",
+      "echo '⏲️ Waiting for cloud-init to complete on worker node ${count.index}...'",
       "cloud-init status --wait >> /dev/null",
-      "echo 'Cloud-init completed successfully on worker node ${count.index}'",
+      "echo '✅ Cloud-init completed successfully on worker node ${count.index}'",
     ]
   }
 }
@@ -162,7 +162,7 @@ resource "terraform_data" "prepare_ssh_environment" {
       
       # Test SSH to workers through bastion (master)
       for ip in ${join(" ", [for worker in openstack_compute_instance_v2.worker : worker.network.0.fixed_ip_v4])}; do
-        echo "Testing SSH to worker $ip through master..."
+        echo "🔑 Testing SSH to worker $ip through master..."
         ssh -o StrictHostKeyChecking=no -i ${var.ssh_private_key_path} -o ProxyCommand="ssh -i ${var.ssh_private_key_path} -W %h:%p ${var.admin_user}@${var.network_floating_ip}" ${var.admin_user}@$ip echo "SSH to worker $ip successful"
       done
     EOT
