@@ -125,7 +125,7 @@ resource "terraform_data" "configure_kubectl" {
   }
 
   provisioner "file" {
-    source = module.bash.configure_kubectl_script_filename
+    source = "${path.module}/../scripts/configure-kubectl.sh"
     destination = "/home/${var.admin_user}/deploy/configure-kubectl.sh"
   }
 
