@@ -18,12 +18,20 @@ ${cluster_name}-master
 [bastion]
 bastion ansible_host=${master_ip} ansible_user=${admin_user}
 
-[calico_rr]
-%{ if is_load_balancer ~}
-${cluster_name}-master
-%{ endif ~}
-
 [k8s_cluster:children]
 kube_control_plane
 kube_node
-calico_rr
+
+%{ if is_load_balancer ~}
+[calico_rr]
+${cluster_name}-master
+
+[rack0]
+${cluster_name}-master
+%{ for i, ip in worker_private_ips ~}
+${cluster_name}-worker-${i}
+%{ endfor ~}
+
+[rack0:vars]
+cluster_id="1.0.0.1"
+%{ endif ~}

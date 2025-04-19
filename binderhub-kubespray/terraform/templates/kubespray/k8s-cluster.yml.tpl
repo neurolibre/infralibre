@@ -49,6 +49,7 @@ kube_network_plugin_multus: false
 %{ if is_load_balancer ~}
 calico_network_backend: bird
 global_as_num: 64512
+calico_endpoint_to_host_action: "ACCEPT"
 %{ endif ~}
 
 
