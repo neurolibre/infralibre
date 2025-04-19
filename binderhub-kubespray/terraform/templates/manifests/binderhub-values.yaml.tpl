@@ -1,7 +1,11 @@
 jupyterhub:
   proxy:
     service:
+%{ if is_load_balancer ~}
+      type: LoadBalancer
+%{ else ~}
       type: NodePort
+%{ endif ~}
   ingress:
     enabled: true
     ingressClassName: nginx
@@ -82,7 +86,11 @@ config:
     image_prefix: binder-registry.conp.cloud/binder-registry.conp.cloud/binder-
 
 service:
+%{ if is_load_balancer ~}
+  type: LoadBalancer
+%{ else ~}
   type: NodePort
+%{ endif ~}
 
 ingress:
   enabled: true

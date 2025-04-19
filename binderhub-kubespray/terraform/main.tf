@@ -16,6 +16,8 @@ module "network" {
   public_network_name = var.public_network_name
   internal_network_name = var.internal_network_name
   cluster_name = var.cluster_name
+  kube_service_addresses = var.kube_service_addresses
+  kube_pods_subnet = var.kube_pods_subnet
 }
 
 module "compute" {
@@ -53,6 +55,8 @@ module "kubespray" {
   admin_user = var.admin_user
   kube_service_addresses = var.kube_service_addresses
   kube_pods_subnet = var.kube_pods_subnet
+  k8s_version = var.k8s_version
+  is_load_balancer = var.is_load_balancer
 }
 
 module "helm" {
@@ -73,11 +77,12 @@ module "helm" {
   grafana_subdomain = var.grafana_subdomain
   prometheus_subdomain = var.prometheus_subdomain
   email_contact = var.email_contact
+  is_load_balancer = var.is_load_balancer
 }
 
 module "bash" {
   source = "./modules/bash"
-
+  kubespray_version_branch = var.kubespray_version_branch
   cloudflare_api_token = var.cloudflare_api_token # TLS
   binderhub_version = var.binderhub_version
   cluster_name = var.cluster_name
@@ -88,6 +93,7 @@ module "bash" {
   security_group_id = module.network.k8s_sg_id
   load_balancer_ip = module.network.floating_ip
   ssh_private_key_path = var.ssh_private_key_path
+  is_load_balancer = var.is_load_balancer
 }
 
 # Deploy Kubernetes with Kubespray

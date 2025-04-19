@@ -5,6 +5,7 @@ metadata:
   namespace: metallb-system
 spec:
   peerAddress: ${bgp_peer_address}
+  peerPort: 179
   peerASN: 64512
   myASN: 64512
 ---

@@ -19,6 +19,9 @@ ${cluster_name}-master
 bastion ansible_host=${master_ip} ansible_user=${admin_user}
 
 [calico_rr]
+%{ if is_load_balancer ~}
+${cluster_name}-master
+%{ endif ~}
 
 [k8s_cluster:children]
 kube_control_plane

@@ -44,4 +44,14 @@
       type        = string
     }
 
+    variable "k8s_version" {
+      description = "Version of Kubernetes to install."
+      type        = string
+    }
+
+    variable "is_load_balancer" {
+      description = "Whether to create attempt to create a load balancer metallb."
+      type        = bool
+    }
+
     # Add any other variables needed by the Kubespray templates

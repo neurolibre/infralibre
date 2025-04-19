@@ -12,6 +12,7 @@
         master_private_ip  = var.master_private_ip
         worker_private_ips = var.worker_private_ips
         admin_user         = var.admin_user
+        is_load_balancer   = var.is_load_balancer
       })
       filename = "${path.module}/../../../kubespray/inventory/binderhub/inventory.ini" # Adjusted path
     }
@@ -20,6 +21,7 @@
       content = templatefile("${path.module}/../../templates/k8s-cluster.yml.tpl", {
         kube_service_addresses = var.kube_service_addresses
         kube_pods_subnet       = var.kube_pods_subnet
+        k8s_version            = var.k8s_version
       })
       filename = "${path.module}/../../../kubespray/inventory/binderhub/group_vars/k8s_cluster/k8s-cluster.yml" # Adjusted path
 
@@ -29,6 +31,7 @@
     resource "local_file" "addons" {
       content = templatefile("${path.module}/../../templates/addons.yml.tpl", {
         load_balancer_ip = var.master_floating_ip
+        is_load_balancer = var.is_load_balancer
       })
       filename = "${path.module}/../../../kubespray/inventory/binderhub/group_vars/k8s_cluster/addons.yml" # Adjusted path
 

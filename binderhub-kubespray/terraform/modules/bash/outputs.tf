@@ -4,7 +4,7 @@ output "install_script_path" {
 }
 
 output "allow_pod_pockets_script_path" {
-    description = "Path to the generated allow-pod-pockets.sh script."
+    description = "Path to the generated allow-pod-packets.sh script."
     value       = local_file.allow_pod_pockets.filename
 }
 

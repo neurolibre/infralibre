@@ -136,3 +136,17 @@ variable "db_cinder_zone" {
   default     = "nova"
 }
 
+variable "kubespray_version_branch" {
+  description = "Release branch of Kubespray to install from."
+  type        = string
+}
+
+variable "k8s_version" {
+  description = "Version of Kubernetes to install."
+  type        = string
+}
+
+variable "is_load_balancer" {
+  description = "Whether to create attempt to create a load balancer metallb."
+  type        = bool
+}

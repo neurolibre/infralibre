@@ -49,6 +49,7 @@
         binderhub_version    = var.binderhub_version
         cluster_name         = var.cluster_name
         load_balancer_ip     = var.load_balancer_ip
+        is_load_balancer     = var.is_load_balancer
       })
       filename = "${path.module}/../../../helm-charts/binderhub-values.yaml" # Adjusted path
     }
@@ -63,6 +64,7 @@
     resource "local_file" "nginx_ingress" {
       content = templatefile("${path.module}/../../templates/deploy/nginx-ingress.yaml.tpl", {
         load_balancer_ip = var.load_balancer_ip
+        is_load_balancer = var.is_load_balancer
       })
       filename = "${path.module}/../../../helm-charts/nginx-ingress.yaml" # Adjusted path
     }

@@ -18,7 +18,7 @@ kube_token_dir: "{{ kube_config_dir }}/tokens"
 kube_api_anonymous_auth: true
 
 # Kubernetes configuration
-kube_version: v1.31.7
+kube_version: ${k8s_version}
 
 # Where the binaries will be downloaded.
 # Note: ensure that you've enough disk space (about 1G)
@@ -39,19 +39,24 @@ kube_log_level: 2
 # Directory where credentials will be stored
 credentials_dir: "{{ inventory_dir }}/credentials"
 
-
-# kube_network_plugin: flannel
+# Network plugin
 kube_network_plugin: calico
+
+# Multus
 kube_network_plugin_multus: false
+
+# Attempt loadbalancer BGP mode.
+%{ if is_load_balancer ~}
 calico_network_backend: bird
+global_as_num: 64512
+%{ endif ~}
 
 
 # Check no conflict with CIDR
 kube_service_addresses: ${kube_service_addresses}
 kube_pods_subnet: ${kube_pods_subnet}
-
-# MANUALLY SET AS ANSIBLE WAS COMPLAINING ABOUT THE SERVICE SUBNETS
-kube_service_subnets: 10.233.0.0/18
+# Requires change if dual-stack is used.
+kube_service_subnets: ${kube_service_subnets}
 
 kube_network_node_prefix: 24
 
@@ -60,6 +65,8 @@ kube_apiserver_ip: "{{ kube_service_addresses|ipaddr('net')|ipaddr(1)|ipaddr('ad
 kube_apiserver_port: 6443  # (https)
 
 kube_apiserver_insecure_port: 0
+# Set to true to remove the role binding to anonymous users created by kubeadm
+remove_anonymous_access: false
 
 # configure arp_ignore and arp_announce to avoid answering ARP queries from kube-ipvs0 interface
 # must be set to true for MetalLB to work
@@ -174,6 +181,3 @@ kubeadm_patches: []
 #        example.com/prod_level: "{{ prod_level }}"
 # - ...
 # Patches are applied in the order they are specified.
-
-# Set to true to remove the role binding to anonymous users created by kubeadm
-remove_anonymous_access: false

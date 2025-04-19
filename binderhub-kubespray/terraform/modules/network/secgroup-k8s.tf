@@ -37,17 +37,7 @@ resource "openstack_networking_secgroup_rule_v2" "udp_self" {
   remote_group_id   = openstack_networking_secgroup_v2.k8s_secgroup.id
 }
 
-# ICMP specific
-resource "openstack_networking_secgroup_rule_v2" "icmp_specific" {
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "icmp"
-  port_range_min    = 0
-  port_range_max    = 0
-  security_group_id = openstack_networking_secgroup_v2.k8s_secgroup.id
-  remote_ip_prefix  = "192.168.73.30/32"
-}
-
+# ================================ K8s service and pod subnets
 # Service subnet
 resource "openstack_networking_secgroup_rule_v2" "k8s_service_subnet" {
   direction         = "ingress"
@@ -56,7 +46,7 @@ resource "openstack_networking_secgroup_rule_v2" "k8s_service_subnet" {
   port_range_min    = 0
   port_range_max    = 0
   security_group_id = openstack_networking_secgroup_v2.k8s_secgroup.id
-  remote_ip_prefix  = "10.233.0.0/18"
+  remote_ip_prefix  = var.kube_service_addresses
 }
 
 # Pod subnet
@@ -67,30 +57,47 @@ resource "openstack_networking_secgroup_rule_v2" "k8s_pod_subnet" {
   port_range_min    = 0
   port_range_max    = 0
   security_group_id = openstack_networking_secgroup_v2.k8s_secgroup.id
-  remote_ip_prefix  = "10.233.64.0/18"
+  remote_ip_prefix  = var.kube_pods_subnet
 }
+# ================================
 
-resource "openstack_networking_secgroup_rule_v2" "tcp_specific" {
+# ================================ Internal network
+# Needed to allow the cluster to communicate with VMs that are not part of the cluster
+# such as the NFS server.
+resource "openstack_networking_secgroup_rule_v2" "tcp_internal" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   port_range_min    = 0
   port_range_max    = 0
   security_group_id = openstack_networking_secgroup_v2.k8s_secgroup.id
-  remote_ip_prefix  = "192.168.73.30/32"
+  remote_ip_prefix  = var.internal_network_cidr
 }
 
 # UDP specific
-resource "openstack_networking_secgroup_rule_v2" "udp_specific" {
+resource "openstack_networking_secgroup_rule_v2" "udp_internal" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "udp"
   port_range_min    = 0
   port_range_max    = 0
   security_group_id = openstack_networking_secgroup_v2.k8s_secgroup.id
-  remote_ip_prefix  = "192.168.73.30/32"
+  remote_ip_prefix  = var.internal_network_cidr
 }
 
+# UDP specific
+resource "openstack_networking_secgroup_rule_v2" "icmp_internal" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "icmp"
+  port_range_min    = 0
+  port_range_max    = 0
+  security_group_id = openstack_networking_secgroup_v2.k8s_secgroup.id
+  remote_ip_prefix  = var.internal_network_cidr
+}
+# ================================
+
+# ================================ External network SSH, HTTP, HTTPS
 # SSH port
 resource "openstack_networking_secgroup_rule_v2" "tcp_22" {
   direction         = "ingress"
@@ -98,17 +105,6 @@ resource "openstack_networking_secgroup_rule_v2" "tcp_22" {
   protocol          = "tcp"
   port_range_min    = 22
   port_range_max    = 22
-  security_group_id = openstack_networking_secgroup_v2.k8s_secgroup.id
-  remote_ip_prefix  = "0.0.0.0/0"
-}
-
-# BGP ports
-resource "openstack_networking_secgroup_rule_v2" "tcp_179" {
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 179
-  port_range_max    = 179
   security_group_id = openstack_networking_secgroup_v2.k8s_secgroup.id
   remote_ip_prefix  = "0.0.0.0/0"
 }
