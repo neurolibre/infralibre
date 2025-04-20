@@ -4,7 +4,6 @@ rbac:
 controller:
   service:
     type: LoadBalancer
-    loadBalancerClass: metallb.universe.tf/metallb
     loadBalancerIP: ${load_balancer_ip}
   tolerations:
     - key: "node-role.kubernetes.io/control-plane"
