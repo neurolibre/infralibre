@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e # Exit immediately if a command exits with a non-zero status.
 
-echo "🟢 Started deploy_kubernetes.sh"
+echo "🟢 Started deploy-kubernetes.sh"
 # ALLOW POD POCKETS =================================
 echo "ℹ️ Allowing pod pockets on all ports within this K8s cluster"
 chmod +x scripts/allow-pod-packets.sh

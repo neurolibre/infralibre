@@ -156,3 +156,9 @@ variable "is_load_balancer" {
   description = "Whether to create attempt to create a load balancer metallb."
   type        = bool
 }
+
+variable "is_calico_rr" {
+  description = "Whether to create a calico route reflector. Takes effect only if is_load_balancer is true."
+  type        = bool
+  default     = false
+}

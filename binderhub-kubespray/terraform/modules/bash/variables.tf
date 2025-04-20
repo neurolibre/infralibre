@@ -53,3 +53,9 @@ variable "is_load_balancer" {
   description = "Whether to create a load balancer metallb."
   type        = bool
 }
+
+variable "is_calico_rr" {
+  description = "Whether to use Calico RR for MetalLB."
+  type        = bool
+  default     = false
+}

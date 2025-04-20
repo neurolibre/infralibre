@@ -50,6 +50,9 @@ kube_network_plugin_multus: false
 calico_network_backend: bird
 global_as_num: 64512
 calico_endpoint_to_host_action: "ACCEPT"
+# configure arp_ignore and arp_announce to avoid answering ARP queries from kube-ipvs0 interface
+# must be set to true for MetalLB to work
+kube_proxy_strict_arp: true
 %{ endif ~}
 
 
@@ -69,9 +72,6 @@ kube_apiserver_insecure_port: 0
 # Set to true to remove the role binding to anonymous users created by kubeadm
 remove_anonymous_access: false
 
-# configure arp_ignore and arp_announce to avoid answering ARP queries from kube-ipvs0 interface
-# must be set to true for MetalLB to work
-kube_proxy_strict_arp: true
 
 # IPVS as default proxy mode
 kube_proxy_mode: ipvs
@@ -128,6 +128,7 @@ dns_domain: "{{ cluster_name }}"
 
 # container_manager: containerd
 
+# This is not ideal, but for binderhub.
 container_manager: docker
 
 # Additional container runtimes

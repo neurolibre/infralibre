@@ -41,13 +41,13 @@ helm repo update
 %{ if is_load_balancer ~}
 echo "⚖️ LoadBalancer enabled, configuring MetalLB for BGP-RR."
 
-kubectl rollout status deployment metallb-controller \
-    -n metallb-system --timeout=180s
-
-kubectl rollout status daemonset metallb-speaker \
-    -n metallb-system --timeout=180s
-
-kubectl apply -f metallb-bgp.yaml
+%{ if is_calico_rr ~}
+  echo "🕸️ Applying MetalLB BGP configuration"
+  kubectl apply -f metallb-bgp.yaml
+%{ else ~}
+  echo "🕸️ Applying MetalLB L2 configuration"
+  kubectl apply -f metallb-l2.yaml
+%{ endif ~}
 
 echo "=============== MetalLB:"
 kubectl get all -n metallb-system

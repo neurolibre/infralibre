@@ -2,7 +2,7 @@ jupyterhub:
   proxy:
     service:
 %{ if is_load_balancer ~}
-      type: LoadBalancer
+      type: ClusterIP
 %{ else ~}
       type: NodePort
 %{ endif ~}
@@ -87,7 +87,7 @@ config:
 
 service:
 %{ if is_load_balancer ~}
-  type: LoadBalancer
+  type: ClusterIP
 %{ else ~}
   type: NodePort
 %{ endif ~}

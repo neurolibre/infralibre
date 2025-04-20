@@ -9,7 +9,7 @@ output "allow_pod_pockets_script_path" {
 }
 
 output "deploy_kubernetes_script_filename" {
-    description = "The path to the generated deploy_kubernetes.sh script."
+    description = "The path to the generated deploy-kubernetes.sh script."
     value       = local_file.deploy_kubernetes.filename
 }
 

@@ -3,16 +3,11 @@
       byte_length = 32
     }
 
-    resource "local_file" "metallb_ipaddresspool" {
-      content = templatefile("${path.module}/../../templates/manifests/metallb_ipaddresspool.yaml.tpl", {
+    resource "local_file" "metallb_l2" {
+      content  = templatefile("${path.module}/../../templates/manifests/metallb-l2.yaml.tpl", {
         load_balancer_ip = var.load_balancer_ip
       })
-      filename = "${path.module}/../../../helm-charts/metallb_ipaddresspool.yaml" # Adjusted path
-    }
-
-    resource "local_file" "metallb_l2advertisement" {
-      content  = templatefile("${path.module}/../../templates/manifests/metallb_l2advertisement.yaml.tpl", {})
-      filename = "${path.module}/../../../helm-charts/metallb_l2advertisement.yaml" # Adjusted path
+      filename = "${path.module}/../../../helm-charts/metallb-l2.yaml"
     }
 
     resource "local_file" "metallb_bgp" {

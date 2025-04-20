@@ -52,6 +52,7 @@ module "kubespray" {
   master_private_ip = module.compute.master_private_ip  
   worker_private_ips = module.compute.worker_private_ips
 
+  is_calico_rr = var.is_calico_rr
   cluster_name = var.cluster_name
   admin_user = var.admin_user
   kube_service_addresses = var.kube_service_addresses
@@ -95,6 +96,7 @@ module "bash" {
   load_balancer_ip = module.network.floating_ip
   ssh_private_key_path = var.ssh_private_key_path
   is_load_balancer = var.is_load_balancer
+  is_calico_rr = var.is_calico_rr
 }
 
 # Deploy Kubernetes with Kubespray
@@ -107,7 +109,7 @@ resource "terraform_data" "deploy_kubernetes" {
 
   provisioner "local-exec" {
     working_dir = "${path.module}/.."
-    command = "bash scripts/deploy_kubernetes.sh"
+    command = "bash scripts/deploy-kubernetes.sh"
   }
   
 }
@@ -169,6 +171,10 @@ resource "terraform_data" "deploy_applications" {
     destination = "/home/${var.admin_user}/deploy/metallb-bgp.yaml"
   }
   provisioner "file" {
+    source = "${path.module}/../helm-charts/metallb-l2.yaml"
+    destination = "/home/${var.admin_user}/deploy/metallb-l2.yaml"
+  }
+  provisioner "file" {
     source = "${path.module}/../helm-charts/binderhub-values.yaml"
     destination = "/home/${var.admin_user}/deploy/binderhub-values.yaml"
   }
@@ -177,12 +183,8 @@ resource "terraform_data" "deploy_applications" {
     destination = "/home/${var.admin_user}/deploy/prometheus-values.yaml"
   }
   provisioner "file" {
-    source = "${path.module}/../helm-charts/metallb-ipaddresspool.yaml"
-    destination = "/home/${var.admin_user}/deploy/metallb_ipaddresspool.yaml"
-  }
-  provisioner "file" {
-    source = "${path.module}/../helm-charts/metallb-l2advertisement.yaml"
-    destination = "/home/${var.admin_user}/deploy/metallb_l2advertisement.yaml"
+    source = "${path.module}/../helm-charts/metallb-l2.yaml"
+    destination = "/home/${var.admin_user}/deploy/metallb-l2.yaml"
   }
   provisioner "file" {
     source = "${path.module}/../helm-charts/nginx-ingress.yaml"

@@ -54,4 +54,8 @@
       type        = bool
     }
 
+    variable "is_calico_rr" {
+      description = "Whether to create a calico route reflector."
+      type        = bool
+    }
     # Add any other variables needed by the Kubespray templates

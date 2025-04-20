@@ -6,6 +6,7 @@ resource "local_file" "install_binderhub_and_monitoring" {
     admin_user        = var.admin_user
     worker_count      = var.worker_count
     is_load_balancer  = var.is_load_balancer
+    is_calico_rr      = var.is_calico_rr
     })
     filename = "${path.module}/../../../scripts/install-binderhub-and-monitoring.sh"
     file_permission = "0755"   
@@ -24,12 +25,12 @@ resource "local_file" "allow_pod_pockets" {
 }
 
 resource "local_file" "deploy_kubernetes" {
-    content = templatefile("${path.module}/../../templates/bash/deploy_kubernetes.sh.tpl", {
+    content = templatefile("${path.module}/../../templates/bash/deploy-kubernetes.sh.tpl", {
     ssh_private_key_path = var.ssh_private_key_path
     admin_user           = var.admin_user
     kubespray_version_branch = var.kubespray_version_branch
     })
-    filename        = "${path.module}/../../../scripts/deploy_kubernetes.sh"
+    filename        = "${path.module}/../../../scripts/deploy-kubernetes.sh"
     file_permission = "0755"                                                 
 }
 

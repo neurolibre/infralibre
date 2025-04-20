@@ -1,8 +1,5 @@
-    output "metallb_ipaddresspool_file_path" {
-      value = local_file.metallb_ipaddresspool.filename
-    }
     output "metallb_l2advertisement_file_path" {
-      value = local_file.metallb_l2advertisement.filename
+      value = local_file.metallb_l2.filename
     }
     output "metallb_bgp_file_path" {
       value = local_file.metallb_bgp.filename

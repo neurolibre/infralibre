@@ -13,6 +13,7 @@
         worker_private_ips = var.worker_private_ips
         admin_user         = var.admin_user
         is_load_balancer   = var.is_load_balancer
+        is_calico_rr       = var.is_calico_rr
       })
       filename = "${path.module}/../../../kubespray/inventory/binderhub/inventory.ini" # Adjusted path
     }
