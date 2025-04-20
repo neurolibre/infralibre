@@ -128,13 +128,15 @@ resource "terraform_data" "configure_kubectl" {
 
   provisioner "file" {
     source = "${path.module}/../scripts/configure-kubectl.sh"
-    destination = "/home/${var.admin_user}/deploy/configure-kubectl.sh"
+    destination = "/home/${var.admin_user}/configure-kubectl.sh"
   }
 
   # Check if cloud-init has completed
   provisioner "remote-exec" {
     inline = [
-      "bash /home/${var.admin_user}/deploy/configure-kubectl.sh"
+      "bash /home/${var.admin_user}/configure-kubectl.sh",
+      "mkdir -p /home/${var.admin_user}/deploy",
+      "echo '============ 🎉 Created deploy directory'"
     ]
   }
 }
