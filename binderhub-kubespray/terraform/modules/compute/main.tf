@@ -77,13 +77,13 @@ resource "openstack_compute_instance_v2" "worker" {
   depends_on = [openstack_compute_keypair_v2.keypair]
 }
 
-resource "openstack_compute_floatingip_associate_v2" "master_fip_associate" {
-  floating_ip = var.network_floating_ip
-  instance_id = openstack_compute_instance_v2.master.id
+# resource "openstack_compute_floatingip_associate_v2" "master_fip_associate" {
+#   floating_ip = var.network_floating_ip
+#   instance_id = openstack_compute_instance_v2.master.id
 
-  # Ensure the master instance exists before associating
-  depends_on = [openstack_compute_instance_v2.master]
-}
+#   # Ensure the master instance exists before associating
+#   depends_on = [openstack_compute_instance_v2.master]
+# }
 
 # --- Cinder Volume ---
 # https://jupyterhub.readthedocs.io/en/latest/explanation/database.html

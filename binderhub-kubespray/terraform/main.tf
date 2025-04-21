@@ -161,7 +161,7 @@ resource "terraform_data" "deploy_applications" {
     destination = "/home/${var.admin_user}/deploy/pv-cinder.yaml"
   }
   provisioner "file" {
-    source = "${path.module}/../helm-charts/binderhub-issuer.yaml"
+    source = "${path.module}/../helm-charts/production-binderhub-issuer.yaml"
     destination = "/home/${var.admin_user}/deploy/production-binderhub-issuer.yaml"
   }
   provisioner "file" {
@@ -183,10 +183,6 @@ resource "terraform_data" "deploy_applications" {
   provisioner "file" {
     source = "${path.module}/../helm-charts/prometheus-values.yaml"
     destination = "/home/${var.admin_user}/deploy/prometheus-values.yaml"
-  }
-  provisioner "file" {
-    source = "${path.module}/../helm-charts/metallb-l2.yaml"
-    destination = "/home/${var.admin_user}/deploy/metallb-l2.yaml"
   }
   provisioner "file" {
     source = "${path.module}/../helm-charts/nginx-ingress.yaml"

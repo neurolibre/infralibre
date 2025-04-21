@@ -5,7 +5,7 @@ metadata:
   namespace: metallb-system
 spec:
   # For now it is just assigned to the master node.
-  # This mode is needed for large clusters.
+  # This mode is needed for large clusters..
   peerAddress: ${bgp_peer_address}
   peerPort: 179
   peerASN: 64512
