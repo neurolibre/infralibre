@@ -97,8 +97,7 @@ resource "openstack_blockstorage_volume_v3" "hub_db_volume" {
 
 resource "terraform_data" "wait_for_cloud_init_master" {
   depends_on = [
-    openstack_compute_instance_v2.master,
-    openstack_compute_floatingip_associate_v2.master_fip_associate
+    openstack_compute_instance_v2.master
   ]
 
   connection {
