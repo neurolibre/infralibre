@@ -79,8 +79,8 @@ runcmd:
 ssh_authorized_keys:
   ${ssh_authorized_keys}
 
-mounts:
-  - [:/volumes/_nogroup/9fabfbb1-5869-414b-81e5-4401e443487c, /cephfs/, ceph, name=MyCephFS-RW, 0,2]
+#mounts:
+#  - [:/volumes/_nogroup/9fabfbb1-5869-414b-81e5-4401e443487c, /cephfs/, ceph, name=MyCephFS-RW, 0,2]
 
 timezone: "America/Montreal"
 output: { all: "| tee -a /var/log/cloud-init-output.log" }
