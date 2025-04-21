@@ -72,16 +72,25 @@ kubectl wait --namespace binderhub \
   --selector=release=binderhub \
   --timeout=120s
 
+echo "=============== Adding kubectl aliases:"
+alias "k"="kubectl"
+alias "binder-pods"="kubectl get pods -n binderhub"
+alias "binder-svc"="kubectl get svc -n binderhub"
+alias "binder-ingress"="kubectl get ingress -n binderhub"
+alias "binder-issuer"="kubectl get clusterissuer"
+alias "binder-certs"="kubectl get certs -n binderhub"
+
 echo "=============== Ingress:"
-kubectl get ingress -n binderhub
+binder-ingress
 
 echo "=============== All resources:"
-kubectl get all -n binderhub
+binder-pods
 
 echo "=============== Cluster issuer:"
-kubectl get clusterissuer
+binder-issuer
 
 echo "=============== Certificates:"
-kubectl get certs -n binderhub
+binder-certs
+
 
 echo "🏁 Script complete"
