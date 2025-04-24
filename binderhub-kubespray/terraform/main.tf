@@ -161,6 +161,7 @@ resource "null_resource" "configure_docker_credentials" {
   provisioner "remote-exec" {
     inline = [
       "echo '🐳 Configuring docker credentials for ${self.connection.host}...'",
+      "mkdir -p /home/${var.admin_user}/.docker",
       "sudo docker login ${var.registry_url} --username ${var.registry_username} --password ${var.registry_password}"
     ]
   }
