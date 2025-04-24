@@ -145,6 +145,9 @@ resource "terraform_data" "configure_kubectl" {
   }
 }
 
+# TODO: This is needed for BinderHub to pull images from a custom private registry
+# Auth0 authentication and providing an auth url could be an improvement
+# For interface, we may switch to Harbor (need k8s on registry server)
 resource "terraform_data" "configure_docker_credentials" {
   count = length(concat([module.compute.master_private_ip], module.compute.worker_private_ips))
   
