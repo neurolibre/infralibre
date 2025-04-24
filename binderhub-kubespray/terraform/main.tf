@@ -145,24 +145,24 @@ resource "terraform_data" "configure_kubectl" {
   }
 }
 
-resource "terraform_data" "configure_docker_credentials" {
-  depends_on = [
-    terraform_data.configure_kubectl  
-  ]
+resource "null_resource" "configure_docker_credentials" {
+  count = length(concat([module.compute.master_private_ip], module.compute.worker_private_ips))
 
-  provisioner "local-exec" {
-    command = <<-EOT
-      # Run commands on all nodes including master
-      for ip in ${join(" ", concat([module.compute.master_private_ip], module.compute.worker_private_ips))}; do
-        echo "🐳 Configuring docker credentials for $ip..."
-        ssh -o StrictHostKeyChecking=no -i ${var.ssh_private_key_path} -o ProxyCommand="ssh -i ${var.ssh_private_key_path} -W %h:%p ${var.admin_user}@${module.network.floating_ip}" ${var.admin_user}@$ip <<EOF
-          mkdir -p /home/${var.admin_user}/.docker
-          echo '============ 🐳 Configuring docker'
-          echo '{"auths": {"${var.registry_url}": {"auth": "$(echo -n "${var.registry_username}:${var.registry_password}" | base64)"}}}' > /home/${var.admin_user}/.docker/config.json
-          su ${var.admin_user} -c 'docker --config /home/${var.admin_user}/.docker login ${var.registry_url}'
-EOF
-      done
-    EOT
+  connection {
+    type        = "ssh"
+    user        = var.admin_user
+    private_key = file(var.ssh_private_key_path)
+    host        = concat([module.compute.master_private_ip], module.compute.worker_private_ips)[count.index]
+    timeout     = "10m"
+    bastion_host = module.network.floating_ip
+    bastion_user = var.admin_user
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "echo '🐳 Configuring docker credentials for ${self.connection.host}...'",
+      "sudo docker login ${var.registry_url} --username ${var.registry_username} --password ${var.registry_password}"
+    ]
   }
 }
 
