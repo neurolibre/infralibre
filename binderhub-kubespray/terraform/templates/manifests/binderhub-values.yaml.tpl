@@ -71,8 +71,6 @@ config:
       - ^hmharshit/cn-ait.*
       - ^shishirchoudharygic/mltraining.*
       - ^hmharshit/mltraining.*
-  DockerRegistry:
-    token_url: None
   BinderHub:
 #    template_path: /etc/binderhub/custom/templates
 #    extra_static_path: /etc/binderhub/custom/static
