@@ -155,12 +155,12 @@ resource "terraform_data" "configure_docker_credentials" {
       # Run commands on all nodes including master
       for ip in ${join(" ", concat([module.compute.master_private_ip], module.compute.worker_private_ips))}; do
         echo "🐳 Configuring docker credentials for $ip..."
-        ssh -o StrictHostKeyChecking=no -i ${var.ssh_private_key_path} -o ProxyCommand="ssh -i ${var.ssh_private_key_path} -W %h:%p ${var.admin_user}@${module.network.floating_ip}" ${var.admin_user}@$ip <<-EOF
+        ssh -o StrictHostKeyChecking=no -i ${var.ssh_private_key_path} -o ProxyCommand="ssh -i ${var.ssh_private_key_path} -W %h:%p ${var.admin_user}@${module.network.floating_ip}" ${var.admin_user}@$ip <<EOF
           mkdir -p /home/${var.admin_user}/.docker
           echo '============ 🐳 Configuring docker'
           echo '{"auths": {"${var.registry_url}": {"auth": "$(echo -n "${var.registry_username}:${var.registry_password}" | base64)"}}}' > /home/${var.admin_user}/.docker/config.json
           su ${var.admin_user} -c 'docker --config /home/${var.admin_user}/.docker login ${var.registry_url}'
-        EOF
+EOF
       done
     EOT
   }
