@@ -145,19 +145,23 @@ resource "terraform_data" "configure_kubectl" {
   }
 }
 
-resource "null_resource" "configure_docker_credentials" {
+resource "terraform_data" "configure_docker_credentials" {
   count = length(concat([module.compute.master_private_ip], module.compute.worker_private_ips))
+  
+  depends_on = [
+    terraform_data.configure_kubectl
+  ]
 
   connection {
     type        = "ssh"
     user        = var.admin_user
-    private_key = file(var.ssh_private_key_path)
     host        = concat([module.compute.master_private_ip], module.compute.worker_private_ips)[count.index]
     timeout     = "10m"
     bastion_host = module.network.floating_ip
     bastion_user = var.admin_user
   }
 
+  # Check if cloud-init has completed
   provisioner "remote-exec" {
     inline = [
       "echo '🐳 Configuring docker credentials for ${concat([module.compute.master_private_ip], module.compute.worker_private_ips)[count.index]}...'",
@@ -171,6 +175,7 @@ resource "null_resource" "configure_docker_credentials" {
 resource "terraform_data" "deploy_applications" {
   depends_on = [
     terraform_data.configure_kubectl,
+    terraform_data.configure_docker_credentials,
     module.helm,
     module.bash
   ]
