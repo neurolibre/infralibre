@@ -153,7 +153,7 @@ resource "terraform_data" "configure_docker_credentials" {
   provisioner "local-exec" {
     command = <<-EOT
       # Run commands on all nodes including master
-      for ip in ${join(" ", [module.compute.master_private_ip] + module.compute.worker_private_ips)}; do
+      for ip in ${join(" ", concat([module.compute.master_private_ip], module.compute.worker_private_ips))}; do
         echo "🐳 Configuring docker credentials for $ip..."
         ssh -o StrictHostKeyChecking=no -i ${var.ssh_private_key_path} -o ProxyCommand="ssh -i ${var.ssh_private_key_path} -W %h:%p ${var.admin_user}@${module.network.floating_ip}" ${var.admin_user}@$ip <<-EOF
           mkdir -p /home/${var.admin_user}/.docker
