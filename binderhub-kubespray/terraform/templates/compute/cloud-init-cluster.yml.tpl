@@ -75,10 +75,14 @@ runcmd:
   - echo "* soft nproc 65535" >> /etc/security/limits.conf
   - echo "* hard nproc 65535" >> /etc/security/limits.conf
   - mkdir -p /cephfs && chown -R ${admin_user}:${admin_user} /cephfs && chmod 755 /cephfs
+  # ADD SHARED TO /etc/fstab
+  - echo ":/volumes/_nogroup/${ceph_share_hash}    /cephfs ceph    name=${ceph_rule_name}    0    2"  | sudo tee -a /etc/fstab
+  - mount -a
 
 ssh_authorized_keys:
   ${ssh_authorized_keys}
 
+# This does not work as expected, if enabled, cloud-init will hang forever.  
 # mounts:
 #   - [:/volumes/_nogroup/${ceph_share_hash}, /cephfs/, ceph, name=${ceph_rule_name}, 0,2]
 
