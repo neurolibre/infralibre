@@ -30,6 +30,9 @@ module "compute" {
   network_security_group_ids = [module.network.k8s_sg_id]
   network_public_pool_name = module.network.public_network_name
   
+  ceph_rule_name = var.ceph_rule_name
+  ceph_rule_key = var.ceph_rule_key
+  ceph_share_hash = var.ceph_share_hash
   cluster_name = var.cluster_name
   image_name = var.image_name
   flavor_master = var.flavor_master

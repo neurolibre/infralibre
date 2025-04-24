@@ -22,6 +22,10 @@ data "template_file" "cloud_init_cluster" {
   template = file("${path.module}/../../templates/compute/cloud-init-cluster.yml.tpl") # Path relative to this module file
   vars = {
     ssh_authorized_keys = indent(2, join("\n", formatlist("- %s", var.ssh_authorized_keys)))
+    ceph_name = var.ceph_name
+    ceph_key = var.ceph_key
+    ceph_mntsrc_hash = var.ceph_mntsrc_hash
+    admin_user = var.admin_user
   }
 }
 

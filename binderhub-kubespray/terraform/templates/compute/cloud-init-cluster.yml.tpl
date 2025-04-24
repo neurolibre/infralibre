@@ -57,8 +57,8 @@ write_files:
       quota = true
   - path: /etc/ceph/ceph.keyring
     content: |  
-      [client.MyCephFS-RW]
-      key = armut
+      [client.${ceph_rule_name}]
+          key = ${ceph_rule_key}
 
 runcmd:
   - echo "127.0.0.1 $(hostname)" | sudo tee -a /etc/hosts
@@ -74,13 +74,13 @@ runcmd:
   - echo "* hard nofile 1000000" >> /etc/security/limits.conf
   - echo "* soft nproc 65535" >> /etc/security/limits.conf
   - echo "* hard nproc 65535" >> /etc/security/limits.conf
-  - mkdir -p /cephfs
+  - mkdir -p /cephfs && chown -R ${admin_user}:${admin_user} /cephfs && chmod 755 /cephfs
 
 ssh_authorized_keys:
   ${ssh_authorized_keys}
 
-#mounts:
-#  - [:/volumes/_nogroup/9fabfbb1-5869-414b-81e5-4401e443487c, /cephfs/, ceph, name=MyCephFS-RW, 0,2]
+mounts:
+  - [:/volumes/_nogroup/${ceph_share_hash}, /cephfs/, ceph, name=${ceph_rule_name}, 0,2]
 
 timezone: "America/Montreal"
 output: { all: "| tee -a /var/log/cloud-init-output.log" }

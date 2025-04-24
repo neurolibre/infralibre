@@ -77,3 +77,20 @@ variable "network_floating_ip" {
   description = "Floating IP address to associate with the master node."
   type        = string
 }
+
+variable "ceph_rule_name" {
+  description = "<<Access to>> indicated in the share access rule linked to the share."
+  type        = string
+}
+
+variable "ceph_rule_key" {
+  description = "<<Access key>> indicated in the share access rule linked to the share."
+  type        = string
+  sensitive   = true
+}
+
+
+variable "ceph_share_hash" {
+  description = "Hash indicated in the Path target of the share as in ...,...,...:/volumes/_nogroup/<<hash>>"
+  type        = string
+}
