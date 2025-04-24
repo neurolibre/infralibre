@@ -137,10 +137,32 @@ resource "terraform_data" "configure_kubectl" {
   # Check if cloud-init has completed
   provisioner "remote-exec" {
     inline = [
+      "echo '============ 🧊 Configuring kubectl'",
       "bash /home/${var.admin_user}/configure-kubectl.sh",
       "mkdir -p /home/${var.admin_user}/deploy",
       "echo '============ 🎉 Created deploy directory'"
     ]
+  }
+}
+
+resource "terraform_data" "configure_docker_credentials" {
+  depends_on = [
+    terraform_data.configure_kubectl  
+  ]
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      # Run commands on all nodes including master
+      for ip in ${join(" ", [module.compute.master_private_ip] + module.compute.worker_private_ips)}; do
+        echo "🐳 Configuring docker credentials for $ip..."
+        ssh -o StrictHostKeyChecking=no -i ${var.ssh_private_key_path} -o ProxyCommand="ssh -i ${var.ssh_private_key_path} -W %h:%p ${var.admin_user}@${module.network.floating_ip}" ${var.admin_user}@$ip <<-EOF
+          mkdir -p /home/${var.admin_user}/.docker
+          echo '============ 🐳 Configuring docker'
+          echo '{"auths": {"${var.registry_url}": {"auth": "$(echo -n "${var.registry_username}:${var.registry_password}" | base64)"}}}' > /home/${var.admin_user}/.docker/config.json
+          su ${var.admin_user} -c 'docker --config /home/${var.admin_user}/.docker login ${var.registry_url}'
+        EOF
+      done
+    EOT
   }
 }
 
