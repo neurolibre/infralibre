@@ -122,7 +122,7 @@ resource "terraform_data" "wait_for_cloud_init_on_all_nodes" {
   # Check if cloud-init has completed
   provisioner "remote-exec" {
     inline = [
-      "echo '⏳ Waiting for cloud-init to complete ${self.connection.host} (${count.index})...'",
+      "echo '⏳ Waiting for cloud-init to complete (${count.index})...'",
       "cloud-init status --wait >> /dev/null",
       "echo '✅ Cloud-init completed successfully'",
     ]
@@ -159,8 +159,7 @@ resource "terraform_data" "wait_for_cloud_init_on_all_nodes" {
 # Ensure SSH keys are properly set up
 resource "terraform_data" "prepare_ssh_environment" {
   depends_on = [
-    terraform_data.wait_for_cloud_init_master,
-    terraform_data.wait_for_workers_cloud_init
+    terraform_data.wait_for_cloud_init_on_all_nodes
   ]
 
   provisioner "local-exec" {
