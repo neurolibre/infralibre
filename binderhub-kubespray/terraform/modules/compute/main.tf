@@ -99,40 +99,21 @@ resource "openstack_blockstorage_volume_v3" "hub_db_volume" {
   availability_zone = var.cinder_availability_zone
 }
 
-resource "terraform_data" "wait_for_cloud_init_master" {
+resource "terraform_data" "wait_for_cloud_init_on_all_nodes" {
+  count = length(concat([openstack_compute_instance_v2.master.network.0.fixed_ip_v4], [for worker in openstack_compute_instance_v2.worker : worker.network.0.fixed_ip_v4]))
+
   depends_on = [
-    openstack_compute_instance_v2.master
+    openstack_compute_instance_v2.master,
+    openstack_compute_instance_v2.worker
   ]
 
   connection {
     type        = "ssh"
     user        = var.admin_user
-    host        = var.network_floating_ip
-    timeout     = "10m"
-  }
-
-  # Check if cloud-init has completed
-  provisioner "remote-exec" {
-    inline = [
-      "echo '⏲️ Waiting for cloud-init to complete on master node...'",
-      "cloud-init status --wait >> /dev/null",
-      "echo '✅ Cloud-init completed successfully'",
-    ]
-  }
-}
-
-resource "terraform_data" "wait_for_workers_cloud_init" {
-  count = var.worker_count
-  
-  depends_on = [
-    openstack_compute_instance_v2.worker,
-    terraform_data.wait_for_cloud_init_master
-  ]
-
-  connection {
-    type        = "ssh"
-    user        = var.admin_user
-    host        = openstack_compute_instance_v2.worker[count.index].network.0.fixed_ip_v4
+    host        = element(concat(
+      [openstack_compute_instance_v2.master.network.0.fixed_ip_v4],
+      [for worker in openstack_compute_instance_v2.worker : worker.network.0.fixed_ip_v4]
+    ), count.index)
     timeout     = "10m"
     bastion_host = var.network_floating_ip
     bastion_user = var.admin_user
@@ -141,12 +122,39 @@ resource "terraform_data" "wait_for_workers_cloud_init" {
   # Check if cloud-init has completed
   provisioner "remote-exec" {
     inline = [
-      "echo '⏲️ Waiting for cloud-init to complete on worker node ${count.index}...'",
+      "echo '⏳ Waiting for cloud-init to complete ${self.connection.host} (${count.index})...'",
       "cloud-init status --wait >> /dev/null",
-      "echo '✅ Cloud-init completed successfully on worker node ${count.index}'",
+      "echo '✅ Cloud-init completed successfully'",
     ]
   }
 }
+
+# resource "terraform_data" "wait_for_workers_cloud_init" {
+#   count = var.worker_count
+  
+#   depends_on = [
+#     openstack_compute_instance_v2.worker,
+#     terraform_data.wait_for_cloud_init_master
+#   ]
+
+#   connection {
+#     type        = "ssh"
+#     user        = var.admin_user
+#     host        = openstack_compute_instance_v2.worker[count.index].network.0.fixed_ip_v4
+#     timeout     = "10m"
+#     bastion_host = var.network_floating_ip
+#     bastion_user = var.admin_user
+#   }
+
+#   # Check if cloud-init has completed
+#   provisioner "remote-exec" {
+#     inline = [
+#       "echo '⏲️ Waiting for cloud-init to complete on worker node ${count.index}...'",
+#       "cloud-init status --wait >> /dev/null",
+#       "echo '✅ Cloud-init completed successfully on worker node ${count.index}'",
+#     ]
+#   }
+# }
 
 # Ensure SSH keys are properly set up
 resource "terraform_data" "prepare_ssh_environment" {

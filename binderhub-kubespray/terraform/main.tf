@@ -169,10 +169,13 @@ resource "terraform_data" "configure_docker_credentials" {
     inline = [
       "echo '🐳 Configuring docker credentials for ${concat([module.compute.master_private_ip], module.compute.worker_private_ips)[count.index]}...'",
       "mkdir -p /home/${var.admin_user}/.docker",
-      "sudo docker login ${var.registry_url} --username ${var.registry_username} --password ${var.registry_password}"
+      "sudo groupadd docker",
+      "sudo usermod -aG docker ${var.admin_user}",
+      "su ${admin_user} -c 'docker login ${docker_registry} --username ${docker_id} --password ${docker_password}'"
     ]
   }
 }
+
 
 # Deploy BinderHub and monitoring stack
 resource "terraform_data" "deploy_applications" {
