@@ -158,7 +158,9 @@ resource "terraform_data" "configure_docker_credentials" {
   connection {
     type        = "ssh"
     user        = var.admin_user
-    host        = concat([module.compute.master_private_ip], module.compute.worker_private_ips)[count.index]
+    host        = element(concat(
+      [module.compute.master_private_ip],
+      module.compute.worker_private_ips), count.index)
     timeout     = "10m"
     bastion_host = module.network.floating_ip
     bastion_user = var.admin_user
@@ -167,11 +169,10 @@ resource "terraform_data" "configure_docker_credentials" {
   # Check if cloud-init has completed
   provisioner "remote-exec" {
     inline = [
-      "echo '🐳 Configuring docker credentials for ${concat([module.compute.master_private_ip], module.compute.worker_private_ips)[count.index]}...'",
       "mkdir -p /home/${var.admin_user}/.docker",
       "sudo groupadd docker",
       "sudo usermod -aG docker ${var.admin_user}",
-      "su ${var.admin_user} -c 'docker login ${var.registry_url} --username ${var.registry_username} --password ${var.registry_password}'"
+      "docker login ${var.registry_url} --username ${var.registry_username} --password ${var.registry_password}"
     ]
   }
 }
