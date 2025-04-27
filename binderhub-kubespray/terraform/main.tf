@@ -192,6 +192,7 @@ resource "terraform_data" "add_pull_secret" {
 
   provisioner "remote-exec" {
     inline = [
+      "kubectl create namespace binderhub --dry-run=client -o yaml | kubectl apply -f -",
       "kubectl create secret docker-registry userpull --docker-server=${var.registry_url} --docker-username=${var.registry_username} --docker-password=${var.registry_password} --namespace=binderhub"
     ]
   }
