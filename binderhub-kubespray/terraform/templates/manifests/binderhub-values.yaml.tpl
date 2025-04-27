@@ -24,6 +24,9 @@ jupyterhub:
     config:
       BinderSpawner:
         cors_allow_origin: '*'
+    extraConfig:
+      imagePullSecrets: |
+        c.KubeSpawner.image_pull_secrets = ['userpull']
   cull:
     timeout: 600 #10min
     every: 60

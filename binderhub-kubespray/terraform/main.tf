@@ -145,12 +145,40 @@ resource "terraform_data" "configure_kubectl" {
   }
 }
 
-# TODO: This is needed for BinderHub to pull images from a custom private registry
-# Auth0 authentication and providing an auth url could be an improvement
-# For interface, we may switch to Harbor (need k8s on registry server)
-resource "terraform_data" "configure_docker_credentials" {
-  count = length(concat([module.compute.master_private_ip], module.compute.worker_private_ips))
+# # TODO: This is needed for BinderHub to pull images from a custom private registry
+# # Auth0 authentication and providing an auth url could be an improvement
+# # For interface, we may switch to Harbor (need k8s on registry server)
+# resource "terraform_data" "configure_docker_credentials" {
+#   count = length(concat([module.compute.master_private_ip], module.compute.worker_private_ips))
   
+#   depends_on = [
+#     terraform_data.configure_kubectl
+#   ]
+
+#   connection {
+#     type        = "ssh"
+#     user        = var.admin_user
+#     host        = element(concat(
+#       [module.compute.master_private_ip],
+#       module.compute.worker_private_ips), count.index)
+#     timeout     = "10m"
+#     bastion_host = module.network.floating_ip
+#     bastion_user = var.admin_user
+#   }
+
+#   # Check if cloud-init has completed
+#   provisioner "remote-exec" {
+#     inline = [
+#       "mkdir -p /home/${var.admin_user}/.docker",
+#       "sudo groupadd docker",
+#       "sudo usermod -aG docker ${var.admin_user}",
+#       "docker login ${var.registry_url} --username ${var.registry_username} --password ${var.registry_password}"
+#     ]
+#   }
+# }
+  
+# Deploy BinderHub and monitoring stack
+resource "terraform_data" "add_pull_secret" {
   depends_on = [
     terraform_data.configure_kubectl
   ]
@@ -158,31 +186,22 @@ resource "terraform_data" "configure_docker_credentials" {
   connection {
     type        = "ssh"
     user        = var.admin_user
-    host        = element(concat(
-      [module.compute.master_private_ip],
-      module.compute.worker_private_ips), count.index)
+    host        = module.network.floating_ip
     timeout     = "10m"
-    bastion_host = module.network.floating_ip
-    bastion_user = var.admin_user
   }
 
-  # Check if cloud-init has completed
   provisioner "remote-exec" {
     inline = [
-      "mkdir -p /home/${var.admin_user}/.docker",
-      "sudo groupadd docker",
-      "sudo usermod -aG docker ${var.admin_user}",
-      "docker login ${var.registry_url} --username ${var.registry_username} --password ${var.registry_password}"
+      "kubectl create secret docker-registry userpull --docker-server=${var.registry_url} --docker-username=${var.registry_username} --docker-password=${var.registry_password} --namespace=binderhub"
     ]
   }
 }
-
 
 # Deploy BinderHub and monitoring stack
 resource "terraform_data" "deploy_applications" {
   depends_on = [
     terraform_data.configure_kubectl,
-    terraform_data.configure_docker_credentials,
+    terraform_data.add_pull_secret,
     module.helm,
     module.bash
   ]
