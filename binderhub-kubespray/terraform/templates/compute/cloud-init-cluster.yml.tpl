@@ -48,7 +48,7 @@ write_files:
       client reconnect stale = true
       debug client = 0/2
       fuse big writes = true
-      mon host = 10.30.202.3:6789,10.30.203.3:6789,10.30.201.3:6789
+      mon host = 10.30.201.3:6789,10.30.202.3:6789,10.30.203.3:6789
       [client]
       quota = true
   - path: /etc/ceph/ceph.keyring
@@ -84,7 +84,7 @@ runcmd:
       mkfs.ext4 "${etcd_volume_device}"
       echo "${etcd_volume_device} /var/lib/etcd ext4 defaults 0 2" | sudo tee -a /etc/fstab
     fi
-  - mount -a
+  - mount -av
 
 ssh_authorized_keys:
   ${ssh_authorized_keys}
