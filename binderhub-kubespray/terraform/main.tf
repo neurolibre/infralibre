@@ -42,8 +42,10 @@ module "compute" {
   ssh_private_key_path = var.ssh_private_key_path
   cinder_availability_zone = var.db_cinder_zone
   admin_user = var.admin_user
-
+  shared_data_directory = var.shared_data_directory
+  
   cinder_volume_size = 1
+  
 }
 
 module "kubespray" {
