@@ -93,7 +93,6 @@ resource "openstack_compute_instance_v2" "server" {
     uuid                  = openstack_blockstorage_volume_v3.mainvolume.id
     source_type           = "volume"
     destination_type      = "volume"
-    boot_index            = 0
     delete_on_termination = true
   }
 
