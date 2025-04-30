@@ -26,7 +26,7 @@ data "template_file" "cloud_init_cluster" {
     ceph_rule_key = var.ceph_rule_key
     ceph_share_hash = var.ceph_share_hash
     admin_user = var.admin_user
-    etcd_volume_device = "/dev/disk/by-uuid/${openstack_blockstorage_volume_v3.etcd_volume[0].id}"
+    etcd_volume_device = "/dev/disk/by-uuid/${openstack_blockstorage_volume_v3.etcd_volume.id}"
   }
 }
 

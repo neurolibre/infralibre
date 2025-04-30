@@ -27,7 +27,7 @@ output "hub_db_volume_id" {
 
 output "etcd_volume_device" {
   description = "Device path of the Cinder volume created for etcd."
-  value       = "/dev/disk/by-uuid/${openstack_blockstorage_volume_v3.etcd_volume[0].id}"
+  value       = "/dev/disk/by-uuid/${openstack_blockstorage_volume_v3.etcd_volume.id}"
 }
 
 output "keypair_names" {
