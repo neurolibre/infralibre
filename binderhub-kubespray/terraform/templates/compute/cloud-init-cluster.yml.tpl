@@ -8,10 +8,6 @@ packages:
   - iotop
   - tcpdump
   - software-properties-common
-  - python3.10
-  - python3.10-venv
-  - python3.10-dev
-  - python3-pip
   - libcephfs2 
   - python3-cephfs 
   - ceph-common 
@@ -61,9 +57,8 @@ write_files:
           key = ${ceph_rule_key}
 
 runcmd:
-  - echo "127.0.0.1 $(hostname)" | sudo tee -a /etc/hosts
-  # GET NODE NAME FROM OPENSTACK METADATA (THIS IS A FIXED IP)
-  - NODE_NAME=$(curl -s http://169.254.169.254/openstack/latest/meta_data.json | jq -r .name)
+  - NODE_NAME=$(hostname)
+  - echo "127.0.0.1 $NODE_NAME" | sudo tee -a /etc/hosts
   # Configure automatic security updates
   - echo 'Unattended-Upgrade::Automatic-Reboot "false";' | sudo tee -a /etc/apt/apt.conf.d/50unattended-upgrades
   # Disable password authentication for SSH
@@ -80,7 +75,8 @@ runcmd:
   # ADD SHARED TO /etc/fstab
   - echo ":/volumes/_nogroup/${ceph_share_hash}    /cephfs ceph    name=${ceph_rule_name}    0    2"  | sudo tee -a /etc/fstab
   # FORMAT AND MOUNT ETCD VOLUME CONDITIONALLY (MASTER ONLY)
-  - if [ "$NODE_NAME" = "${cluster_name}-master" ]; then
+  - |
+    if [ "$NODE_NAME" = "${cluster_name}-master" ]; then
       echo "ETCD VOLUME";
       mkdir -p /var/lib/etcd
       chown -R etcd:etcd /var/lib/etcd
