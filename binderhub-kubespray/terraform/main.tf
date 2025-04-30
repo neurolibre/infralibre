@@ -83,6 +83,7 @@ module "helm" {
   prometheus_subdomain = var.prometheus_subdomain
   email_contact = var.email_contact
   is_load_balancer = var.is_load_balancer
+  binderhub_evidence_type = var.binderhub_evidence_type
 }
 
 module "bash" {

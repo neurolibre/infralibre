@@ -28,17 +28,34 @@ jupyterhub:
       imagePullSecrets: |
         c.KubeSpawner.image_pull_secrets = ['userpull']
   cull:
-    timeout: 600 #10min
-    every: 60
-    concurrency: 5
-    maxAge: 1800 #30min
+%{ if binderhub_evidence_type == "preview" ~}
+    timeout: 600 #Idle timeout (seconds)
+    every: 60 #Interval between checking for idle servers (seconds)
+    concurrency: 5 # Number of concurrent API calls to the Hub (default 10)
+    maxAge: 3600 #Maximum age of a server before it is culled, even if active (seconds)
+%{ else ~}
+    timeout: 600 #Idle timeout (seconds)
+    every: 60 #Interval between checking for idle servers (seconds)
+    concurrency: 8 # Number of concurrent API calls to the Hub (default 10)
+    maxAge: 3600 #Maximum age of a server before it is culled, even if active (seconds)
+%{ endif ~}
   singleuser:
+%{ if binderhub_evidence_type == "preview" ~}
     memory:
        guarantee: 1G
        limit: 3G
     cpu:
        guarantee: 0.5
-    startTimeout: 600
+       limit: 1
+    startTimeout: 600 #10min default (seconds)
+%{ else ~} # Adjust conditionally.
+    memory:
+       guarantee: 1G
+       limit: 3G
+    cpu:
+       guarantee: 0.5
+       limit: 1
+%{ endif ~}
     extraPodConfig:
       affinity:
         nodeAffinity:
@@ -63,25 +80,23 @@ jupyterhub:
 # BinderHub config
 config:
   Launcher:
-    launch_timeout: 3601 #1h
-    retries: 10
-    retry_delay: 1
+    launch_timeout: 600
+    retries: 4
+    retry_delay: 4
   GitHubRepoProvider:
     banned_specs:
-      # - ^(?!neurolibre\/.*).*
+%{ if binderhub_evidence_type == "preprint" ~} # Production accepts only roboneurolibre repositories.
+      - ^(?!roboneurolibre\/.*).*
+%{endif}
       - ^ines/spacy-binder.*
       - ^soft4voip/rak.*
       - ^hmharshit/cn-ait.*
       - ^shishirchoudharygic/mltraining.*
       - ^hmharshit/mltraining.*
   BinderHub:
-#    template_path: /etc/binderhub/custom/templates
-#    extra_static_path: /etc/binderhub/custom/static
-#    extra_static_url_prefix: /extra_static/
-#    template_variables:
-#        EXTRA_STATIC_URL_PREFIX: "/extra_static/"
+    template_path: /etc/binderhub/custom/templates
     hub_url: https://${jupyterhub_subdomain}.${binderhub_domain}
-    cors_allow_origin: '*'
+    cors_allow_origin: '*' # Todo: Maybe restrict to neurolibre.org etc
 #    badge_base_url: https://${binderhub_subdomain}.${binderhub_domain}
     use_registry: true
     image_prefix: binder-registry.conp.cloud/binder-registry.conp.cloud/binder-
@@ -106,3 +121,30 @@ ingress:
     - secretName: ${binderhub_subdomain}-secret-tls
       hosts:
         - ${binderhub_subdomain}.${binderhub_domain}
+
+initContainers:
+  - name: git-clone-templates
+    image: alpine/git
+    args:
+      - clone
+      - --single-branch
+      - --branch=${binderhub_evidence_type}
+      - --depth=1
+      - --
+      - https://github.com/evidencepub/binder-template
+      - /etc/binderhub/custom
+    securityContext:
+      runAsUser: 0
+    volumeMounts:
+      - name: custom-templates
+        mountPath: /etc/binderhub/custom
+
+extraVolumes:
+  - name: custom-templates
+    emptyDir: {}
+extraVolumeMounts:
+  - name: custom-templates
+    mountPath: /etc/binderhub/custom
+  - name: custom-templates
+    mountPath: /usr/local/lib/python3.13/site-packages/binderhub/static/
+    subPath: static

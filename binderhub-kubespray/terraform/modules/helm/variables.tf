@@ -77,3 +77,13 @@ variable "is_load_balancer" {
   description = "Whether to create attempt to create a load balancer metallb."
   type        = bool
 }
+
+variable "binderhub_evidence_type" {
+  description = "preview or preprint"
+  type        = string
+
+  validation {
+    condition     = var.binderhub_evidence_type == "preview" || var.binderhub_evidence_type == "preprint"
+    error_message = "The binderhub_evidence_type must be either 'preview' or 'preprint'."
+  }
+}

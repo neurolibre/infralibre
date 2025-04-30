@@ -32,10 +32,10 @@ jupyterhub:
     service:
       type: NodePort
   cull:
-    timeout: 600 #10min
-    every: 60
-    concurrency: 5 #to avoid Hub slow down, 5 concurrent processes
-    maxAge: 1800 #30min
+    timeout: 600 #Idle timeout (seconds)
+    every: 60 #Interval between checking for idle servers (seconds)
+    concurrency: 8 # Number of concurrent API calls to the Hub (default 10)
+    maxAge: 1800 #Maximum age of a server before it is culled, even if active (seconds)
   singleuser:
     storage:
       type: none
@@ -53,7 +53,7 @@ jupyterhub:
     cpu:
        guarantee: 0.5
        limit: 1
-    startTimeout: 3600 #1h
+    startTimeout: 300 #1h
     #for repo2data https://zero-to-jupyterhub.readthedocs.io/en/latest/resources/reference.html#singleuser-initcontainers
     # https://zero-to-jupyterhub.readthedocs.io/en/latest/jupyterhub/customizing/user-environment.html#about-user-storage-and-adding-files-to-it
   #schedule binderhub core pods just on master

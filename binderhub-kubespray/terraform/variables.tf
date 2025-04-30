@@ -180,3 +180,12 @@ variable "ceph_share_hash" {
   type        = string
 }
 
+variable "binderhub_evidence_type" {
+  description = "preview or preprint"
+  type        = string
+
+  validation {
+    condition     = var.binderhub_evidence_type == "preview" || var.binderhub_evidence_type == "preprint"
+    error_message = "The binderhub_evidence_type must be either 'preview' or 'preprint'."
+  }
+}
