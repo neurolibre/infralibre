@@ -84,7 +84,8 @@ runcmd:
       mkfs.ext4 "${etcd_volume_device}"
       echo "${etcd_volume_device} /var/lib/etcd ext4 defaults 0 2" | sudo tee -a /etc/fstab
     fi
-  - mount -av
+  # Moved mount to at the beginning of the deploy-kubernetes.sh script to avoid a race condition.
+  # - mount -av # NOT HERE
 
 ssh_authorized_keys:
   ${ssh_authorized_keys}
