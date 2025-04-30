@@ -95,7 +95,3 @@ variable "ceph_share_hash" {
   type        = string
 }
 
-variable "node_role" {
-  description = "Role of the node (master or worker), set by terraform, no need to set this manually."
-  type        = string
-}

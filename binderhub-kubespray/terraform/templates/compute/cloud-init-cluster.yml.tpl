@@ -77,7 +77,7 @@ runcmd:
   - mkdir -p /cephfs && chown -R ${admin_user}:${admin_user} /cephfs && chmod 755 /cephfs
   # ADD SHARED TO /etc/fstab
   - echo ":/volumes/_nogroup/${ceph_share_hash}    /cephfs ceph    name=${ceph_rule_name}    0    2"  | sudo tee -a /etc/fstab
-  - if [ "${node_role}" = "master" ]; then
+  - if [ "{{node_role}}" = "master" ]; then
       echo "ETCD VOLUME";
       mkdir -p /var/lib/etcd
       chown -R etcd:etcd /var/lib/etcd
