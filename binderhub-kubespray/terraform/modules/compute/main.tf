@@ -143,7 +143,7 @@ resource "terraform_data" "wait_for_cloud_init_and_mount" {
       "echo '✅ Cloud-init completed successfully'",
       "echo '🗃️ ..... Mounting volumes .....'",
       "sudo mount -av",
-      "echo '✅ Cloud-init completed successfully on ${count.index}'",
+      "echo '✅ Mount completed successfully on ${count.index}'",
     ]
   }
 }
