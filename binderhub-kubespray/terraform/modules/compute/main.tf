@@ -26,6 +26,8 @@ data "template_file" "cloud_init_cluster" {
     ceph_rule_key = var.ceph_rule_key
     ceph_share_hash = var.ceph_share_hash
     admin_user = var.admin_user
+    node_role = var.node_role
+    etcd_volume_device = "/dev/disk/by-uuid/${openstack_blockstorage_volume_v3.etcd_volume[0].id}"
   }
 }
 
@@ -57,7 +59,8 @@ resource "openstack_compute_instance_v2" "master" {
     # Add any other relevant metadata
   }
 
-  depends_on = [openstack_compute_keypair_v2.keypair]
+  vars = { node_role = "master" }
+  depends_on = [openstack_compute_keypair_v2.keypair, openstack_blockstorage_volume_v3.etcd_volume]
 }
 
 # --- Worker Nodes ---
@@ -78,6 +81,7 @@ resource "openstack_compute_instance_v2" "worker" {
     role = "worker-${count.index}"
   }
 
+  vars = { node_role = "worker-${count.index}" }
   depends_on = [openstack_compute_keypair_v2.keypair]
 }
 
@@ -96,6 +100,14 @@ resource "openstack_blockstorage_volume_v3" "hub_db_volume" {
   name              = "${var.cluster_name}-hub-db"
   size              = var.cinder_volume_size
   description       = "Cinder volume for JupyterHub DB"
+  availability_zone = var.cinder_availability_zone
+}
+
+# --- Etcd Volume ---
+resource "openstack_blockstorage_volume_v3" "etcd_volume" {
+  name              = "${var.cluster_name}-etcd"
+  size              = 8
+  description       = "Cinder volume for etcd"
   availability_zone = var.cinder_availability_zone
 }
 

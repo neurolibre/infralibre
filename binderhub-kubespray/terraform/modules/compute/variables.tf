@@ -94,3 +94,8 @@ variable "ceph_share_hash" {
   description = "Hash indicated in the Path target of the share as in ...,...,...:/volumes/_nogroup/<<hash>>"
   type        = string
 }
+
+variable "node_role" {
+  description = "Role of the node (master or worker), set by terraform, no need to set this manually."
+  type        = string
+}

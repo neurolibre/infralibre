@@ -29,6 +29,9 @@ retry_stagger: 5
 # This is the user that owns the cluster installation.
 kube_owner: kube
 
+# This is the default anyway, but we set it explicitly to avoid any confusion.
+etcd_data_dir: "/var/lib/etcd"
+
 # This is the group that the cert creation scripts chgrp the
 # cert files to. Not really changeable...
 kube_cert_group: kube-cert
