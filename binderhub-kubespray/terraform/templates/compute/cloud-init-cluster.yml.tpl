@@ -62,6 +62,8 @@ write_files:
 
 runcmd:
   - echo "127.0.0.1 $(hostname)" | sudo tee -a /etc/hosts
+  # GET NODE NAME FROM OPENSTACK METADATA (THIS IS A FIXED IP)
+  - NODE_NAME=$(curl -s http://169.254.169.254/openstack/latest/meta_data.json | jq -r .name)
   # Configure automatic security updates
   - echo 'Unattended-Upgrade::Automatic-Reboot "false";' | sudo tee -a /etc/apt/apt.conf.d/50unattended-upgrades
   # Disable password authentication for SSH
@@ -77,7 +79,8 @@ runcmd:
   - mkdir -p /cephfs && chown -R ${admin_user}:${admin_user} /cephfs && chmod 755 /cephfs
   # ADD SHARED TO /etc/fstab
   - echo ":/volumes/_nogroup/${ceph_share_hash}    /cephfs ceph    name=${ceph_rule_name}    0    2"  | sudo tee -a /etc/fstab
-  - if [ "{{node_role}}" = "master" ]; then
+  # FORMAT AND MOUNT ETCD VOLUME CONDITIONALLY (MASTER ONLY)
+  - if [ "$NODE_NAME" = "${cluster_name}-master" ]; then
       echo "ETCD VOLUME";
       mkdir -p /var/lib/etcd
       chown -R etcd:etcd /var/lib/etcd
@@ -89,10 +92,6 @@ runcmd:
 
 ssh_authorized_keys:
   ${ssh_authorized_keys}
-
-# This does not work as expected, if enabled, cloud-init will hang forever.  
-# mounts:
-#   - [:/volumes/_nogroup/${ceph_share_hash}, /cephfs/, ceph, name=${ceph_rule_name}, 0,2]
 
 timezone: "America/Montreal"
 output: { all: "| tee -a /var/log/cloud-init-output.log" }

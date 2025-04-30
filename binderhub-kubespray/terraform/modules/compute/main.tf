@@ -27,6 +27,7 @@ data "template_file" "cloud_init_cluster" {
     ceph_share_hash = var.ceph_share_hash
     admin_user = var.admin_user
     etcd_volume_device = "/dev/disk/by-uuid/${openstack_blockstorage_volume_v3.etcd_volume.id}"
+    cluster_name = var.cluster_name
   }
 }
 
@@ -58,7 +59,6 @@ resource "openstack_compute_instance_v2" "master" {
     # Add any other relevant metadata
   }
 
-  vars = { node_role = "master" }
   depends_on = [openstack_compute_keypair_v2.keypair, openstack_blockstorage_volume_v3.etcd_volume]
 }
 
@@ -80,7 +80,6 @@ resource "openstack_compute_instance_v2" "worker" {
     role = "worker-${count.index}"
   }
 
-  vars = { node_role = "worker-${count.index}" }
   depends_on = [openstack_compute_keypair_v2.keypair]
 }
 
