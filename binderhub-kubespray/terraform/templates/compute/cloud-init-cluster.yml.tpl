@@ -71,16 +71,13 @@ runcmd:
   - echo "* hard nofile 1000000" >> /etc/security/limits.conf
   - echo "* soft nproc 65535" >> /etc/security/limits.conf
   - echo "* hard nproc 65535" >> /etc/security/limits.conf
-  - mkdir -p /${shared_data_directory} && chown -R ${admin_user}:${admin_user} /${shared_data_directory} && chmod 755 /${shared_data_directory}
+  - mkdir -p /${shared_data_directory}
   # ADD SHARED TO /etc/fstab
   - echo ":/volumes/_nogroup/${ceph_share_hash}    /${shared_data_directory} ceph    name=${ceph_rule_name}    0    2"  | sudo tee -a /etc/fstab
   # FORMAT AND MOUNT ETCD VOLUME CONDITIONALLY (MASTER ONLY)
   - |
     if [ "$NODE_NAME" = "${cluster_name}-master" ]; then
-      echo "ETCD VOLUME";
       mkdir -p /var/lib/etcd
-      chown -R etcd:etcd /var/lib/etcd
-      chmod 700 /var/lib/etcd
       mkfs.ext4 "${etcd_volume_device}"
       echo "${etcd_volume_device} /var/lib/etcd ext4 defaults 0 2" | sudo tee -a /etc/fstab
     fi
