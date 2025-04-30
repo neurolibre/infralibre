@@ -115,7 +115,7 @@ resource "openstack_blockstorage_volume_v3" "etcd_volume" {
   availability_zone = var.cinder_availability_zone
 }
 
-resource "terraform_data" "wait_for_cloud_init_on_all_nodes" {
+resource "terraform_data" "wait_for_cloud_init_and_mount" {
   count = length(concat([openstack_compute_instance_v2.master.network.0.fixed_ip_v4], [for worker in openstack_compute_instance_v2.worker : worker.network.0.fixed_ip_v4]))
 
   depends_on = [
@@ -141,6 +141,9 @@ resource "terraform_data" "wait_for_cloud_init_on_all_nodes" {
       "echo '⏳ Waiting for cloud-init to complete (${count.index})...'",
       "cloud-init status --wait >> /dev/null",
       "echo '✅ Cloud-init completed successfully'",
+      "echo '🗃️ ..... Mounting volumes .....'",
+      "sudo mount -av",
+      "echo '✅ Cloud-init completed successfully on ${count.index}'",
     ]
   }
 }
@@ -175,7 +178,7 @@ resource "terraform_data" "wait_for_cloud_init_on_all_nodes" {
 # Ensure SSH keys are properly set up
 resource "terraform_data" "prepare_ssh_environment" {
   depends_on = [
-    terraform_data.wait_for_cloud_init_on_all_nodes
+    terraform_data.wait_for_cloud_init_and_mount
   ]
 
   provisioner "local-exec" {
