@@ -95,3 +95,7 @@ variable "ceph_share_hash" {
   type        = string
 }
 
+variable "shared_data_directory" {
+  description = "Directory to mount the shared data volume on the master node."
+  type        = string
+}

@@ -189,3 +189,8 @@ variable "binderhub_evidence_type" {
     error_message = "The binderhub_evidence_type must be either 'preview' or 'preprint'."
   }
 }
+
+variable "shared_data_directory" {
+  description = "Directory to mount the shared data (cephfs)."
+  type        = string
+}

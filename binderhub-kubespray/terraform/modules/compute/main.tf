@@ -28,6 +28,7 @@ data "template_file" "cloud_init_cluster" {
     admin_user = var.admin_user
     etcd_volume_device = "/dev/disk/by-uuid/${openstack_blockstorage_volume_v3.etcd_volume.id}"
     cluster_name = var.cluster_name
+    shared_data_directory = var.shared_data_directory
   }
 }
 
@@ -54,20 +55,17 @@ resource "openstack_compute_instance_v2" "master" {
     port = var.network_master_port_id
   }
 
-  block_device {
-    uuid                  = openstack_blockstorage_volume_v3.etcd_volume.id
-    source_type           = "volume"
-    destination_type      = "volume"
-    boot_index            = 0
-    delete_on_termination = true
-  }
-
   metadata = {
     role = "master"
     # Add any other relevant metadata
   }
 
   depends_on = [openstack_compute_keypair_v2.keypair, openstack_blockstorage_volume_v3.etcd_volume]
+}
+
+resource "openstack_compute_volume_attach_v2" "attached" {
+  instance_id = openstack_compute_instance_v2.master.id
+  volume_id   = openstack_blockstorage_volume_v3.etcd_volume.id
 }
 
 # --- Worker Nodes ---
