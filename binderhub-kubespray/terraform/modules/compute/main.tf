@@ -54,6 +54,14 @@ resource "openstack_compute_instance_v2" "master" {
     port = var.network_master_port_id
   }
 
+  block_device {
+    uuid                  = openstack_blockstorage_volume_v3.etcd_volume.id
+    source_type           = "volume"
+    destination_type      = "volume"
+    boot_index            = 0
+    delete_on_termination = true
+  }
+
   metadata = {
     role = "master"
     # Add any other relevant metadata
