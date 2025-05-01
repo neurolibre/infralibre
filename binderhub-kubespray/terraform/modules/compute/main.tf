@@ -3,6 +3,13 @@ data "openstack_images_image_v2" "image" {
   name        = var.image_name
 }
 
+# --- Etcd Volume ---
+resource "openstack_blockstorage_volume_v3" "etcd_volume" {
+  name              = "${var.cluster_name}-etcd"
+  size              = 8
+  description       = "Volume for etcd"
+}
+
 # --- Keypair ---
 # Create a keypair for each SSH key provided
 # Note: OpenStack instances usually only take *one* keypair at creation.
@@ -66,6 +73,8 @@ resource "openstack_compute_instance_v2" "master" {
 resource "openstack_compute_volume_attach_v2" "attached" {
   instance_id = openstack_compute_instance_v2.master.id
   volume_id   = openstack_blockstorage_volume_v3.etcd_volume.id
+
+  depends_on = [openstack_compute_instance_v2.master]
 }
 
 # --- Worker Nodes ---
@@ -107,20 +116,14 @@ resource "openstack_blockstorage_volume_v3" "hub_db_volume" {
   availability_zone = var.cinder_availability_zone
 }
 
-# --- Etcd Volume ---
-resource "openstack_blockstorage_volume_v3" "etcd_volume" {
-  name              = "${var.cluster_name}-etcd"
-  size              = 8
-  description       = "Cinder volume for etcd"
-  availability_zone = var.cinder_availability_zone
-}
 
 resource "terraform_data" "wait_for_cloud_init_and_mount" {
   count = length(concat([openstack_compute_instance_v2.master.network.0.fixed_ip_v4], [for worker in openstack_compute_instance_v2.worker : worker.network.0.fixed_ip_v4]))
 
   depends_on = [
     openstack_compute_instance_v2.master,
-    openstack_compute_instance_v2.worker
+    openstack_compute_instance_v2.worker,
+    openstack_compute_volume_attach_v2.attached
   ]
 
   connection {
@@ -144,7 +147,7 @@ resource "terraform_data" "wait_for_cloud_init_and_mount" {
       "echo '🧿 ..... Mounting volumes .....'",
       "sudo mount -av",
       "sudo chown -R ${var.admin_user}:${var.admin_user} /${var.shared_data_directory} && chmod 755 /${var.shared_data_directory}",
-      "[[ $(hostname) == \"${var.cluster_name}-master\" ]] && sudo chmod 700 /var/lib/etcd",
+      "if [ $(hostname) = \"${var.cluster_name}-master\" ]; then sudo chmod 700 /var/lib/etcd; fi",
       "echo '✅ Mount completed successfully on ${count.index}'",
     ]
   }
