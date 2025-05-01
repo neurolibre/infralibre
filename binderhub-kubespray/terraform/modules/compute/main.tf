@@ -141,10 +141,10 @@ resource "terraform_data" "wait_for_cloud_init_and_mount" {
       "echo '⏳ Waiting for cloud-init to complete (${count.index})...'",
       "cloud-init status --wait >> /dev/null",
       "echo '✅ Cloud-init completed successfully'",
-      "echo '🗃️ ..... Mounting volumes .....'",
+      "echo '🧿 ..... Mounting volumes .....'",
       "sudo mount -av",
       "sudo chown -R ${var.admin_user}:${var.admin_user} /${var.shared_data_directory} && chmod 755 /${var.shared_data_directory}",
-      "sudo chmod 700 /var/lib/etcd",
+      "[[ $(hostname) == \"${var.cluster_name}-master\" ]] && sudo chmod 700 /var/lib/etcd",
       "echo '✅ Mount completed successfully on ${count.index}'",
     ]
   }
