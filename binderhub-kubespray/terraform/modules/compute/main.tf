@@ -4,11 +4,11 @@ data "openstack_images_image_v2" "image" {
 }
 
 # --- Etcd Volume ---
-resource "openstack_blockstorage_volume_v3" "etcd_volume" {
-  name              = "${var.cluster_name}-etcd"
-  size              = 8
-  description       = "Volume for etcd"
-}
+# resource "openstack_blockstorage_volume_v3" "etcd_volume" {
+#   name              = "${var.cluster_name}-etcd"
+#   size              = 8
+#   description       = "Volume for etcd"
+# }
 
 # --- Keypair ---
 # Create a keypair for each SSH key provided
@@ -35,8 +35,9 @@ data "template_file" "cloud_init_cluster" {
     admin_user = var.admin_user
     # ⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️
     # HARDCODED CONVENTION FOR OPENSTACK (virtio-${volume_id}(1:20))
+    # See L152.
     # -------------------------------------------------------------
-    etcd_volume_device = "/dev/disk/by-id/virtio-${substr(openstack_blockstorage_volume_v3.etcd_volume.id, 0, 20)}"
+    # etcd_volume_device = "/dev/disk/by-id/virtio-${substr(openstack_blockstorage_volume_v3.etcd_volume.id, 0, 20)}"
     cluster_name = var.cluster_name
     shared_data_directory = var.shared_data_directory
   }
@@ -70,15 +71,15 @@ resource "openstack_compute_instance_v2" "master" {
     # Add any other relevant metadata
   }
 
-  depends_on = [openstack_compute_keypair_v2.keypair, openstack_blockstorage_volume_v3.etcd_volume]
+  depends_on = [openstack_compute_keypair_v2.keypair]
 }
 
-resource "openstack_compute_volume_attach_v2" "attached" {
-  instance_id = openstack_compute_instance_v2.master.id
-  volume_id   = openstack_blockstorage_volume_v3.etcd_volume.id
+# resource "openstack_compute_volume_attach_v2" "attached" {
+#   instance_id = openstack_compute_instance_v2.master.id
+#   volume_id   = openstack_blockstorage_volume_v3.etcd_volume.id
 
-  depends_on = [openstack_compute_instance_v2.master]
-}
+#   depends_on = [openstack_compute_instance_v2.master]
+# }
 
 # --- Worker Nodes ---
 resource "openstack_compute_instance_v2" "worker" {
@@ -100,14 +101,6 @@ resource "openstack_compute_instance_v2" "worker" {
 
   depends_on = [openstack_compute_keypair_v2.keypair]
 }
-
-# resource "openstack_compute_floatingip_associate_v2" "master_fip_associate" {
-#   floating_ip = var.network_floating_ip
-#   instance_id = openstack_compute_instance_v2.master.id
-
-#   # Ensure the master instance exists before associating
-#   depends_on = [openstack_compute_instance_v2.master]
-# }
 
 # --- Cinder Volume ---
 # https://jupyterhub.readthedocs.io/en/latest/explanation/database.html
@@ -151,45 +144,21 @@ resource "terraform_data" "wait_for_cloud_init_and_mount" {
       "sudo chown -R ${var.admin_user}:${var.admin_user} /${var.shared_data_directory} && chmod 755 /${var.shared_data_directory}",
       # ⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️
       # HARDCODED CONVENTION FOR OPENSTACK (virtio-${volume_id}(1:20))
+      # Note: When ssd volumes become available on Digital Alliance, we may consider using them for etcd.
+      # Commented out sections here (and in cloud-init-cluster.yml.tpl) can mount a volume to /var/lib/etcd. Yet when this is done,
+      # the cluster was not healthy. Requires further investigation.
       # -------------------------------------------------------------
-      "if [ $(hostname) = \"${var.cluster_name}-master\" ]; then echo '🧊 .... Setting up etcd volume (master only) .....'; fi",
-      "if [ $(hostname) = \"${var.cluster_name}-master\" ]; then sudo mkfs.ext4 /dev/disk/by-id/virtio-${substr(openstack_blockstorage_volume_v3.etcd_volume.id, 0, 20)}; fi",
-      "if [ $(hostname) = \"${var.cluster_name}-master\" ]; then sudo chmod 700 /var/lib/etcd; fi",
-      "echo '🧿 ..... Mounting volumes for real .....'",
+      # "if [ $(hostname) = \"${var.cluster_name}-master\" ]; then echo '🧊 .... Setting up etcd volume (master only) .....'; fi",
+      # "if [ $(hostname) = \"${var.cluster_name}-master\" ]; then sudo mkfs.ext4 /dev/disk/by-id/virtio-${substr(openstack_blockstorage_volume_v3.etcd_volume.id, 0, 20)}; fi",
+      # "if [ $(hostname) = \"${var.cluster_name}-master\" ]; then sudo chmod 700 /var/lib/etcd; fi",
+      "echo '🧿 ..... Mounting volumes .....'",
       "sudo mount -av",
-      "echo '✅ Mount completed successfully on ${count.index}'",
+      "echo '✅ Mount completed on ${count.index}'",
     ]
   }
 }
 
-# resource "terraform_data" "wait_for_workers_cloud_init" {
-#   count = var.worker_count
-  
-#   depends_on = [
-#     openstack_compute_instance_v2.worker,
-#     terraform_data.wait_for_cloud_init_master
-#   ]
-
-#   connection {
-#     type        = "ssh"
-#     user        = var.admin_user
-#     host        = openstack_compute_instance_v2.worker[count.index].network.0.fixed_ip_v4
-#     timeout     = "10m"
-#     bastion_host = var.network_floating_ip
-#     bastion_user = var.admin_user
-#   }
-
-#   # Check if cloud-init has completed
-#   provisioner "remote-exec" {
-#     inline = [
-#       "echo '⏲️ Waiting for cloud-init to complete on worker node ${count.index}...'",
-#       "cloud-init status --wait >> /dev/null",
-#       "echo '✅ Cloud-init completed successfully on worker node ${count.index}'",
-#     ]
-#   }
-# }
-
-# Ensure SSH keys are properly set up
+# Ensure SSH jumps are properly set up
 resource "terraform_data" "prepare_ssh_environment" {
   depends_on = [
     terraform_data.wait_for_cloud_init_and_mount
