@@ -74,11 +74,10 @@ runcmd:
   - mkdir -p /${shared_data_directory}
   # ADD SHARED TO /etc/fstab
   - echo ":/volumes/_nogroup/${ceph_share_hash}    /${shared_data_directory} ceph    name=${ceph_rule_name}    0    2"  | sudo tee -a /etc/fstab
-  # FORMAT AND MOUNT ETCD VOLUME CONDITIONALLY (MASTER ONLY)
+  # CREATE VAR/LIB/ETCD DIRECTORY AND ADD TO /etc/fstab (MASTER ONLY)
   - |
     if [ "$NODE_NAME" = "${cluster_name}-master" ]; then
       mkdir -p /var/lib/etcd
-      mkfs.ext4 "${etcd_volume_device}"
       echo "${etcd_volume_device} /var/lib/etcd ext4 defaults 0 2" | sudo tee -a /etc/fstab
     fi
   # Mounting volumes is dealt with in compute/main.tf

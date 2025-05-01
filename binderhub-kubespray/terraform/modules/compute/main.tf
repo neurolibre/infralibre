@@ -147,6 +147,7 @@ resource "terraform_data" "wait_for_cloud_init_and_mount" {
       "echo '🧿 ..... Mounting volumes .....'",
       "sudo mount -av",
       "sudo chown -R ${var.admin_user}:${var.admin_user} /${var.shared_data_directory} && chmod 755 /${var.shared_data_directory}",
+      "if [ $(hostname) = \"${var.cluster_name}-master\" ]; then sudo mkfs.ext4 /dev/disk/by-uuid/${openstack_blockstorage_volume_v3.etcd_volume.id}; fi",
       "if [ $(hostname) = \"${var.cluster_name}-master\" ]; then sudo chmod 700 /var/lib/etcd; fi",
       "echo '✅ Mount completed successfully on ${count.index}'",
     ]
