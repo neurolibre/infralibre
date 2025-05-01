@@ -118,8 +118,8 @@ resource "terraform_data" "wait_for_cloud_init_and_mount" {
 
   depends_on = [
     openstack_compute_instance_v2.master,
-    openstack_compute_instance_v2.worker,
-    openstack_compute_volume_attach_v2.attached
+    openstack_compute_instance_v2.worker
+    #openstack_compute_volume_attach_v2.attached
   ]
 
   connection {
