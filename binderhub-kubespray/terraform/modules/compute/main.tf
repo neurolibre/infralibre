@@ -148,13 +148,13 @@ resource "terraform_data" "wait_for_cloud_init_and_mount" {
       "cloud-init status --wait >> /dev/null",
       "echo '✅ Cloud-init completed successfully'",
       "echo '🧿 ..... Mounting volumes .....'",
-      "sudo mount -av",
       "sudo chown -R ${var.admin_user}:${var.admin_user} /${var.shared_data_directory} && chmod 755 /${var.shared_data_directory}",
       # ⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️
       # HARDCODED CONVENTION FOR OPENSTACK (virtio-${volume_id}(1:20))
       # -------------------------------------------------------------
       "if [ $(hostname) = \"${var.cluster_name}-master\" ]; then sudo mkfs.ext4 /dev/disk/by-id/virtio-${substr(openstack_blockstorage_volume_v3.etcd_volume.id, 0, 20)}; fi",
       "if [ $(hostname) = \"${var.cluster_name}-master\" ]; then sudo chmod 700 /var/lib/etcd; fi",
+      "sudo mount -av",
       "echo '✅ Mount completed successfully on ${count.index}'",
     ]
   }
