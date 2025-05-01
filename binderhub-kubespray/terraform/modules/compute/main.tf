@@ -147,13 +147,15 @@ resource "terraform_data" "wait_for_cloud_init_and_mount" {
       "echo '⏳ Waiting for cloud-init to complete (${count.index})...'",
       "cloud-init status --wait >> /dev/null",
       "echo '✅ Cloud-init completed successfully'",
-      "echo '🧿 ..... Mounting volumes .....'",
+      "echo '🧿 ..... Setting up shared data directory target /${var.shared_data_directory}.....'",
       "sudo chown -R ${var.admin_user}:${var.admin_user} /${var.shared_data_directory} && chmod 755 /${var.shared_data_directory}",
       # ⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️
       # HARDCODED CONVENTION FOR OPENSTACK (virtio-${volume_id}(1:20))
       # -------------------------------------------------------------
+      "if [ $(hostname) = \"${var.cluster_name}-master\" ]; then echo '🧊 .... Setting up etcd volume (master only) .....'; fi",
       "if [ $(hostname) = \"${var.cluster_name}-master\" ]; then sudo mkfs.ext4 /dev/disk/by-id/virtio-${substr(openstack_blockstorage_volume_v3.etcd_volume.id, 0, 20)}; fi",
       "if [ $(hostname) = \"${var.cluster_name}-master\" ]; then sudo chmod 700 /var/lib/etcd; fi",
+      "echo '🧿 ..... Mounting volumes for real .....'",
       "sudo mount -av",
       "echo '✅ Mount completed successfully on ${count.index}'",
     ]
