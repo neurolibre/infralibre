@@ -74,12 +74,6 @@ runcmd:
   - mkdir -p /${shared_data_directory}
   # ADD SHARED TO /etc/fstab
   - echo ":/volumes/_nogroup/${ceph_share_hash}    /${shared_data_directory} ceph    name=${ceph_rule_name}    0    2"  | sudo tee -a /etc/fstab
-  # CREATE VAR/LIB/ETCD DIRECTORY AND ADD TO /etc/fstab (MASTER ONLY)
-  #- |
-  #-   if [ "$NODE_NAME" = "${cluster_name}-master" ]; then
-  #-     mkdir -p /var/lib/etcd
-  #-     echo "${etcd_volume_device} /var/lib/etcd ext4 defaults 0 2" | sudo tee -a /etc/fstab
-  #-   fi
   # Mounting volumes is dealt with in compute/main.tf
 
 ssh_authorized_keys:
