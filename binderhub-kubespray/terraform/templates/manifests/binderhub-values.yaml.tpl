@@ -56,6 +56,24 @@ jupyterhub:
        guarantee: 0.5
        limit: 1
 %{ endif ~}
+    storage:
+      type: none
+      extraVolumes:
+      - name: shared-data
+        hostPath:
+          path: /${shared_data_directory}
+      extraVolumeMounts:
+      - name: shared-data
+        mountPath: /home/jovyan/data
+        readOnly : true
+    extraResources:
+    # With storage set to none (ephemeral storage is used), which by default
+    # sets no limits to how much data can be written (eats away from the node's storage)
+    # We set limits to 5Gi and guarantees to 2Gi to avoid misuse.
+      limits:
+        ephemeral-storage: "5Gi"
+      guarantees:
+        ephemeral-storage: "2Gi"
     extraPodConfig:
       affinity:
         nodeAffinity:

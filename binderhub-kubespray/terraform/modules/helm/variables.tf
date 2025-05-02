@@ -87,3 +87,8 @@ variable "binderhub_evidence_type" {
     error_message = "The binderhub_evidence_type must be either 'preview' or 'preprint'."
   }
 }
+
+variable "shared_data_directory" {
+  description = "Directory for shared data (assuming a folder under / e.g., if /DATA, set this to DATA)"
+  type        = string
+}

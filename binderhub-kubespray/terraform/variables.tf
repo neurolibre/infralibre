@@ -191,6 +191,6 @@ variable "binderhub_evidence_type" {
 }
 
 variable "shared_data_directory" {
-  description = "Directory to mount the shared data (cephfs)."
+  description = "Directory to mount the shared data (cephfs). Assuming a folder under / e.g., if /DATA, set this to DATA)"
   type        = string
 }

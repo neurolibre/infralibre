@@ -46,6 +46,7 @@
         load_balancer_ip     = var.load_balancer_ip
         is_load_balancer     = var.is_load_balancer
         binderhub_evidence_type = var.binderhub_evidence_type
+        shared_data_directory = var.shared_data_directory
       })
       filename = "${path.module}/../../../helm-charts/binderhub-values.yaml" # Adjusted path
     }

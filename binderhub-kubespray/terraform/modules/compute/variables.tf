@@ -96,6 +96,6 @@ variable "ceph_share_hash" {
 }
 
 variable "shared_data_directory" {
-  description = "Directory to mount the shared data volume on the master node."
+  description = "Directory to mount the shared data volume on the master node. Assuming a folder under / e.g., if /DATA, set this to DATA)"
   type        = string
 }
